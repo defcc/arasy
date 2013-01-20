@@ -1,0 +1,277 @@
+/**
+ * Created with JetBrains WebStorm.
+ * User: chengchao01
+ * Date: 13-1-20
+ * Time: 下午1:58
+ * To change this template use File | Settings | File Templates.
+ */
+
+var YAP = function(){
+    var Keywords = "break do instanceof typeof case else new var catch finally return void continue for switch while debugger function this with default if throw delete in try".split(' ');
+    var FutureReservedKeywords = "class enum extends super const export import".split(' ');
+    var StrictKeywords = "implements let private public interface package protected static yield".split(' ');
+    var Punctuator = "{ } ( ) [ ] . ; , < > <= >= == != === !== + - * % ++ -- << >> >>> & | ^ ! ~ && || ? : = += -= *= %= <<= >>= >>>= &= |= ^=".split(' ');
+
+    var source = '';
+    var tokenList = [];
+    var index = 0;
+    var lineNum = 0;//当前的行
+    var offset = 0;//str在当前行的offset
+    var sourceLen = 0;
+    var str = '';
+    var next_str = '';
+    var next_str2 = '';
+
+    var buffer = [];
+
+    function tokenizer( code ){
+        init( code );
+        while( !eof() ){
+            str = read();
+            if ( isWhiteSpace( str ) ) {
+                //空白符
+                skipWhiteSpace();
+            }else if( isPunctuator( str ) ){
+                //操作符、运算符等
+                parsePunctuator();
+            }else if( isStringStart( str ) ){
+                parseString();
+            }else if(isNumber( str )){
+                parseNumber();
+            }else if( isCommentStart( str ) ){
+                parseComment();
+            }else{
+                parseID();
+            }
+
+        }
+        return tokenList;
+    }
+
+    function init( code ){
+        source = code;
+        sourceLen = source.length;
+        tokenList = [];
+        buffer = [];
+        index = 0;
+        lineNum = 0;
+        offset = 0;
+    }
+    function eof(){
+        return index >= sourceLen;
+    }
+
+    function read( offset ){
+        return source.charAt(typeof offset == 'undefined' ? index : offset);
+    }
+
+    function emitToken( token ){
+        buffer = [];
+        tokenList.push( token );
+    }
+
+    function parseNumber(){
+        var start = index;
+        var currentChr = '';
+        var next_chr = '';
+        var dotExists = 0;
+        var eExists = 0;
+        for(; start < sourceLen; start++){
+            currentChr = read( start );
+            if( currentChr == '.' && !dotExists){
+                next_chr = read( start + 1 );
+                if( next_chr >= '0' && next_chr <= '9' ){
+                    dotExists = 1;
+                    buffer.push( currentChr ) ;
+                }else{
+                    start--;
+                    break;
+                }
+            }else if( currentChr.toLowerCase() == 'e' && !eExists){
+                next_chr = read( start + 1 );
+                if( next_chr >= '0' && next_chr <= '9' ){
+                    eExists = 1;
+                    buffer.push( currentChr ) ;
+                }else{
+                    start--;
+                    break;
+                }
+            }else if( currentChr >= '0' && currentChr <= '9' ){
+                buffer.push( currentChr );
+            }else {
+                start--;
+                break;
+            }
+        }
+        if( start == sourceLen ){
+            start = start - 1;
+        }
+        var token = {
+            type: 'number',
+            lineNum: lineNum,
+            start: index,
+            end: start,
+            value: source.substr(index, start - index + 1)
+        };
+        emitToken( token );
+        index = start+1;
+    }
+
+    function parseString(  ){
+        var start = index;
+        var currentChr = read( start );
+        var stringStart = currentChr;
+        var next_chr = '';
+        var token = {
+            type: 'string',
+            value: '',
+            startLineNum: lineNum,
+            start: index,
+            end: start,
+            endLineNum: lineNum
+        };
+
+        buffer.push( currentChr );
+
+        for(start = start + 1; start < sourceLen; start++){
+            currentChr = read( start );
+            if( currentChr == stringStart ){
+                buffer.push( currentChr );
+                break;
+            }
+            //转义
+            if( currentChr == '\\' ){
+                buffer.push( currentChr );
+
+                if( ( start + 1 ) < sourceLen ){
+                    start = start + 1;
+                    next_chr = read( start );
+                    if( next_chr.charCodeAt( 0 ) == 13 ){
+                        lineNum++;
+                    }
+                    buffer.push( next_chr );
+                }
+                continue;
+            }
+            buffer.push( currentChr );
+
+        }
+        if( start == sourceLen ){
+            start = start - 1;
+        }
+        index = start;
+        token.value = buffer.join('');
+        token.end = index;
+        token.endLineNum = lineNum;
+        emitToken( token );
+    }
+
+    function parseComment(){
+
+    }
+
+    function parsePunctuator(){
+        var start = index;
+        var currentChr = '';
+        for(; start < sourceLen ; start++ ){
+            currentChr = read( start );
+            if( !isPunctuator( currentChr ) ){
+                start--;
+                break;
+            }
+        }
+        if( start == sourceLen ){
+            start = start - 1;
+        }
+        var token = {
+            type: 'punctuator',
+            value: source.substr( index, start - index + 1 ),
+            start: index,
+            end: start
+        };
+        emitToken( token );
+        index = start+1;
+    }
+
+    function skipWhiteSpace(){
+        var start = index;
+        var currentChr = '';
+        for(; start < sourceLen ; start++ ){
+            currentChr = read( start );
+            if( !isWhiteSpace( currentChr ) ){
+                start--;
+                break;
+            }
+        }
+        if( start == sourceLen ){
+            start = start - 1;
+        }
+        var token = {
+            type: 'whitespace',
+            value: source.substr( index, start - index + 1 ),
+            start: index,
+            end: start
+        };
+        emitToken( token );
+        index = start+1;
+    }
+
+    function isWhiteSpace( str ){
+        return /[  \s]/.test( str );
+    }
+
+    function isPunctuator( str ){
+        return isInArray( Punctuator, str );
+
+    }
+
+    function isStringStart( str ){
+        return str == '\'' || str == '"';
+    }
+    function isCommentStart( str ){
+    }
+
+    function isNumber( str ){
+        return str == '.' || (str >= '0' && str <= '9')
+    }
+    function isInArray( arr, clue ){
+        for( var i = 0, len = arr.length; i < len; i++ ){
+            if( arr[i] == clue ){
+                return 1;
+            }
+        }
+        return 0;
+    }
+
+    function parseID(  ){
+        var start = index;
+        for(; start < sourceLen; start++){
+            var currentChr = read( start );
+            if( isWhiteSpace( currentChr )
+                ){
+                start = start - 1;
+                break;
+            }
+            buffer.push( currentChr );
+        }
+        if( start == sourceLen ){
+            start = start - 1;
+        }
+
+        var token = {
+            type: 'ID',
+            value: buffer.join(''),
+            start: index,
+            end: start,
+            lineNum: lineNum
+        };
+        emitToken( token );
+        index = start + 1;
+    }
+
+
+
+    return {
+        tokenizer: tokenizer
+    }
+}();
