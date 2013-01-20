@@ -1,7 +1,7 @@
-#����yap
+#关于yap
 yap is for Yet Another Parser in JS
 
-#yap������
-�ڿ���TOL�༭����ʱ�򣬷��ֺ��������û������ȥ�ˣ����� �Զ�����������ƥ��ȡ�
+#yap的由来
+在开发TOL编辑器的时候，发现后面的特性没法做下去了，比如 自动缩进、括号匹配等。
 
-���Ծ���ʱ����TOL�༭���Ŀ�������ʼ��дһ��js�Ĵʷ����﷨�����Ĺ��ߡ�
+所以就暂时放下TOL编辑器的开发，开始手写一个js的词法和语法解析的工具。
