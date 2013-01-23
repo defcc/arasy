@@ -31,16 +31,18 @@ var YAP = function(){
             if ( isWhiteSpace( str ) ) {
                 //空白符
                 skipWhiteSpace();
+            }else if(isNumber( str )){
+                parseNumber();
             }else if( isPunctuator( str ) ){
                 //操作符、运算符等
                 parsePunctuator();
             }else if( isStringStart( str ) ){
                 parseString();
-            }else if(isNumber( str )){
-                parseNumber();
             }else if( isCommentStart( str ) ){
                 parseComment();
-            }else{
+            }else if( isLineTerminator( str )){
+				parseLineTerminator();
+			}else{
                 parseID();
             }
 
@@ -64,6 +66,11 @@ var YAP = function(){
     function read( offset ){
         return source.charAt(typeof offset == 'undefined' ? index : offset);
     }
+	
+	//回退
+	function retract( offset ){
+		
+	}
 
     function emitToken( token ){
         buffer = [];
@@ -111,7 +118,7 @@ var YAP = function(){
             lineNum: lineNum,
             start: index,
             end: start,
-            value: source.substr(index, start - index + 1)
+            value: buffer.join('')
         };
         emitToken( token );
         index = start+1;
@@ -146,24 +153,29 @@ var YAP = function(){
                 if( ( start + 1 ) < sourceLen ){
                     start = start + 1;
                     next_chr = read( start );
-                    if( next_chr.charCodeAt( 0 ) == 13 ){
+                    if( isLineTerminator(next_chr) ){
                         lineNum++;
                     }
                     buffer.push( next_chr );
                 }
                 continue;
             }
+			if( isLineTerminator( currentChr )  ){
+				start--;
+				break;
+			}
             buffer.push( currentChr );
 
         }
         if( start == sourceLen ){
             start = start - 1;
         }
-        index = start;
+        
         token.value = buffer.join('');
-        token.end = index;
+        token.end = start;
         token.endLineNum = lineNum;
         emitToken( token );
+		index = start+1;
     }
 
     function parseComment(){
@@ -179,19 +191,30 @@ var YAP = function(){
                 start--;
                 break;
             }
+			buffer.push( currentChr );
         }
         if( start == sourceLen ){
             start = start - 1;
         }
         var token = {
             type: 'punctuator',
-            value: source.substr( index, start - index + 1 ),
+            value: buffer.join(''),
             start: index,
             end: start
         };
         emitToken( token );
         index = start+1;
     }
+
+	function parseLineTerminator(){
+		var token = {
+			type: 'LineTerminator',
+			start: index
+		};
+		emitToken( token );
+		lineNum++;
+		index++;
+	}
 
     function skipWhiteSpace(){
         var start = index;
@@ -217,8 +240,19 @@ var YAP = function(){
     }
 
     function isWhiteSpace( str ){
-        return /[  \s]/.test( str );
+		var whiteSpaceMap = {
+			'20':1,'A0':1,'1680':1,'180E':1,
+			'2000':1,'2001':1,'2002':1,'2003':1,
+			'2004':1,'2005':1,'2006':1,'2007':1,
+			'2008':1,'2009':1,'200A':1,'202F':1,
+			'205F':1,'3000':1
+		};
+        return whiteSpaceMap[str.charCodeAt(0).toString(16)];
     }
+
+	function isLineTerminator( str ){
+		return str.charCodeAt(0) == 10;
+	}
 
     function isPunctuator( str ){
         return isInArray( Punctuator, str );
@@ -247,7 +281,7 @@ var YAP = function(){
         var start = index;
         for(; start < sourceLen; start++){
             var currentChr = read( start );
-            if( isWhiteSpace( currentChr )
+            if( isWhiteSpace( currentChr ) || isLineTerminator( currentChr )
                 ){
                 start = start - 1;
                 break;
