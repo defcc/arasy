@@ -31,7 +31,7 @@ var YAP = function(){
             if ( isWhiteSpace( str ) ) {
                 //空白符
                 skipWhiteSpace();
-            }else if(isNumber( str )){
+            }else if(isNumberStart( str )){
                 parseNumber();
             }else if( isPunctuator( str ) ){
                 //操作符、运算符等
@@ -178,16 +178,13 @@ var YAP = function(){
 		index = start+1;
     }
 
-    function parseComment(){
-
-    }
 
     function parsePunctuator(){
         var start = index;
         var currentChr = '';
         for(; start < sourceLen ; start++ ){
             currentChr = read( start );
-            if( !isPunctuator( currentChr ) ){
+            if( !isPunctuator( currentChr ) || isWhiteSpace( currentChr ) || isLineTerminator( currentChr ) ){
                 start--;
                 break;
             }
@@ -263,11 +260,70 @@ var YAP = function(){
         return str == '\'' || str == '"';
     }
     function isCommentStart( str ){
+		var nextChr = source.charAt(index+1);
+		return str == '/' && (nextChr == '/' || nextChr == '*');
     }
+
+	function parseComment( ){
+		var start = index;
+		var commentStart = source.charAt( start );
+		var commentType = source.charAt( start+1 );
+		var commentType = (['singleline', 'multiline'])[+(commentType == '*')];
+		var comment = {
+			start: start,
+			startLineNum: lineNum,
+			end: 0,
+			type: commentType
+		};
+
+		var chr;
+		if( commentType == 'singleline' ){
+			while( start < sourceLen && (chr = read(start).charCodeAt(0)) != 10 ){
+				if( read(start+1).charCodeAt(0) == 10 ){
+					comment.endLineNum = lineNum;
+					comment.end = start;
+					index = start + 1;
+					emitToken( comment );
+					return;
+				}
+				start++;
+			}
+			comment.endLineNum = lineNum;
+			comment.end = start;
+			index = start+1;
+			emitToken( comment );
+			return;
+		}
+		console.log(index);
+		while( start < sourceLen ){
+			if ( read(start).charCodeAt(0) == 42 && read(start + 1).charCodeAt(0) == 47 ) {
+				comment.end = start + 1;
+				comment.endLineNum = lineNum;
+				index = start + 2;
+				emitToken( comment );
+				return; 
+			}
+			if( read(start).charCodeAt(0) == 10 ){
+				lineNum++;
+			}
+			start++;
+		}
+		comment.end = start;
+		comment.endLineNum = lineNum;
+		index = start+1;
+		emitToken( comment );
+		return;	
+	}
 
     function isNumber( str ){
         return str == '.' || (str >= '0' && str <= '9')
     }
+	
+	function isNumberStart( str ){
+		var nextChr = read( index + 1 );
+		return (str == '.' && nextChr >= '0' && nextChr <= '9') || (str >= '0' && str <= '9')
+	}
+
     function isInArray( arr, clue ){
         for( var i = 0, len = arr.length; i < len; i++ ){
             if( arr[i] == clue ){
@@ -281,7 +337,7 @@ var YAP = function(){
         var start = index;
         for(; start < sourceLen; start++){
             var currentChr = read( start );
-            if( isWhiteSpace( currentChr ) || isLineTerminator( currentChr )
+            if( isWhiteSpace( currentChr ) || isLineTerminator( currentChr ) || isPunctuator( currentChr )
                 ){
                 start = start - 1;
                 break;
