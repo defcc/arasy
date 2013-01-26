@@ -6,19 +6,19 @@
 </head>
 <body>
 <textarea id="tt">
-var a = "abc\"";
+/**/
 </textarea>
 <p><input type="button" value="lex parser" id="btn"/></p>
 </body>
 </html>
-<script type="text/javascript" src="tokenizer.js"></script>
+<script type="text/javascript" src="lexer.js"></script>
 <script>
 function parse(){
     var codeStr = document.getElementById('tt').value;
-    var start = +new Date();
-	var tokenList = YAP.tokenizer( codeStr );
+	
+	var start = +new Date();
+	var tokenList = YAP(codeStr).parse();
 	console.log('time used:', (+new Date() - start));
-	console.log(tokenList);
 }
 
 document.getElementById('btn').onclick = parse;
