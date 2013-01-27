@@ -19,6 +19,8 @@ function parse(){
 	var start = +new Date();
 	var tokenList = YAP(codeStr).parse();
 	console.log('time used:', (+new Date() - start));
+
+	console.log(tokenList);
 }
 
 document.getElementById('btn').onclick = parse;

@@ -122,11 +122,11 @@ function YAP( source ){
 			state = STRING_STATE;	
 		}else if( isWhiteSpace( chr ) ){
 			state = WS_STATE;
-		}else if( isNumberStart( chr, index + 2 ) ){
+		}else if( isNumberStart( chr, index + 1 ) ){
 			state = NUMBER_STATE;
 		}else if( isPunctuator( chr ) ){
 			state = PUNCTUATOR_STATE;
-		}else if( isCommentStart( chr, index + 2 ) ){
+		}else if( isCommentStart( chr, index + 1 ) ){
 			state = COMMENT_STATE;
 		}else if( isTerminator( chr )){
 			state = TERMINATOR_STATE;
@@ -298,7 +298,7 @@ function YAP( source ){
 
 		while( currentChr = nextChr() ){
 			if( isWhiteSpace( currentChr ) || isTerminator( currentChr ) || isPunctuator( currentChr )
-				|| isStringStart( currentChr )
+				|| isStringStart( currentChr ) || currentChr == 47
                 ){
                 state = START_STATE;
 				retract();
@@ -340,26 +340,25 @@ function YAP( source ){
 		
 		push2buffer( buffer, currentChr );
 		var chr;
-		if( commentType == 'singleline' ){
+		if( commentType == 'scomment' ){
 			while(chr = nextChr()){
 				if( isTerminator( chr ) ){
 					state = TERMINATOR_STATE;
 					retract();
 					break;
 				}
-				push2buffer( buffer, currentChr );
+				push2buffer( buffer, chr );
 			}
 		}else{
 			while(chr = nextChr()){
 				var peek1 = peek( index + 1 );
 				
 				if( isEscape( chr ) && peek1 ){
-					push2buffer( buffer, chr );
-					push2buffer( buffer, nextChr() );
-					if( isTerminator( peek1 ) ){
-						newLine();
+					if( peek1 == 47 ){
+						push2buffer( buffer, chr );
+						push2buffer( buffer, nextChr() );
+						continue;
 					}
-					continue;
 				}
 
 				if( chr == 42 && peek1 == 47 ){
