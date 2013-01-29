@@ -9,6 +9,14 @@ fixme: 最后一个token的index不正确
 	b. 前面是keywords，
 
 3. 从实际来看，可以考虑在遇到slash时转入到语法分析，看看前面是否为表达式
+
+test case
+
+var a,g; (a)/a/g;
+var a,g;if(a)/a/g;
+var g; void function(){}/2/g
+var g; function t(){}/2/g
+
 */
 /**
 * '\///
