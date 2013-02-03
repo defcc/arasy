@@ -506,7 +506,7 @@ function YAP( source, keepWS ){
 	
 	
 	function emitToken( tk ){
-		if( !keepWS && tk.type == 'whitespace' ){
+		if( !keepWS && (tk.type == 'whitespace' || tk.type == 'terminator') ){
 			return;
 		}
 		tokenList.push( tk );

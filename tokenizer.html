@@ -5,6 +5,9 @@
     <title>Javascript Tokenizer</title>
 	<meta charset="utf-8"/>
 	<style>
+		body { font: 12px/13px arial}
+		input{ vertical-align: middle}
+		.actiontip { color: #aaa }
 		#source{
 			height: 150px;
 			width: 500px;
@@ -15,16 +18,19 @@
 <textarea id="source">
 /**/
 </textarea>
-<p><input type="button" value="lex parser" id="btn"/></p>
+<p><label for="keepws">保留空白和换行符</label><input type="checkbox" name="keepws" id="keepws"/></p>
+<p><input type="button" value="lex parser result to console" id="btn"/></p>
+<p><span class="actiontip">F12打开chrome控制台先</span></p>
 </body>
 </html>
 <script type="text/javascript" src="lexer.js"></script>
 <script>
 function parse(){
     var codeStr = document.getElementById('source').value;
+	var keepWs  =  document.getElementById('keepws').checked;
 	
 	var start = +new Date();
-	var tokenList = YAP(codeStr, 0).parse();
+	var tokenList = YAP(codeStr, +keepWs).parse();
 	console.log('time used:', (+new Date() - start));
 
 	console.log(tokenList);
