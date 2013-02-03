@@ -33,18 +33,20 @@ var g; function t(){}/2/g
 *
 */
 
-function YAP( source ){
+function YAP( source, keepWS ){
 	
 	//define states
-	var END_STATE		 = -1;
-	var START_STATE		 = 0;
-	var ID_STATE		 = 1;
-	var STRING_STATE	 = 2;
-	var NUMBER_STATE	 = 3;
-	var PUNCTUATOR_STATE = 4;
-	var COMMENT_STATE	 = 5;
-	var WS_STATE		 = 6;
-	var TERMINATOR_STATE = 7;
+	var END_STATE		 = 'eof';
+	var START_STATE		 = 'start';
+	var ID_STATE		 = 'id';
+	var STRING_STATE	 = 'string';
+	var NUMBER_STATE	 = 'numeric';
+	var PUNCTUATOR_STATE = 'pun';
+	var DIV_STATE		 = 'div'; //和punctuator是一起的。
+	var COMMENT_STATE	 = 'comment';
+	var REGEXP_STATE	 = 'regexp'
+	var WS_STATE		 = 'ws';
+	var TERMINATOR_STATE = 'terminator';
 	
 
 	var ID_TOKEN		 = 'id';
@@ -54,6 +56,7 @@ function YAP( source ){
 	var TERMINATOR_TOKEN = 'terminator';
 	var MCOMMENT_TOKEN	 = 'mcomment';
 	var SCOMMENT_TOKEN	 = 'scomment';
+	var REGEXP_TOKEN	 = 'regexp';
 
 
     var Keywords = "break do instanceof typeof case else new var catch finally return void continue for switch while debugger function this with default if throw delete in try".split(' ');
@@ -68,6 +71,7 @@ function YAP( source ){
 	var sourceLen;
 	var index = 0;
 	var lineNum = 0;
+	var lastToken = null;
 
 	var CHR = '';
 
@@ -78,7 +82,8 @@ function YAP( source ){
 		sourceLen = source.length;
 		index = -1;
 		lineNum = 0;
-
+	
+	keepWS = typeof keepWS ? keepWS : 1;
 
 	var parse = function(){
 		
@@ -117,6 +122,15 @@ function YAP( source ){
 				case ID_STATE:
 					parseID();
 					break;
+
+				case REGEXP_STATE:
+					parseRegexp();
+					break;
+
+				case DIV_STATE:
+					parseDiv();
+					break;
+				
 				case END_STATE:
 				default:
 					break mainLoop;
@@ -144,6 +158,11 @@ function YAP( source ){
 			state = PUNCTUATOR_STATE;
 		}else if( isCommentStart( chr, index + 1 ) ){
 			state = COMMENT_STATE;
+		}else if( isRegexpStart( chr, index + 1 ) ){
+			state = REGEXP_STATE;
+		}else if( isDivStart( chr ) ){
+			//先看是否是除法运算符
+			state = DIV_STATE;
 		}else if( isTerminator( chr )){
 			state = TERMINATOR_STATE;
 		}else if ( isNaN(chr) ){
@@ -301,6 +320,30 @@ function YAP( source ){
         emitToken( tk );
     }
 
+	function parseDiv(){
+		var buffer = [];
+		var chr = nextChr();
+		push2buffer( buffer, chr );
+		var tk = {
+			type: 'punctuator',
+			start: index,
+			startLine: lineNum,
+			endLine: lineNum
+		}
+		if( chr = nextChr() ){
+			// = 
+			if( chr == 61 ){
+				push2buffer( buffer, chr );	
+			}else{
+				state = START_STATE;
+				retract();
+			}
+		}
+		tk.end = index;
+		tk.value = buffer.join('');
+        emitToken( tk );
+	}
+
 	function parseID( ){
         var buffer = [];
         var currentChr = '';
@@ -340,6 +383,61 @@ function YAP( source ){
 		emitToken( tk );
 		newLine();
 		state = START_STATE;
+	}
+
+	function parseRegexp(){
+		///\/
+		/*
+			'[' => 91, ']' => 93
+		*/
+		var buffer = [];
+		var chr = nextChr();
+		push2buffer( buffer, chr );
+
+
+		var isInClass = 0;
+
+		var tk = {
+			type: 'regexp',
+			start: index + 1,
+			startLine: lineNum,
+			endLine: lineNum
+		};
+
+		while( chr = nextChr() ){
+			
+			//push2buffer( buffer, chr );
+
+			//换行的话，直接回退上一步
+			if( isTerminator( chr ) ){
+				state = TERMINATOR_STATE;
+				retract();
+                break;
+			}
+
+			push2buffer( buffer, chr );
+			
+			if( chr == 91 ){
+				isInClass = 1;
+			}
+			if( chr == 93 ){
+				isInClass = 0;
+			}
+			// 转义的\
+			if( chr == 92 ){
+				push2buffer( nextChr() );
+			}
+			if( !isInClass && chr == 47 ){
+				//如果match到最后的/，那么
+				state = START_STATE;
+				break;
+			}
+				
+		}
+
+		tk.end = index;
+		tk.value = buffer.join('');
+        emitToken( tk );
 	}
 	
 	function parseComment( ){
@@ -405,9 +503,14 @@ function YAP( source ){
 	function eof(){
 		return index >= sourceLen;
 	}
-
+	
+	
 	function emitToken( tk ){
+		if( !keepWS && tk.type == 'whitespace' ){
+			return;
+		}
 		tokenList.push( tk );
+		tk.type != 'whitespace' && (lastToken = tk);
 	}
 
 	function isTerminator( chr ){
@@ -457,6 +560,29 @@ function YAP( source ){
 		return isInArray(Keywords, id) || 
 			isInArray(FutureReservedKeywords, id) ||
 			isInArray(StrictKeywords, id);
+	}
+
+	function isDivStart( chr, index ){
+		//以/开始，前面
+		if( chr == 47 ){
+			return 1;
+		}
+		return 0;
+	}
+
+	function isRegexpStart( chr, index ){
+		//以/开始
+		//last token: ( [ {
+		if( chr == 47 ){
+			if(!lastToken){ 
+				return 1;
+			}
+			//,或者;或者[或者(或者{或者:
+			if( isInArray(['(', '[', '{', '=', ',', ';', ':'], lastToken.value) ){
+				return 1;
+			}
+		}
+		return 0;
 	}
 
 	function newLine(){

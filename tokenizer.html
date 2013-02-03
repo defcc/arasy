@@ -3,9 +3,16 @@
 <html>
 <head>
     <title>Javascript Tokenizer</title>
+	<meta charset="utf-8"/>
+	<style>
+		#source{
+			height: 150px;
+			width: 500px;
+		}
+	</style>
 </head>
 <body>
-<textarea id="tt">
+<textarea id="source">
 /**/
 </textarea>
 <p><input type="button" value="lex parser" id="btn"/></p>
@@ -14,10 +21,10 @@
 <script type="text/javascript" src="lexer.js"></script>
 <script>
 function parse(){
-    var codeStr = document.getElementById('tt').value;
+    var codeStr = document.getElementById('source').value;
 	
 	var start = +new Date();
-	var tokenList = YAP(codeStr).parse();
+	var tokenList = YAP(codeStr, 0).parse();
 	console.log('time used:', (+new Date() - start));
 
 	console.log(tokenList);
