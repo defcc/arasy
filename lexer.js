@@ -297,22 +297,27 @@ function YAP( source, keepWS ){
 
 	function parsePunctuator(){
         var buffer = [];
-        var currentChr = '';
+        var currentChr = nextChr();
+		push2buffer( buffer, currentChr );
 
 		var tk = {
 			type: 'punctuator',
-			start: index + 1,
+			start: index,
 			startLine: lineNum,
 			endLine: lineNum
 		};
 		
 		while( currentChr = nextChr() ){
-			if( !isPunctuator( currentChr ) || isWhiteSpace( currentChr ) || isTerminator( currentChr ) ){
+			
+			push2buffer( buffer, currentChr );
+
+			if( !isInArray( Punctuator, buffer.join('') ) ){
                 state = START_STATE;
+				buffer.pop();
 				retract();
                 break;
             }
-			push2buffer( buffer, currentChr );
+			
 		}
 
 		tk.end = index;
