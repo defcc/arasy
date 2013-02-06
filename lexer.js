@@ -430,7 +430,7 @@ function YAP( source, keepWS ){
 			}
 			// 转义的\
 			if( chr == 92 ){
-				push2buffer( nextChr() );
+				push2buffer(buffer, nextChr() );
 			}
 			if( !isInClass && chr == 47 ){
 				//如果match到最后的/，那么
