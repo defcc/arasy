@@ -17,6 +17,8 @@ var a,g;if(a)/a/g;
 var g; void function(){}/2/g
 var g; function t(){}/2/g
 
+
+keywords: in delete throw return void new case typeof 后面是regexp
 */
 /**
 * '\///
