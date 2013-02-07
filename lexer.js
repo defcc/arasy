@@ -534,7 +534,10 @@ function YAP( source, keepWS ){
 
 	function isNumberStart( chr, index ){
 		var nextChr = peek( index + 1 );
-		return chr == '.' && isNumber( nextChr ) || isNumber(chr, 1);
+		// .[0-9]
+		// 1-9
+		// 0.[0-9]
+		return (chr == 46 && isNumber( nextChr )) || isNumber(chr, 1) || ( chr == 48 && nextChr == 46 );
 	}
 
 	function isNumber( chr, startOne ){
