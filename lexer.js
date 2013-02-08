@@ -35,7 +35,7 @@ keywords: in delete throw return void new case typeof 后面是regexp
 *
 */
 
-function YAP( source, keepWS, initState ){
+function YAP( source, keepWS, initStateInfo ){
 	
 	//define states
 	var END_STATE		 = 'eof';
@@ -68,7 +68,7 @@ function YAP( source, keepWS, initState ){
 	
 	var keywordsBeforeRegexp = "in delete throw return void new case typeof".split(' ');
 
-	var state = initState || START_STATE;
+	var state = initStateInfo ? initStateInfo.startState : START_STATE;
 	var tokenList = [];
 	var source;
 	var sourceLen;
@@ -143,7 +143,7 @@ function YAP( source, keepWS, initState ){
 
 	return {
 		parse: parse
-	}
+	};
 
 	
 	function parseStart(){
@@ -176,7 +176,13 @@ function YAP( source, keepWS, initState ){
 
 
 	function parseString(){
-		var string_quote = nextChr();
+        var startString = nextChr();
+        var string_quote = startString;
+        if( startString != 34 && startString != 39 ){
+            if( initStateInfo && initStateInfo.stringQuote ){
+                string_quote =  initStateInfo.stringQuote;
+            }
+        }
 		var buffer = [];
 		var token = {
 			type: STRING_TOKEN,
@@ -187,7 +193,7 @@ function YAP( source, keepWS, initState ){
 			value: ''
 		};
 		var chr = '';
-		push2buffer(buffer, string_quote) ;
+		push2buffer(buffer, startString) ;
 		while( chr = nextChr()){
 			//如果是新行
 			if( isTerminator( chr ) ){

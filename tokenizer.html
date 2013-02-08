@@ -19,18 +19,46 @@
 /**/
 </textarea>
 <p><label for="keepws">保留空白和换行符</label><input type="checkbox" name="keepws" id="keepws"/></p>
+<p><label for="startState">开始状态</label><select  name="startState" id="startState">
+    <option value="start">start</option>
+    <option value="string">String</option>
+    <option value="comment">Comment</option>
+</select></p>
+<p style="display: none;" id="string_quote_wrap"><label for="string_quote">string开始标记</label><select name="string_quote" id="string_quote">
+    <option value="'">单引号'</option>
+    <option value='"'>双引号"</option>
+</select></p>
 <p><input type="button" value="lex parser result to console" id="btn"/></p>
 <p><span class="actiontip">F12打开chrome控制台先</span></p>
 </body>
 </html>
 <script type="text/javascript" src="lexer.js"></script>
 <script>
+var $ = function(id){ return document.getElementById( id )};
+$('startState').onchange = function(){
+    var stateVal = this.value;
+    if( stateVal == 'string' ){
+        $('string_quote_wrap').style.display = 'block';
+    }else{
+        $('string_quote_wrap').style.display = 'none';
+    }
+
+};
 function parse(){
-    var codeStr = document.getElementById('source').value;
-	var keepWs  =  document.getElementById('keepws').checked;
-	
+    var codeStr = $('source').value;
+	var keepWs  =  $('keepws').checked;
+    var startState = $('startState').value;
+    var startInfo = {
+        startState: startState
+    };
+	if( startState == 'string' ){
+        startInfo.stringQuote = $('string_quote').value;
+    }
+
 	var start = +new Date();
-	var tokenList = YAP(codeStr, +keepWs, 'string').parse();
+
+
+	var tokenList = YAP(codeStr, +keepWs, startInfo ).parse();
 	console.log('time used:', (+new Date() - start));
 
 	console.log(tokenList);
