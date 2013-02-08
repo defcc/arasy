@@ -35,7 +35,7 @@ keywords: in delete throw return void new case typeof 后面是regexp
 *
 */
 
-function YAP( source, keepWS ){
+function YAP( source, keepWS, initState ){
 	
 	//define states
 	var END_STATE		 = 'eof';
@@ -68,7 +68,7 @@ function YAP( source, keepWS ){
 	
 	var keywordsBeforeRegexp = "in delete throw return void new case typeof".split(' ');
 
-	var state = START_STATE;
+	var state = initState || START_STATE;
 	var tokenList = [];
 	var source;
 	var sourceLen;
