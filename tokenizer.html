@@ -30,7 +30,7 @@ function parse(){
 	var keepWs  =  document.getElementById('keepws').checked;
 	
 	var start = +new Date();
-	var tokenList = YAP(codeStr, +keepWs).parse();
+	var tokenList = YAP(codeStr, +keepWs, 'string').parse();
 	console.log('time used:', (+new Date() - start));
 
 	console.log(tokenList);

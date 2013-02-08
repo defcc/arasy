@@ -79,13 +79,11 @@ function YAP( source, keepWS, initState ){
 	var CHR = '';
 
 	
-		state = START_STATE;
-		tokenList = [];
-		source = source;
-		sourceLen = source.length;
-		index = -1;
-		lineNum = 0;
-	
+    tokenList = [];
+    source = source;
+    sourceLen = source.length;
+    index = -1;
+
 	keepWS = typeof keepWS ? keepWS : 1;
 
 	var parse = function(){
