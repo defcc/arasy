@@ -65,7 +65,8 @@ function YAP( source, keepWS ){
     var FutureReservedKeywords = "class enum extends super const export import".split(' ');
     var StrictKeywords = "implements let private public interface package protected static yield".split(' ');
     var Punctuator = "{ } ( ) [ ] . ; , < > <= >= == != === !== + - * % ++ -- << >> >>> & | ^ ! ~ && || ? : = += -= *= %= <<= >>= >>>= &= |= ^=".split(' ');
-
+	
+	var keywordsBeforeRegexp = "in delete throw return void new case typeof".split(' ');
 
 	var state = START_STATE;
 	var tokenList = [];
@@ -589,6 +590,10 @@ function YAP( source, keepWS ){
 			}
 			//,或者;或者[或者(或者{或者:
 			if( isInArray(['(', '[', '{', '=', ',', ';', ':'], lastToken.value) ){
+				return 1;
+			}
+
+			if( isInArray(keywordsBeforeRegexp, lastToken.value) ){
 				return 1;
 			}
 		}
