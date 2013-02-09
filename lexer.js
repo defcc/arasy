@@ -12,10 +12,15 @@ fixme: 最后一个token的index不正确
 
 test case
 
-var a,g; (a)/a/g;
-var a,g;if(a)/a/g;
-var g; void function(){}/2/g
-var g; function t(){}/2/g
+1. var a,g; (a)/a/g;
+2. var a,g;if(a)/a/g;
+3. var g; void function(){}/2/g
+4. var g; function t(){}/2/g
+5.
+    // test split over two lines.  line comment should not fool it
+    1//
+    /2;
+6. 1. / x; //this should punctuator @TODO numeric parse
 
 
 keywords: in delete throw return void new case typeof 后面是regexp
