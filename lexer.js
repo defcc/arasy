@@ -523,7 +523,8 @@ function YAP( source, keepWS, initStateInfo ){
 	
 	
 	function emitToken( tk ){
-		if( !keepWS && (tk.type == 'whitespace' || tk.type == 'terminator') ){
+        //if is ws，stop;
+		if( !keepWS && (tk.type == 'whitespace'/* || tk.type == 'terminator'*/) ){
 			return;
 		}
 		tokenList.push( tk );
