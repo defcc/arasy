@@ -465,7 +465,7 @@ function YAP( source, keepWS, initStateInfo ){
 		var commentType = ([SCOMMENT_TOKEN, MCOMMENT_TOKEN])[+(commentType == 42)];
 		var tk = {
 			start: index,
-			startLineNum: lineNum,
+			startLine: lineNum,
 			type: commentType
 		};
 		
