@@ -6,6 +6,11 @@ yap is for Yet Another Parser in JS
 
 所以就暂时放下TOL编辑器的开发，开始写一个js的词法和语法(@TODO)解析的工具。
 
+#TODO
+1. 正则的解析，目前的实现有问题，按照es规范，当/的前面是表达式时，/为运算符。
+2. numeric的解析有问题，缺乏对非二进制的数字的支持
+3. *测试用例*
+
 #API
 YAP(codeStr, isKeepWhiteSpaceToken, startInfo).parse();
 
