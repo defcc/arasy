@@ -187,7 +187,7 @@ function YAP( source, keepWS, initStateInfo ){
         var string_quote = startString;
         if( startString != 34 && startString != 39 ){
             if( initStateInfo && initStateInfo.extVal ){
-                string_quote =  initStateInfo.extVal;
+                string_quote =  initStateInfo.extVal.charCodeAt(0);
             }
         }
         var buffer = [];
