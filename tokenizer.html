@@ -28,10 +28,15 @@ var a /= 1;
     <option value="string">String</option>
     <option value="comment">Comment</option>
 </select></p>
-<p style="display: none;" id="string_quote_wrap"><label for="string_quote">string开始标记</label><select name="string_quote" id="string_quote">
+<p style="display: none;" id="string_quote_wrap"><label for="extValString">string开始标记</label><select name="extValString" id="extValString">
     <option value="'">单引号'</option>
     <option value='"'>双引号"</option>
 </select></p>
+<p style="display: none;" id="comment_wrap"><label for="extValComment">comment开始标记</label><select name="extValComment" id="extValComment">
+    <option value="scomment">单行注释</option>
+    <option value='mcomment'>多行注释</option>
+</select></p>
+<p><label for="startLine">开始行数：<input id="startLine" name="startLine" value="0"/></label></p>
 <p><input type="button" value="lex parser result to console" id="btn"/></p>
 <p><span class="actiontip">F12打开chrome控制台先</span></p>
 </body>
@@ -40,23 +45,29 @@ var a /= 1;
 <script>
 var $ = function(id){ return document.getElementById( id )};
 $('startState').onchange = function(){
+    var styleMap = {
+        'string': {'string_quote_wrap': 'block', 'comment_wrap': 'none'},
+        'comment': {'string_quote_wrap': 'none', 'comment_wrap': 'block'},
+        'start': {'string_quote_wrap': 'none', 'comment_wrap': 'none'}
+    };
     var stateVal = this.value;
-    if( stateVal == 'string' ){
-        $('string_quote_wrap').style.display = 'block';
-    }else{
-        $('string_quote_wrap').style.display = 'none';
-    }
-
+    var styleVal =  styleMap[stateVal];
+    $('string_quote_wrap').style.display = styleVal['string_quote_wrap'];
+    $('comment_wrap').style.display = styleVal['comment_wrap'];
 };
 function parse(){
     var codeStr = $('source').value;
 	var keepWs  =  $('keepws').checked;
     var startState = $('startState').value;
+    var startLineVal = +$('startLine').value;
     var startInfo = {
-        startState: startState
+        startState: startState,
+        startLine: startLineVal
     };
 	if( startState == 'string' ){
-        startInfo.stringQuote = $('string_quote').value;
+        startInfo.extVal = $('extValString').value;
+    }else if( startState == 'comment' ){
+        startInfo.extVal = $('extValComment').value;
     }
 
 	var start = +new Date();
