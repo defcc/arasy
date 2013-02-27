@@ -246,6 +246,7 @@ function YAP( source, keepWS, initStateInfo ){
         var dotExists = 0;
         var eExists = 0;
         var start = index + 1;
+        var next_chrOne;
         var tk = {
             type: 'number',
             start: start,
