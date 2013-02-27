@@ -185,10 +185,10 @@ function YAP( source, keepWS, initStateInfo ){
     function parseString(){
         var startString = nextChr();
         var string_quote = startString;
-        if( startString != 34 && startString != 39 ){
-            if( initStateInfo && initStateInfo.extVal ){
-                string_quote =  initStateInfo.extVal.charCodeAt(0);
-            }
+        var extVal = 0;
+        if( initStateInfo && initStateInfo.extVal ){
+            string_quote =  initStateInfo.extVal;
+            extVal = 1;
         }
         var buffer = [];
         var token = {
@@ -202,26 +202,31 @@ function YAP( source, keepWS, initStateInfo ){
         };
         var chr = '';
         push2buffer(buffer, startString) ;
-        while( chr = nextChr()){
-            //如果是新行
-            if( isTerminator( chr ) ){
-                state = TERMINATOR_STATE;
-                retract();
-                break;
-            }
-            //如果是转义字符，那么向前看一个
-            if( isEscape( chr ) ){
-                if( isTerminator( peek( index+1 ) ) ){
-                    newLine();
-                }
-                push2buffer(buffer, chr) ;
-                push2buffer(buffer, nextChr()) ;
-            }else{
-                push2buffer(buffer, chr) ;
-                if( chr == string_quote ){
-                    state = START_STATE;
-                    token.close = 1;
+        if( extVal && startString == string_quote ){
+            state = START_STATE;
+            token.close = 1;
+        }else{
+            while( chr = nextChr()){
+                //如果是新行
+                if( isTerminator( chr ) ){
+                    state = TERMINATOR_STATE;
+                    retract();
                     break;
+                }
+                //如果是转义字符，那么向前看一个
+                if( isEscape( chr ) ){
+                    if( isTerminator( peek( index+1 ) ) ){
+                        newLine();
+                    }
+                    push2buffer(buffer, chr) ;
+                    push2buffer(buffer, nextChr()) ;
+                }else{
+                    push2buffer(buffer, chr) ;
+                    if( chr == string_quote ){
+                        state = START_STATE;
+                        token.close = 1;
+                        break;
+                    }
                 }
             }
         }

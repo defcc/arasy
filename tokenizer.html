@@ -65,7 +65,7 @@ function parse(){
         startLine: startLineVal
     };
 	if( startState == 'string' ){
-        startInfo.extVal = $('extValString').value;
+        startInfo.extVal = $('extValString').value.charCodeAt(0);
     }else if( startState == 'comment' ){
         startInfo.extVal = $('extValComment').value;
     }
