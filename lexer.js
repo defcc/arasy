@@ -474,8 +474,8 @@ function YAP( source, keepWS, initStateInfo ){
         var currentChr = nextChr();
 
         var commentType = peek( index + 1 );
-        if( commentType != 42 && commentType != 47 ){
-            commentType = initStateInfo && initStateInfo.extVal ? initStateInfo.extVal : SCOMMENT_TOKEN;
+        if( initStateInfo && initStateInfo.extVal ){
+            commentType =  initStateInfo.extVal;
         }else{
             commentType = ([SCOMMENT_TOKEN, MCOMMENT_TOKEN])[+(commentType == 42)];
         }
@@ -485,11 +485,7 @@ function YAP( source, keepWS, initStateInfo ){
             type: commentType,
             extVal: commentType
         };
-
-        if( commentType == 'mcomment' && isTerminator( currentChr ) ){
-            newLine();
-        }
-        push2buffer( buffer, currentChr );
+        retract();
         var chr;
         if( commentType == 'scomment' ){
             while(chr = nextChr()){
