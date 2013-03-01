@@ -8,8 +8,9 @@
 
 var fileList = [
     "lexer.js",
+    "comment.js"
 ];
+document.write('<script type="text/javascript" src="../lexer.js"></script>');
 for(var i= 0,file;file = fileList[i++];){
-	document.write('<script type="text/javascript" src="../' + file + '"></script>');
     document.write('<script type="text/javascript" src="src/' + file + '"></script>');
 }
