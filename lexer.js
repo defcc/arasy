@@ -473,9 +473,11 @@ function YAP( source, keepWS, initStateInfo ){
         var buffer = [];
         var currentChr = nextChr();
 
+        var extVal = 0;
         var commentType = peek( index + 1 );
         if( initStateInfo && initStateInfo.extVal ){
             commentType =  initStateInfo.extVal;
+            extVal = 1;
         }else{
             commentType = ([SCOMMENT_TOKEN, MCOMMENT_TOKEN])[+(commentType == 42)];
         }
@@ -507,12 +509,11 @@ function YAP( source, keepWS, initStateInfo ){
                         continue;
                     }
                 }
-
-                if( chr == 42 && peek1 == 47 ){
+                if( (extVal || peek(index-1) == 42) && chr == 42 && peek1 == 47 ){
                     state = START_STATE;
                     tk.close = 1;
                     push2buffer( buffer, chr );
-                    push2buffer( buffer, nextChr() )
+                    push2buffer( buffer, nextChr() );
                     break;
                 }
                 if( isTerminator( chr ) ){
