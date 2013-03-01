@@ -1,5 +1,5 @@
-test('注释的解析', function(){
-    var source = '/**/var';
+test('多行注释的解析', function(){
+    var source = '/*as*/var';
     var tokens = YAP(source).parse();
     ok(tokens.length == 2, '2个token');
 
@@ -9,9 +9,30 @@ test('注释的解析', function(){
 
     //nested comment
 
-    var nestSource = '/*/***/**/';
+    var nestSource = '/*a/***/**/\n';
     var nestTokens = YAP(nestSource).parse();
-    ok(nestTokens.length == 4, '4个token');
-    equal(nestTokens.length, 4, '');
-    equal(nestTokens[0].value, '/*/***/', 'nested comment')
+    ok(nestTokens.length == 5, '4个token');
+    equal(nestTokens.length, 5, '');
+    equal(nestTokens[0].value, '/*a/***/', 'nested comment');
+
+    //非正常注释
+    var source = '/*/';
+    var tokens = YAP(source).parse();
+    ok(tokens.length == 1, '1个token');
+
+    var source = '*/';
+    var tokens = YAP(source).parse();
+    ok(tokens.length == 2, '2个token');
+
+    var source = '/*assa/';
+    var tokens = YAP(source).parse();
+    ok(tokens.length == 1, '2个token');
+
+    var source = '/*assa\*/var';
+    var tokens = YAP(source).parse();
+    ok(tokens.length ==2, '2个token');
+
+    var source = '/*assa\*\\/var';
+    var tokens = YAP(source).parse();
+    ok(tokens.length ==1, '1个token');
 });
