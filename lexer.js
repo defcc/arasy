@@ -499,6 +499,7 @@ function YAP( source, keepWS, initStateInfo ){
                 push2buffer( buffer, chr );
             }
         }else{
+            var startExists = 0;
             while(chr = nextChr()){
                 var peek1 = peek( index + 1 );
 
@@ -509,7 +510,12 @@ function YAP( source, keepWS, initStateInfo ){
                         continue;
                     }
                 }
-                if( (extVal || peek(index-1) == 42) && chr == 42 && peek1 == 47 ){
+                if( !extVal && !startExists ){
+                    if(buffer.join('') == '/*'){
+                        startExists = 1;
+                    }
+                }
+                if( (extVal || startExists) && chr == 42 && peek1 == 47 ){
                     state = START_STATE;
                     tk.close = 1;
                     push2buffer( buffer, chr );
