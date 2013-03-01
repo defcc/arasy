@@ -11,7 +11,7 @@ test('注释的解析', function(){
 
     var nestSource = '/*/***/**/';
     var nestTokens = YAP(nestSource).parse();
-    console.log(nestTokens);
     ok(nestTokens.length == 4, '4个token');
-    equal(nestTokens.length, 4, '')
+    equal(nestTokens.length, 4, '');
+    equal(nestTokens[0].value, '/*/***/', 'nested comment')
 });
