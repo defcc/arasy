@@ -36,3 +36,9 @@ test('多行注释的解析', function(){
     var tokens = YAP(source).parse();
     ok(tokens.length ==1, '1个token');
 });
+
+test('注释的断点继续解析', function(){
+    var source = '*/\n//sa\nvar';
+    var tokens = YAP(source, 1, {extVal: 'mcomment', startState: 'comment'}).parse();
+    ok(tokens.length == 5, 'tokens数为5');
+});
