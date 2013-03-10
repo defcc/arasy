@@ -75,9 +75,8 @@ function YAP( source, keepWS, initStateInfo ){
 
     var state = initStateInfo ? initStateInfo.startState : START_STATE;
     var tokenList = [];
-    var source;
-    var sourceLen;
-    var index = 0;
+    var sourceLen = source.length;
+    var index = -1;
     var lineNum = 0;
     var lastToken = null;
 
@@ -86,10 +85,7 @@ function YAP( source, keepWS, initStateInfo ){
     var CHR = '';
 
 
-    tokenList = [];
-    source = source;
-    sourceLen = source.length;
-    index = -1;
+
 
     keepWS = typeof keepWS ? keepWS : 1;
 
