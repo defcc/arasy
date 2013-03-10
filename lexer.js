@@ -237,6 +237,7 @@ function YAP( source, keepWS, initStateInfo ){
 
         emitToken( token );
 
+        resetExtVal;
     }
 
     function parseNumber(){
@@ -533,6 +534,8 @@ function YAP( source, keepWS, initStateInfo ){
         tk.end = index;
         tk.value = buffer.join('');
         emitToken( tk );
+        //reset initStateInfo.extVal
+        resetExtVal();
     }
 
 
@@ -545,6 +548,9 @@ function YAP( source, keepWS, initStateInfo ){
         return index >= sourceLen;
     }
 
+    function resetExtVal(){
+        initStateInfo && initStateInfo.extVal && (initStateInfo.extVal = null);
+    }
 
     function emitToken( tk ){
         //if is ws，stop;
