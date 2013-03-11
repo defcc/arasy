@@ -237,6 +237,7 @@ function YAP( source, keepWS, initStateInfo ){
     }
 
     function parseNumber(){
+        //TODO 依据es标准进行修改
         var buffer = [];
         var currentChr = '';
         var next_chr = '';
@@ -256,7 +257,7 @@ function YAP( source, keepWS, initStateInfo ){
         while( currentChr = nextChr() ){
             if( currentChr == 46 && !dotExists){
                 next_chrOne = peek( index + 1 );
-                if( isNumber( next_chrOne ) ){
+                if( isNumber( next_chrOne ) || isExponentIndicator(next_chrOne) ){
                     dotExists = 1;
                     push2buffer(buffer, currentChr) ;
                 }else{
@@ -264,10 +265,10 @@ function YAP( source, keepWS, initStateInfo ){
                     retract();
                     break;
                 }
-            }else if( (currentChr == 101 || currentChr == 69) && !eExists){
+            }else if( isExponentIndicator(currentChr) && !eExists){
                 //e || E
-                next_chr = peek( start + 1 );
-                if( isNumber( nextChr ) ){
+                next_chr = peek( index + 1 );
+                if( isNumber( next_chr ) ){
                     eExists = 1;
                     push2buffer(buffer, currentChr) ;
                 }else{
@@ -287,6 +288,8 @@ function YAP( source, keepWS, initStateInfo ){
         tk.endLine = lineNum;
         tk.value = buffer.join('');
         emitToken( tk );
+
+
     }
 
     function parseWS(){
@@ -577,9 +580,11 @@ function YAP( source, keepWS, initStateInfo ){
     function isNumberStart( chr, index ){
         var nextChr = peek( index + 1 );
         // .[0-9]
-        // 1-9
-        // 0.[0-9]
-        return (chr == 46 && isNumber( nextChr )) || isNumber(chr, 1) || ( chr == 48 && nextChr == 46 );
+        // 0-9 开始
+        return (chr == 46 && isNumber( nextChr ))
+                || isNumber(chr);
+//                || ( chr == 48 && nextChr == 46 )
+//                || (chr == 48 && !isNumber(nextChr));
     }
 
     function isNumber( chr, startOne ){
@@ -610,6 +615,10 @@ function YAP( source, keepWS, initStateInfo ){
         return isInArray(Keywords, id) ||
             isInArray(FutureReservedKeywords, id) ||
             isInArray(StrictKeywords, id);
+    }
+
+    function isExponentIndicator( chr ){
+        return chr == 101 || chr == 69;
     }
 
     function isDivStart( chr, index ){
