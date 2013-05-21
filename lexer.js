@@ -55,7 +55,7 @@ function YAP( source, keepWS, initStateInfo ){
     var WS_STATE		 = 'ws';
     var TERMINATOR_STATE = 'terminator';
 
-
+    var EOF_TOKEN        = 'eof'
     var ID_TOKEN		 = 'id';
     var NUMBER_TOKEN	 = 'number';
     var STRING_TOKEN	 = 'string';
@@ -89,63 +89,60 @@ function YAP( source, keepWS, initStateInfo ){
 
     keepWS = typeof keepWS ? keepWS : 1;
 
-    var parse = function(){
+    var nextToken = function( acceptRegexp ){
+        var TOKEN = {};
+        if( eof() ){
+            TOKEN.type = EOF_TOKEN;
+            return TOKEN;
+        }
 
-        mainLoop:
-            while( !eof() ){
-                switch( state ){
-                    case START_STATE:
-                        //peek and set the state
-                        parseStart();
-                        break;
+        var state = parseStart();
+        switch( state ){
+            case WS_STATE:
+                parseWS();
+                break;
 
-                    case WS_STATE:
-                        parseWS();
-                        break;
+            case STRING_STATE:
+                parseString();
+                break;
 
-                    case STRING_STATE:
-                        parseString();
-                        break;
+            case NUMBER_STATE:
+                parseNumber();
+                break;
 
-                    case NUMBER_STATE:
-                        parseNumber();
-                        break;
+            case PUNCTUATOR_STATE:
+                parsePunctuator();
+                break;
 
-                    case PUNCTUATOR_STATE:
-                        parsePunctuator();
-                        break;
+            case COMMENT_STATE:
+                parseComment();
+                break;
 
-                    case COMMENT_STATE:
-                        parseComment();
-                        break;
+            case TERMINATOR_STATE:
+                parseTerminator();
+                break;
 
-                    case TERMINATOR_STATE:
-                        parseTerminator();
-                        break;
+            case ID_STATE:
+                parseID();
+                break;
 
-                    case ID_STATE:
-                        parseID();
-                        break;
+            case REGEXP_STATE:
+                parseRegexp();
+                break;
 
-                    case REGEXP_STATE:
-                        parseRegexp();
-                        break;
+            case DIV_STATE:
+                parseDiv();
+                break;
 
-                    case DIV_STATE:
-                        parseDiv();
-                        break;
-
-                    case END_STATE:
-                    default:
-                        break mainLoop;
-                        break;
-                }
-            }
-        return tokenList;
+            case END_STATE:
+            default:
+                break;
+        }
     };
 
     return {
-        parse: parse
+        parse: parse,
+        nextToken: nextToken
     };
 
 
@@ -287,8 +284,7 @@ function YAP( source, keepWS, initStateInfo ){
         tk.end = index;
         tk.endLine = lineNum;
         tk.value = buffer.join('');
-        emitToken( tk );
-
+        return emitToken( tk );
 
     }
 
@@ -314,7 +310,7 @@ function YAP( source, keepWS, initStateInfo ){
 
         tk.end = index;
         tk.value = buffer.join('');
-        emitToken( tk );
+        return emitToken( tk );
     }
 
     function parsePunctuator(){
@@ -344,7 +340,7 @@ function YAP( source, keepWS, initStateInfo ){
 
         tk.end = index;
         tk.value = buffer.join('');
-        emitToken( tk );
+        return emitToken( tk );
     }
 
     function parseDiv(){
@@ -368,7 +364,7 @@ function YAP( source, keepWS, initStateInfo ){
         }
         tk.end = index;
         tk.value = buffer.join('');
-        emitToken( tk );
+        return emitToken( tk );
     }
 
     function parseID( ){
@@ -398,7 +394,7 @@ function YAP( source, keepWS, initStateInfo ){
         if( isKeyWords( tk.value ) ){
             tk.type = 'keywords';
         }
-        emitToken( tk );
+        return emitToken( tk );
     }
 
     function parseTerminator(){
