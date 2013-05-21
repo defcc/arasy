@@ -13,15 +13,36 @@ function Parser(){
 
 Parser.prototype.parseProgram = function(){
     this.ast.type = 'program';
-    this.ast.body = parse();
+    this.ast.body = this.parseSourceElements();
 };
 
 Parser.prototype.parse = function(){
     var token = this.lexer.nextToken();
 };
 
-Parser.prototype.parseFunctions = function(){
+Parser.prototype.parseSourceElements = function(){
+    var rs = [],
+        item;
+    while( item = this.parseSourceElement() ){
+        rs.push( item );
+    }
+    return rs;
+};
 
+Parser.prototype.parseSourceElement = function(){
+    return this.parseFunctionDeclaration();
+};
+
+Parser.prototype.parseExpression = function(){
+
+};
+
+Parser.prototype.parseFunctionDeclaration = function(){
+    var functionDeclarationNode = new Node('functionDeclaration');
+    match('function');
+    match('id');
+
+    return functionDeclarationNode;
 };
 
 Parser.prototype.parseStatements = function(){
@@ -39,9 +60,6 @@ Parser.prototype.parseParenExpression = function(){
     return testNode;
 };
 
-Parser.prototype.parseExpression = function(){
-
-};
 
 Parser.prototype.parseVariableStatement = function(){
     var variableStatement = new Node('variableDeclaration');
