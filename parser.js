@@ -4,7 +4,9 @@
  *
  */
 
-var lexer = YAP('function a(b,c){function funName(){}}');
+var lexer = YAP('function a(b,c){function funName( innerA, innerB ){}}');
+
+var isInFunctionBody = [];
 
 function Node( type ){
     this.type = type;
@@ -35,16 +37,23 @@ function Parser( code ){
 Parser.prototype.tokenPool = [];
 
 Parser.prototype.peekToken = function(){
+    if( this.tokenPool.length ){
+        return this.tokenPool[0];
+    }
     var token = this.lexer.nextToken();
     this.tokenPool.push( token );
     return token;
 };
 
 Parser.prototype.nextToken = function(){
+    var token;
     if( this.tokenPool.length ){
-        return this.tokenPool.shift();
+        token = this.tokenPool.shift();
+    }else{
+        token = this.lexer.nextToken();
     }
-    return this.lexer.nextToken();
+    this.currentToken = token;
+    return token;
 };
 
 Parser.prototype.parseProgram = function(){
@@ -58,6 +67,12 @@ Parser.prototype.parseProgram = function(){
 Parser.prototype.parseSourceElements = function(){
     var rs = [],
         item;
+
+    var peekToken = this.peekToken();
+    if( isInFunctionBody.length && mustBe('}', peekToken) ){
+        return rs;
+    }
+
     while( (item = this.parseSourceElement()) ){
         rs.push( item );
     }
@@ -70,15 +85,15 @@ Parser.prototype.parseSourceElement = function(){
     if( peekToken.type == 'eof' ){
         return;
     }
+
+    if( isInFunctionBody.length && mustBe('}', peekToken) ){
+        return;
+    }
     if( match({type: 'keywords', value: 'function'}, peekToken )){
         return this.parseFunctionDeclaration();
     }else{
         return this.parseStatements();
     }
-
-};
-
-Parser.prototype.parseExpression = function(){
 
 };
 
@@ -123,14 +138,25 @@ Parser.prototype.parseParamsList = function(){
 
 Parser.prototype.parseFunctionBody = function(){
 
+    isInFunctionBody.push(1);
+
     mustBe('{', this.nextToken());
 
     var rs = this.parseSourceElements();
 
     mustBe('}', this.nextToken());
 
+    isInFunctionBody.pop(1);
+
     return rs;
-}
+};
+
+
+
+Parser.prototype.parseExpression = function(){
+
+};
+
 
 Parser.prototype.parseStatements = function(){
     var rs = [],
@@ -198,7 +224,7 @@ Parser.prototype.parseStatement = function(){
 Parser.prototype.parseBlock = function(){
     mustBe('{', this.nextToken());
 
-    var rs = this.parseSourceElements();
+    var rs = this.parseStatements();
 
     mustBe('}', this.nextToken());
 
