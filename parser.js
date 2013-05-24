@@ -4,7 +4,12 @@
  *
  */
 
-var lexer = YAP('function a(b,c){function funName( innerA, innerB ){}}');
+//function declare
+//var lexer = YAP('function a(b,c){function funName( innerA, innerB ){ function google(){} }}');
+
+//statements
+//var a;
+
 
 var isInFunctionBody = [];
 
@@ -175,43 +180,43 @@ Parser.prototype.parseStatement = function(){
         return;
     }
 
-    if( mustBe('{', peekToken.value) ){
+    if( mustBe('{', peekToken) ){
         return this.parseBlock();
     }else{
-        if( mustBe('var', peekToken.value) ){
+        if( mustBe('var', peekToken) ){
             return this.parseVariableStatement()
         }
-        if( mustBe(';', peekToken.value) ){
+        if( mustBe(';', peekToken) ){
             return this.parseEmptyStatement();
         }
-        if( mustBe('if', peekToken.value) ){
+        if( mustBe('if', peekToken) ){
             return this.parseIfStatement();
         }
 
-        if( mustBe('do', peekToken.value) ){
+        if( mustBe('do', peekToken) ){
             return this.parseEmptyStatement();
         }
-        if( mustBe('for', peekToken.value) ){
+        if( mustBe('for', peekToken) ){
             return this.parseIfStatement();
         }
-        if( mustBe('continue', peekToken.value) ){
+        if( mustBe('continue', peekToken) ){
             return this.parseEmptyStatement();
         }
-        if( mustBe('with', peekToken.value) ){
+        if( mustBe('with', peekToken) ){
             return this.parseIfStatement();
         }
 
-        if( mustBe('switch', peekToken.value) ){
+        if( mustBe('switch', peekToken) ){
             return this.parseEmptyStatement();
         }
-        if( mustBe('throw', peekToken.value) ){
+        if( mustBe('throw', peekToken) ){
             return this.parseIfStatement();
         }
 
-        if( mustBe('debugger', peekToken.value) ){
+        if( mustBe('debugger', peekToken) ){
             return this.parseIfStatement();
         }
-        if( mustBe('label', peekToken.value) ){
+        if( mustBe('label', peekToken) ){
             return this.parseIfStatement();
         }
         return this.parseExpressionStatement();
@@ -241,7 +246,7 @@ Parser.prototype.parseParenExpression = function(){
 
 Parser.prototype.parseVariableStatement = function(){
     var variableStatement = new Node('variableDeclaration');
-    match('var');
+    mustBe('var', this.nextToken());
     variableStatement.declarations = this.parseVariableDeclarationList();
     return variableStatement;
 };
@@ -251,8 +256,12 @@ Parser.prototype.parseVariableDeclarationList = function(){
         item;
     while(item = this.parseVariableDeclaration()){
         rs.push( item );
-        if( !match(',') ){
+
+        var nextToke = this.peekToken();
+        if(!match({type: 'punctuator', value: ','}, nextToke)){
             break;
+        }else{
+            this.nextToken();
         }
     }
     return rs;
