@@ -4,33 +4,78 @@
  *
  */
 
-function Parser(){
-    this.lexer = new Lexer( code );
+var lexer = YAP('function a(b,c){function funName(){}}');
 
-    this.ast = {};
-    this.parseProgram();
+function Node( type ){
+    this.type = type;
 }
 
-Parser.prototype.parseProgram = function(){
-    this.ast.type = 'program';
-    this.ast.body = this.parseSourceElements();
+function mustBe( val, token ){
+    return token.value == val;
+}
+
+function match( obj, token ){
+    var typeRs = valueRs = 1;
+    if( obj.type && obj.type != token.type ){
+        typeRs = 0;
+    }
+    if( obj.value && obj.value != token.value ){
+        valueRs = 0;
+    }
+
+    return typeRs == 1 && valueRs == 1 ? token : false;
+}
+
+function Parser( code ){
+    this.lexer = lexer;
+    var ast = this.parseProgram();
+    console.log(ast);
+}
+
+Parser.prototype.tokenPool = [];
+
+Parser.prototype.peekToken = function(){
+    var token = this.lexer.nextToken();
+    this.tokenPool.push( token );
+    return token;
 };
 
-Parser.prototype.parse = function(){
-    var token = this.lexer.nextToken();
+Parser.prototype.nextToken = function(){
+    if( this.tokenPool.length ){
+        return this.tokenPool.shift();
+    }
+    return this.lexer.nextToken();
 };
+
+Parser.prototype.parseProgram = function(){
+    var programNode = new Node('program');
+    programNode.type = 'program';
+    programNode.body = this.parseSourceElements();
+    return programNode;
+};
+
 
 Parser.prototype.parseSourceElements = function(){
     var rs = [],
         item;
-    while( item = this.parseSourceElement() ){
+    while( (item = this.parseSourceElement()) ){
         rs.push( item );
     }
     return rs;
 };
 
 Parser.prototype.parseSourceElement = function(){
-    return this.parseFunctionDeclaration();
+
+    var peekToken = this.peekToken();
+    if( peekToken.type == 'eof' ){
+        return;
+    }
+    if( match({type: 'keywords', value: 'function'}, peekToken )){
+        return this.parseFunctionDeclaration();
+    }else{
+        return this.parseStatements();
+    }
+
 };
 
 Parser.prototype.parseExpression = function(){
@@ -39,18 +84,125 @@ Parser.prototype.parseExpression = function(){
 
 Parser.prototype.parseFunctionDeclaration = function(){
     var functionDeclarationNode = new Node('functionDeclaration');
-    match('function');
-    match('id');
+    match({type: 'keywords', value: 'function'}, this.nextToken());
+    var nameToken = match({type: 'ID'}, this.nextToken());
+    if( nameToken ){
+        functionDeclarationNode.id = {
+            type: 'ID',
+            name: nameToken.value
+        }
+    }
 
+    var params = this.parseParamsList();
+    functionDeclarationNode.params = params;
+    functionDeclarationNode.body =  this.parseFunctionBody();
     return functionDeclarationNode;
 };
 
-Parser.prototype.parseStatements = function(){
 
+Parser.prototype.parseParamsList = function(){
+    var rs = [],
+        item;
+
+    match({type: 'punctuator', value: '('}, this.nextToken());
+    while( item = match({type: 'ID'}, this.nextToken()) ){
+        rs.push({
+            type: 'ID',
+            name: item.value
+        });
+        var nextToke = this.peekToken();
+        if(!match({type: 'punctuator', value: ','}, nextToke)){
+            break;
+        }else{
+            this.nextToken();
+        }
+    }
+    match({type: 'punctuator', value: ')'}, this.nextToken());
+    return rs;
 };
 
-Parser.prototype.parseBlock = function(){
+Parser.prototype.parseFunctionBody = function(){
 
+    mustBe('{', this.nextToken());
+
+    var rs = this.parseSourceElements();
+
+    mustBe('}', this.nextToken());
+
+    return rs;
+}
+
+Parser.prototype.parseStatements = function(){
+    var rs = [],
+        item;
+
+    while(item = this.parseStatement()){
+        rs.push( item );
+    }
+    return rs;
+};
+
+Parser.prototype.parseStatement = function(){
+    var peekToken = this.peekToken();
+
+    if( peekToken.type == 'eof' ){
+        return;
+    }
+
+    if( mustBe('{', peekToken.value) ){
+        return this.parseBlock();
+    }else{
+        if( mustBe('var', peekToken.value) ){
+            return this.parseVariableStatement()
+        }
+        if( mustBe(';', peekToken.value) ){
+            return this.parseEmptyStatement();
+        }
+        if( mustBe('if', peekToken.value) ){
+            return this.parseIfStatement();
+        }
+
+        if( mustBe('do', peekToken.value) ){
+            return this.parseEmptyStatement();
+        }
+        if( mustBe('for', peekToken.value) ){
+            return this.parseIfStatement();
+        }
+        if( mustBe('continue', peekToken.value) ){
+            return this.parseEmptyStatement();
+        }
+        if( mustBe('with', peekToken.value) ){
+            return this.parseIfStatement();
+        }
+
+        if( mustBe('switch', peekToken.value) ){
+            return this.parseEmptyStatement();
+        }
+        if( mustBe('throw', peekToken.value) ){
+            return this.parseIfStatement();
+        }
+
+        if( mustBe('debugger', peekToken.value) ){
+            return this.parseIfStatement();
+        }
+        if( mustBe('label', peekToken.value) ){
+            return this.parseIfStatement();
+        }
+        return this.parseExpressionStatement();
+    }
+};
+
+
+
+
+Parser.prototype.parseBlock = function(){
+    mustBe('{', this.nextToken());
+
+    var rs = this.parseSourceElements();
+
+    mustBe('}', this.nextToken());
+
+    return rs;
 };
 
 Parser.prototype.parseParenExpression = function(){
@@ -68,7 +220,7 @@ Parser.prototype.parseVariableStatement = function(){
     return variableStatement;
 };
 
-Parse.prototype.parseVariableDeclarationList = function(){
+Parser.prototype.parseVariableDeclarationList = function(){
     var rs = [],
         item;
     while(item = this.parseVariableDeclaration()){
@@ -80,7 +232,7 @@ Parse.prototype.parseVariableDeclarationList = function(){
     return rs;
 };
 
-Parse.prototype.parseVariableDeclaration = function(){
+Parser.prototype.parseVariableDeclaration = function(){
     var variableDeclarationNode = new Node('variableDeclaration');
     var ID = match('id');
     variableDeclarationNode.id = ID;

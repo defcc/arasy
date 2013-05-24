@@ -100,38 +100,39 @@ function YAP( source, keepWS, initStateInfo ){
         switch( state ){
             case WS_STATE:
                 parseWS();
+                return nextToken();
                 break;
 
             case STRING_STATE:
-                parseString();
+                return parseString();
                 break;
 
             case NUMBER_STATE:
-                parseNumber();
+                return parseNumber();
                 break;
 
             case PUNCTUATOR_STATE:
-                parsePunctuator();
+                return parsePunctuator();
                 break;
 
             case COMMENT_STATE:
-                parseComment();
+                return parseComment();
                 break;
 
             case TERMINATOR_STATE:
-                parseTerminator();
+                return parseTerminator();
                 break;
 
             case ID_STATE:
-                parseID();
+                return parseID();
                 break;
 
             case REGEXP_STATE:
-                parseRegexp();
+                return parseRegexp();
                 break;
 
             case DIV_STATE:
-                parseDiv();
+                return parseDiv();
                 break;
 
             case END_STATE:
@@ -141,7 +142,6 @@ function YAP( source, keepWS, initStateInfo ){
     };
 
     return {
-        parse: parse,
         nextToken: nextToken
     };
 
@@ -171,6 +171,8 @@ function YAP( source, keepWS, initStateInfo ){
         }else{
             state = ID_STATE;
         }
+
+        return state;
     }
 
 
@@ -228,9 +230,7 @@ function YAP( source, keepWS, initStateInfo ){
         token.end	  = index;
         token.value	  = buffer.join('');
 
-        emitToken( token );
-
-        resetExtVal;
+        return token;
     }
 
     function parseNumber(){
@@ -284,8 +284,7 @@ function YAP( source, keepWS, initStateInfo ){
         tk.end = index;
         tk.endLine = lineNum;
         tk.value = buffer.join('');
-        return emitToken( tk );
-
+        return tk;
     }
 
     function parseWS(){
@@ -310,7 +309,7 @@ function YAP( source, keepWS, initStateInfo ){
 
         tk.end = index;
         tk.value = buffer.join('');
-        return emitToken( tk );
+        return tk;
     }
 
     function parsePunctuator(){
@@ -340,7 +339,7 @@ function YAP( source, keepWS, initStateInfo ){
 
         tk.end = index;
         tk.value = buffer.join('');
-        return emitToken( tk );
+        return tk;
     }
 
     function parseDiv(){
@@ -364,7 +363,7 @@ function YAP( source, keepWS, initStateInfo ){
         }
         tk.end = index;
         tk.value = buffer.join('');
-        return emitToken( tk );
+        return tk;
     }
 
     function parseID( ){
@@ -394,7 +393,7 @@ function YAP( source, keepWS, initStateInfo ){
         if( isKeyWords( tk.value ) ){
             tk.type = 'keywords';
         }
-        return emitToken( tk );
+        return tk;
     }
 
     function parseTerminator(){
@@ -405,9 +404,9 @@ function YAP( source, keepWS, initStateInfo ){
             startLine: lineNum,
             endLine: lineNum
         };
-        emitToken( tk );
         newLine();
         state = START_STATE;
+        return tk;
     }
 
     function parseRegexp(){
@@ -462,7 +461,7 @@ function YAP( source, keepWS, initStateInfo ){
 
         tk.end = index;
         tk.value = buffer.join('');
-        emitToken( tk );
+        return tk;
     }
 
     function parseComment( ){
@@ -528,9 +527,8 @@ function YAP( source, keepWS, initStateInfo ){
         tk.endLine = lineNum;
         tk.end = index;
         tk.value = buffer.join('');
-        emitToken( tk );
-        //reset initStateInfo.extVal
-        resetExtVal();
+
+        return tk;
     }
 
 
@@ -545,18 +543,6 @@ function YAP( source, keepWS, initStateInfo ){
 
     function resetExtVal(){
         initStateInfo && initStateInfo.extVal && (initStateInfo.extVal = null);
-    }
-
-    function emitToken( tk ){
-        //if is ws，stop;
-        if( !keepWS && (tk.type == 'whitespace'/* || tk.type == 'terminator'*/) ){
-            return;
-        }
-        tk.startLine = tk.startLine + START_LINE;
-        tk.endLine = tk.endLine + START_LINE;
-        ('lineNum' in tk) && (tk.lineNum = tk.lineNum + START_LINE);
-        tokenList.push( tk );
-        tk.type != 'whitespace' && (lastToken = tk);
     }
 
     function isTerminator( chr ){
