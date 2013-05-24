@@ -5,13 +5,21 @@
  */
 
 //function declare
-//var lexer = YAP('function a(b,c){function funName( innerA, innerB ){ function google(){} }}');
+var code = 'function a(b,c){function funName( innerA, innerB ){ function google(){} }}';
+//var lexer = YAP('');
 
 //statements
 //var a;
+//var code = 'var a,b,c';
+
+//complex
+
+var code = 'function funcName(){var a;function id(a,b){var innerArg;}}'
+
+var lexer = YAP( code );
 
 
-var isInFunctionBody = [];
+var isInBlockBody = [];
 
 function Node( type ){
     this.type = type;
@@ -74,7 +82,7 @@ Parser.prototype.parseSourceElements = function(){
         item;
 
     var peekToken = this.peekToken();
-    if( isInFunctionBody.length && mustBe('}', peekToken) ){
+    if( isInBlockBody.length && mustBe('}', peekToken) ){
         return rs;
     }
 
@@ -91,7 +99,7 @@ Parser.prototype.parseSourceElement = function(){
         return;
     }
 
-    if( isInFunctionBody.length && mustBe('}', peekToken) ){
+    if( isInBlockBody.length && mustBe('}', peekToken) ){
         return;
     }
     if( match({type: 'keywords', value: 'function'}, peekToken )){
@@ -115,7 +123,7 @@ Parser.prototype.parseFunctionDeclaration = function(){
 
     var params = this.parseParamsList();
     functionDeclarationNode.params = params;
-    functionDeclarationNode.body =  this.parseFunctionBody();
+    functionDeclarationNode.body =  this.parseBlock();
     return functionDeclarationNode;
 };
 
@@ -125,41 +133,47 @@ Parser.prototype.parseParamsList = function(){
         item;
 
     match({type: 'punctuator', value: '('}, this.nextToken());
-    while( item = match({type: 'ID'}, this.nextToken()) ){
-        rs.push({
-            type: 'ID',
-            name: item.value
-        });
-        var nextToke = this.peekToken();
-        if(!match({type: 'punctuator', value: ','}, nextToke)){
-            break;
-        }else{
-            this.nextToken();
+    var peekToken = this.peekToken();
+    if( match({type: 'ID'}, peekToken) ){
+        while( item = match({type: 'ID'}, this.nextToken()) ){
+            rs.push({
+                type: 'ID',
+                name: item.value
+            });
+            var nextToke = this.peekToken();
+            if(!match({type: 'punctuator', value: ','}, nextToke)){
+                break;
+            }else{
+                this.nextToken();
+            }
         }
     }
     match({type: 'punctuator', value: ')'}, this.nextToken());
     return rs;
 };
 
-Parser.prototype.parseFunctionBody = function(){
 
-    isInFunctionBody.push(1);
+Parser.prototype.parseBlock = function(){
+
+    var blockStatement = new Node('blockstatement');
+
+    isInBlockBody.push(1);
 
     mustBe('{', this.nextToken());
 
-    var rs = this.parseSourceElements();
+    blockStatement.body = this.parseSourceElements();
 
     mustBe('}', this.nextToken());
 
-    isInFunctionBody.pop(1);
+    isInBlockBody.pop(1);
 
-    return rs;
+    return blockStatement;
 };
 
 
 
 Parser.prototype.parseExpression = function(){
-
+    return {};
 };
 
 
@@ -177,6 +191,15 @@ Parser.prototype.parseStatement = function(){
     var peekToken = this.peekToken();
 
     if( peekToken.type == 'eof' ){
+        return;
+    }
+
+    if( isInBlockBody.length && mustBe('}', peekToken) ){
+        return;
+    }
+
+    //接下来是一个函数定义
+    if( mustBe('function', peekToken) ){
         return;
     }
 
@@ -225,15 +248,13 @@ Parser.prototype.parseStatement = function(){
 
 
 
+Parser.prototype.parseEmptyStatement = function(){
+    this.nextToken();
+    return new Node('emptystatement');
+};
 
-Parser.prototype.parseBlock = function(){
-    mustBe('{', this.nextToken());
-
-    var rs = this.parseStatements();
-
-    mustBe('}', this.nextToken());
-
-    return rs;
+Parser.prototype.parseExpressionStatement = function(){
+    return {};
 };
 
 Parser.prototype.parseParenExpression = function(){
@@ -245,7 +266,7 @@ Parser.prototype.parseParenExpression = function(){
 
 
 Parser.prototype.parseVariableStatement = function(){
-    var variableStatement = new Node('variableDeclaration');
+    var variableStatement = new Node('variableDeclarationList');
     mustBe('var', this.nextToken());
     variableStatement.declarations = this.parseVariableDeclarationList();
     return variableStatement;
@@ -269,10 +290,13 @@ Parser.prototype.parseVariableDeclarationList = function(){
 
 Parser.prototype.parseVariableDeclaration = function(){
     var variableDeclarationNode = new Node('variableDeclaration');
-    var ID = match('id');
+    var ID = match( {type: 'ID'}, this.nextToken() );
     variableDeclarationNode.id = ID;
-    var assign = match('=');
+
+    var peekToken = this.peekToken();
+    var assign = match({value: '='}, peekToken);
     if( assign ){
+        this.nextToken();
         var init = this.parseExpression();
         variableDeclarationNode.init = init;
     }
