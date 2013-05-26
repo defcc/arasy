@@ -14,7 +14,9 @@ var code = 'function a(b,c){function funName( innerA, innerB ){ function google(
 
 //complex
 
-var code = '[a]'
+//expression
+var code = '[{key1:"b", key2:"c", key3:[a,b]}]';
+
 
 var lexer = YAP( code );
 
@@ -24,6 +26,8 @@ var isInBlockBody = [];
 var isInArray = [];
 
 var isInParen = [];
+
+var isInObject = [];
 
 function Node( type ){
     this.type = type;
@@ -54,7 +58,8 @@ function eofExpression( token ){
             || mustBe(';', token)
             || mustBe(']', token)
             || mustBe(',', token)
-            || mustBe(')', token);
+            || mustBe(')', token)
+            || mustBe('}', token);
 }
 
 function Parser( code ){
@@ -438,7 +443,7 @@ Parser.prototype.parseExpression = function(){
         return this.parseIdentifyExpression();
     }
     //literal
-    if( match({type: 'String'}, peekToken) && eofExpression( peekToken2 ) ){
+    if( match({type: 'string'}, peekToken) && eofExpression( peekToken2 ) ){
         return this.parseLiteralExpression();
     }
 
@@ -451,6 +456,13 @@ Parser.prototype.parseExpression = function(){
     if( mustBe('(', peekToken) ){
         return this.parseParenExpression();
     }
+
+    //object
+    if( mustBe('{', peekToken) ){
+        return this.parseObjectExpression();
+    }
+
+    //
 
 
     //
@@ -504,7 +516,40 @@ Parser.prototype.parseArrayExpressionElements = function(){
 };
 
 Parser.prototype.parseObjectExpression = function(){
+    var objectNode = new Node('ObjectExpression');
+    isInObject.push(1);
+    mustBe('{', this.nextToken());
+    objectNode.properties = this.parseObjectExpressionElements();
+    mustBe('}', this.nextToken());
+    isInObject.pop();
+    return objectNode;
+};
 
+
+Parser.prototype.parseObjectExpressionElements = function(){
+    var rs = [],
+        item;
+    while( item = this.parseObjectItem() ){
+        rs.push( item );
+
+        var peekToken = this.peekToken();
+        if( !mustBe(',', peekToken) ){
+            break;
+        }else{
+            this.nextToken();
+        }
+    }
+    return rs;
+};
+
+Parser.prototype.parseObjectItem = function(){
+    var rs = {};
+
+    rs.key = this.parseIdentifyExpression();
+    mustBe(':', this.nextToken());
+    rs.value = this.parseExpression();
+
+    return rs;
 };
 
 Parser.prototype.parseParenExpression = function(){
