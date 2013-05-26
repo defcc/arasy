@@ -14,12 +14,16 @@ var code = 'function a(b,c){function funName( innerA, innerB ){ function google(
 
 //complex
 
-var code = 'function funcName(){var a;function id(a,b){var innerArg;}}'
+var code = '[[]]'
 
 var lexer = YAP( code );
 
 
 var isInBlockBody = [];
+
+var isInArray = [];
+
+var isInParen = [];
 
 function Node( type ){
     this.type = type;
@@ -41,6 +45,10 @@ function match( obj, token ){
     return typeRs == 1 && valueRs == 1 ? token : false;
 }
 
+function eof( token ){
+    return  token.type == 'eof';
+}
+
 function Parser( code ){
     this.lexer = lexer;
     var ast = this.parseProgram();
@@ -52,6 +60,15 @@ Parser.prototype.tokenPool = [];
 Parser.prototype.peekToken = function(){
     if( this.tokenPool.length ){
         return this.tokenPool[0];
+    }
+    var token = this.lexer.nextToken();
+    this.tokenPool.push( token );
+    return token;
+};
+//向前看第二个
+Parser.prototype.peekToken2 = function(){
+    if( this.tokenPool.length >= 2 ){
+        return this.tokenPool[1];
     }
     var token = this.lexer.nextToken();
     this.tokenPool.push( token );
@@ -171,12 +188,6 @@ Parser.prototype.parseBlock = function(){
 };
 
 
-
-Parser.prototype.parseExpression = function(){
-    return {};
-};
-
-
 Parser.prototype.parseStatements = function(){
     var rs = [],
         item;
@@ -254,14 +265,9 @@ Parser.prototype.parseEmptyStatement = function(){
 };
 
 Parser.prototype.parseExpressionStatement = function(){
-    return {};
-};
-
-Parser.prototype.parseParenExpression = function(){
-    match('(');
-    var testNode = this.parseExpression();
-    match(')');
-    return testNode;
+    var node = new Node('ExpressionStatement');
+    node.expressions = this.parseExpression();
+    return node;
 };
 
 
@@ -307,7 +313,7 @@ Parser.prototype.parseVariableDeclaration = function(){
 
 
 Parser.prototype.parseIfStatement = function(){
-    var ifNode = new Node('if');
+    var ifNode = new Node('IfStatement');
     ifNode.test = this.parseParenExpression();
     ifNode.body = this.parseBlock();
     return ifNode;
@@ -397,6 +403,174 @@ Parser.prototype.parseSwitchCase = function(){
     return false;
 };
 
+
+
+
+
+Parser.prototype.parseExpression = function(){
+    var peekToken = this.peekToken();
+    var peekToken2 = this.peekToken2();
+
+    if( isInArray.length && mustBe(']', peekToken) ){
+        return;
+    }
+
+    //expression
+    //this expression
+    if( mustBe('this', peekToken)
+        && (
+            eof( peekToken2 )
+            || mustBe(';', peekToken2)
+            || mustBe(']', peekToken2)
+            || mustBe(',', peekToken2)
+            )
+    ){
+        return this.parseThisExpression();
+    }
+
+    //identify
+    if( match({type: 'ID'}, peekToken)
+        && ( eof( peekToken2 ) || mustBe(';', peekToken2) ) ){
+        return this.parseIdentifyExpression();
+    }
+    //literal
+    if( match({type: 'String'}, peekToken)
+        && ( eof(peekToken2) || mustBe((';', peekToken2)) ) ){
+        return this.parseLiteralExpression();
+    }
+
+    //array
+    if( mustBe('[', peekToken) ){
+        return this.parseArrayExpression();
+    }
+
+    //parenexpression
+    if( mustBe('(', peekToken) ){
+        return this.parseParenExpression();
+    }
+
+
+    //
+    return {};
+};
+
+Parser.prototype.parseThisExpression = function(){
+    this.nextToken();
+    var node = new Node('thisexpression');
+    return node;
+};
+
+Parser.prototype.parseIdentifyExpression = function(){
+    var token = this.nextToken();
+    var node = new Node('identify');
+    node.name = token.value;
+    return node;
+};
+
+Parser.prototype.parseLiteralExpression = function(){
+    var token = this.nextToken();
+    var node = new Node('literal');
+    node.value = token.value;
+    return node;
+};
+
+Parser.prototype.parseArrayExpression = function(){
+    var node = new Node('ArrayExpression');
+    node.elements = this.parseArrayExpressionElements();
+    return node;
+};
+
+Parser.prototype.parseArrayExpressionElements = function(){
+    var rs = [],
+        item;
+
+    mustBe('[', this.nextToken());
+    isInArray.push(1);
+    while( item = this.parseExpression() ){
+        rs.push( item );
+        var peekToken = this.peekToken();
+        if( !mustBe(',', peekToken) ){
+            break;
+        }else{
+            this.nextToken();
+        }
+    }
+    mustBe(']', this.nextToken());
+    isInArray.pop(1);
+    return rs;
+};
+
+Parser.prototype.parseObjectExpression = function(){
+
+};
+
+Parser.prototype.parseParenExpression = function(){
+    mustBe('(', this.nextToken());
+    isInParen.push(1);
+    var node = this.parseExpression();
+    mustBe(')', this.nextToken());
+    isInParen.pop();
+    return node;
+};
+
+Parser.prototype.parseMemberExpression = function(){
+
+};
+
+Parser.prototype.parseNewExpression = function(){
+
+};
+
+Parser.prototype.parseCallExpression = function(){
+
+};
+
+Parser.prototype.parseFunctionExpression = function(){
+
+};
+
+
+Parser.prototype.parsePostfixExpression = function(){
+
+};
+
+
+Parser.prototype.parseUnaryExpression = function(){
+
+};
+
+
+Parser.prototype.parseMultiplicativeExpression = function(){
+
+};
+
+
+Parser.prototype.parseAdditiveExpression = function(){
+
+};
+
+
+Parser.prototype.parseShiftExpression = function(){
+
+};
+
+Parser.prototype.parseRelationalExpression = function(){
+
+};
+
+
+Parser.prototype.parseEqualityExpression = function(){
+
+};
+
+Parser.prototype.parseAssignmentExpression = function(){
+
+};
+
+
+Parser.prototype.parseSequenceExpression = function(){
+
+};
 
 
 
