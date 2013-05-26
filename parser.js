@@ -14,7 +14,7 @@ var code = 'function a(b,c){function funName( innerA, innerB ){ function google(
 
 //complex
 
-var code = '[[]]'
+var code = '[a]'
 
 var lexer = YAP( code );
 
@@ -47,6 +47,14 @@ function match( obj, token ){
 
 function eof( token ){
     return  token.type == 'eof';
+}
+
+function eofExpression( token ){
+    return eof( token )
+            || mustBe(';', token)
+            || mustBe(']', token)
+            || mustBe(',', token)
+            || mustBe(')', token);
 }
 
 function Parser( code ){
@@ -415,27 +423,22 @@ Parser.prototype.parseExpression = function(){
         return;
     }
 
+    if( isInParen.length && mustBe(')', peekToken) ){
+        return;
+    }
+
     //expression
     //this expression
-    if( mustBe('this', peekToken)
-        && (
-            eof( peekToken2 )
-            || mustBe(';', peekToken2)
-            || mustBe(']', peekToken2)
-            || mustBe(',', peekToken2)
-            )
-    ){
+    if( mustBe('this', peekToken) && eofExpression( peekToken2 )){
         return this.parseThisExpression();
     }
 
     //identify
-    if( match({type: 'ID'}, peekToken)
-        && ( eof( peekToken2 ) || mustBe(';', peekToken2) ) ){
+    if( match({type: 'ID'}, peekToken) && eofExpression( peekToken2 ) ){
         return this.parseIdentifyExpression();
     }
     //literal
-    if( match({type: 'String'}, peekToken)
-        && ( eof(peekToken2) || mustBe((';', peekToken2)) ) ){
+    if( match({type: 'String'}, peekToken) && eofExpression( peekToken2 ) ){
         return this.parseLiteralExpression();
     }
 
