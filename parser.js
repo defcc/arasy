@@ -15,7 +15,7 @@ var code = 'function a(b,c){function funName( innerA, innerB ){ function google(
 //complex
 
 //expression
-var code = '[{key1:"b", key2:"c", key3:[a,b]}]';
+var code = '[function a(arg){var a,b;}, "abc"]';
 
 
 var lexer = YAP( code );
@@ -420,6 +420,11 @@ Parser.prototype.parseSwitchCase = function(){
 
 
 
+//parseExpression
+//考虑到是从前向后解析的，同时各种不同的表达式，需要向后解析到特定的token才能确定。
+//所有有必要对当前解析的 expression进行缓存。
+//向后读取，然后尝试进行各种匹配：）
+
 Parser.prototype.parseExpression = function(){
     var peekToken = this.peekToken();
     var peekToken2 = this.peekToken2();
@@ -457,15 +462,16 @@ Parser.prototype.parseExpression = function(){
         return this.parseParenExpression();
     }
 
-    //object
+    //object expression
     if( mustBe('{', peekToken) ){
         return this.parseObjectExpression();
     }
 
-    //
+    //function expression
+    if( mustBe('function', peekToken) ){
+        return this.parseFunctionExpression();
+    }
 
-
-    //
     return {};
 };
 
@@ -561,6 +567,19 @@ Parser.prototype.parseParenExpression = function(){
     return node;
 };
 
+
+Parser.prototype.parseFunctionExpression = function(){
+    var functionNode = new Node('FunctionExpression');
+    mustBe('function', this.nextToken());
+    var peekToken = this.peekToken();
+    if( match({type:'ID'}, peekToken) ){
+        functionNode.id = this.parseIdentifyExpression();
+    }
+    functionNode.params = this.parseParamsList();
+    functionNode.body = this.parseBlock();
+    return functionNode;
+};
+
 Parser.prototype.parseMemberExpression = function(){
 
 };
@@ -573,9 +592,6 @@ Parser.prototype.parseCallExpression = function(){
 
 };
 
-Parser.prototype.parseFunctionExpression = function(){
-
-};
 
 
 Parser.prototype.parsePostfixExpression = function(){
