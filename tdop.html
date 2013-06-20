@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="lexer.js" ></script>
+</head>
+<body>
+
+</body>
+</html>
+
+<script>
+
+
+    var currentToken;
+    var code = 'a;delete a';
+    var lexer = YAP( code );
+    var punctuators = '/= *= += -= ? void delete || && == != + * ( ) - /'.split(/\s+/);
+
+    var isPubctuator = function( clue ){
+        return punctuators.indexOf( clue ) >= 0;
+    };
+
+    var nextToken = function(){
+        currentToken = this.lexer.nextToken();
+        if ( currentToken.type == 'number' ) {
+            currentToken = new TDOP.ID( currentToken.value );
+        } else if( currentToken.type == 'ID' ){
+            currentToken = new TDOP.ID( currentToken.value );
+        } else if ( isPubctuator(currentToken.value) ) {
+            currentToken = new TDOP[currentToken.value]( currentToken.value );
+        } else {
+            currentToken = new TDOP['eof']();
+        }
+    };
+
+    function expression(rbp){
+        rbp = rbp || 0;
+        var t = currentToken;
+
+        nextToken();
+
+        var left = t.nud();
+
+        while( rbp < currentToken.lbp ){
+            t = currentToken;
+            nextToken();
+            left = t.led( left );
+        }
+
+        return left;
+    }
+
+    var TDOP = {
+        ID: function( val ){
+            this.value = val;
+            this.nud = function(){
+                return this.value;
+            };
+        },
+        '?': function(){
+            this.lbp = 1;
+            this.led = function( left ){
+                var right = getExpression();
+                return {
+                    left: left,
+                    right: right,
+                    type: '?'
+                }
+            };
+            function getExpression(){
+                //? expression: expression;
+                var trueExpression = expression(0);
+                nextToken();
+                var falseExpression = expression(0);
+                return {
+                    trueExp: trueExpression,
+                    falseExp: falseExpression
+                };
+            }
+        },
+        'void': function(){
+            this.lbp = 1;
+            this.nud = function( left ){
+                var right = expression( this.lbp );
+                return {
+                    expression: right,
+                    type: 'void '
+                }
+            };
+        },
+        'delete': function(){
+            this.lbp = 1;
+            this.nud = function( left ){
+                var right = expression( this.lbp );
+                return {
+                    expression: right,
+                    type: 'delete '
+                }
+            };
+            this.led = function(){
+                return 'sd';
+            }
+        },
+        '*=': function(){
+            this.lbp = 2;
+            this.led = function( left ){
+                var right = expression( this.lbp );
+                return {
+                    left: left,
+                    right: right,
+                    type: '*='
+                }
+            };
+        },
+        '/=': function(){
+            this.lbp = 2;
+            this.led = function( left ){
+                var right = expression( this.lbp );
+                return {
+                    left: left,
+                    right: right,
+                    type: '/='
+                }
+            };
+        },
+        '+=': function(){
+            this.lbp = 2;
+            this.led = function( left ){
+                var right = expression( this.lbp );
+                return {
+                    left: left,
+                    right: right,
+                    type: '/='
+                }
+            };
+        },
+        '-=': function(){
+            this.lbp = 2;
+            this.led = function( left ){
+                var right = expression( this.lbp );
+                return {
+                    left: left,
+                    right: right,
+                    type: '/='
+                }
+            };
+        },
+        '||': function(){
+            this.lbp = 5;
+            this.led = function( left ){
+                var right = expression( this.lbp );
+                return {
+                    left: left,
+                    right: right,
+                    type: '||'
+                }
+            };
+            this.nud = function(){
+                return expression(100);
+            }
+        },
+        '&&': function(){
+            this.lbp = 5;
+            this.led = function( left ){
+                var right = expression( this.lbp );
+                return {
+                    left: left,
+                    right: right,
+                    type: '&&'
+                }
+            };
+            this.nud = function(){
+                return expression(100);
+            }
+        },
+        '==': function(){
+            this.lbp = 6;
+            this.led = function( left ){
+                var right = expression( this.lbp );
+                return {
+                    left: left,
+                    right: right,
+                    type: '=='
+                }
+            };
+            this.nud = function(){
+                return expression(100);
+            }
+        },
+        '!=': function(){
+            this.lbp = 6;
+            this.led = function( left ){
+                var right = expression( this.lbp );
+                return {
+                    left: left,
+                    right: right,
+                    type: '!='
+                }
+            };
+            this.nud = function(){
+                return expression(100);
+            }
+        },
+
+        '+': function(){
+            this.lbp = 10;
+            this.led = function( left ){
+                var right = expression( this.lbp );
+                return {
+                    left: left,
+                    right: right,
+                    type: '+'
+                }
+            };
+            this.nud = function(){
+                return expression(100);
+            }
+        },
+        '-': function(){
+            this.lbp = 10;
+            this.led = function( left ){
+                var right = expression( this.lbp );
+                return {
+                    left: left,
+                    right: right,
+                    type: '-'
+                }
+            };
+            this.nud = function(){
+                return expression(100);
+            }
+        },
+        '*': function(){
+            this.lbp = 20;
+            this.led = function( left ){
+                var right = expression( this.lbp );
+                return {
+                    left: left,
+                    right: right,
+                    type: '*'
+                }
+            };
+        },
+        '(': function(){
+            this.lbp = 150;
+            this.nud = function(){
+                var expr = expression();
+                nextToken();
+                return expr;
+            };
+        },
+        ')': function(){
+            this.lbp = 0;
+        },
+        '/': function(){
+            this.lbp = 20;
+            this.led = function( left ){
+                var right = expression( this.lbp );
+                return {
+                    left: left,
+                    right: right,
+                    type: '/'
+                }
+            };
+        },
+        'eof': function(){
+            this.lbp = 0;
+            this.type = 'eof';
+        }
+    };
+
+    function parseExpressions(){
+        nextToken();
+        var esLists = [],
+            item;
+        while( item = expression()  ){
+            esLists.push( item );
+            if(currentToken.value==';' || currentToken.type == 'eof' ){
+                break;
+            }
+        }
+        return esLists;
+    }
+
+
+
+    console.log(parseExpressions());
+
+
+</script>
