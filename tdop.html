@@ -9,282 +9,133 @@
 </html>
 
 <script>
+var types = ['deleteOperator', 'voidOperator', 'identify', 'typeofOperator',  'plusOperator', 'mutliOperator'];
+function makeObject( array ){
+    var obj = {};
+    for ( var i = 0; i < array.length; i++ ) {
+        obj[ array[i] ] = array[i];
+    }
+    return obj;
+}
 
+var operatorTokenMap = makeObject( types );
 
-    var currentToken;
-    var code = 'a;delete a';
-    var lexer = YAP( code );
-    var punctuators = '/= *= += -= ? void delete || && == != + * ( ) - /'.split(/\s+/);
-
-    var isPubctuator = function( clue ){
-        return punctuators.indexOf( clue ) >= 0;
-    };
-
-    var nextToken = function(){
-        currentToken = this.lexer.nextToken();
-        if ( currentToken.type == 'number' ) {
-            currentToken = new TDOP.ID( currentToken.value );
-        } else if( currentToken.type == 'ID' ){
-            currentToken = new TDOP.ID( currentToken.value );
-        } else if ( isPubctuator(currentToken.value) ) {
-            currentToken = new TDOP[currentToken.value]( currentToken.value );
-        } else {
-            currentToken = new TDOP['eof']();
+var tokenList = {
+    index: 0,
+    list: [{
+        type: operatorTokenMap.deleteOperator,
+        val: 'delete',
+        precedence: 1
+    }, {
+        type: operatorTokenMap.identify,
+        val: 'a',
+        precedence: 1
+    }, {
+        type: 'eof',
+        val: 'eof'
+    }],
+    consume: function(){
+        if ( this.eof() ) {
+            return this.eof();
         }
-    };
-
-    function expression(rbp){
-        rbp = rbp || 0;
-        var t = currentToken;
-
-        nextToken();
-
-        var left = t.nud();
-
-        while( rbp < currentToken.lbp ){
-            t = currentToken;
-            nextToken();
-            left = t.led( left );
+        return tokenList.list[ this.index++ ];
+    },
+    lookAhead: function(){
+        if ( this.eof() ) {
+            return this.eof();
         }
+        return tokenList.list[ this.index ];
+    },
+    eof: function(){
+        if ( this.index >= tokenList.list.length - 1 ) {
+            return {
+                type: 'eof',
+                val: 'eof'
+            }
+        }
+    }
+};
 
+var prefixOperatorParser = function( expressionParser, token ){
+    var operand = expressionParser.parse();
+    return {
+        type: 'UnaryExpression',
+        operator: token.val,
+        prefix: true,
+        argument: operand
+    }
+};
+
+var infixOperatorParser = function( expressionParser, left,  token ){
+    var operand = expressionParser.parse();
+    return {
+        type: 'BinaryExpression',
+        operator: token.val,
+        infix: true,
+        left: left,
+        right: operand
+    }
+};
+
+var identifyParser = function( expressionParser, token ){
+    return {
+        type: 'Identifier',
+        name: token.val
+    }
+};
+
+var expressionParser = {
+    prefixParselet: [],
+    infixParselet: [],
+    registerPrefix: function( tokenType, parselet ){
+        this.prefixParselet[ tokenType ] = parselet;
+    },
+
+    registerPrefixOperator: function ( tokenType ) {
+        this.prefixParselet[ tokenType ] = prefixOperatorParser;
+    },
+
+    registerInfix: function( tokenType, parselet ){
+        this.infixParselet[ tokenType ] = parselet;
+    },
+
+    registerInfixOperator: function ( tokenType ) {
+        this.infixParselet[ tokenType ] = infixOperatorParser;
+    },
+
+    parse: function( precedence ) {
+        var token = tokenList.consume();
+        if ( token.type == 'eof' ) {
+            return;
+        }
+        var prefixParser = this.prefixParselet[ token.type ];
+        var left = prefixParser( this, token );
+
+        while ( precedence < this.getPrecedence() ) {
+            var token = tokenList.consume();
+            var infixParser = this.infixParselet[ token.type ];
+            left = infixParser( this, left, token );
+        }
         return left;
-    }
-
-    var TDOP = {
-        ID: function( val ){
-            this.value = val;
-            this.nud = function(){
-                return this.value;
-            };
-        },
-        '?': function(){
-            this.lbp = 1;
-            this.led = function( left ){
-                var right = getExpression();
-                return {
-                    left: left,
-                    right: right,
-                    type: '?'
-                }
-            };
-            function getExpression(){
-                //? expression: expression;
-                var trueExpression = expression(0);
-                nextToken();
-                var falseExpression = expression(0);
-                return {
-                    trueExp: trueExpression,
-                    falseExp: falseExpression
-                };
-            }
-        },
-        'void': function(){
-            this.lbp = 1;
-            this.nud = function( left ){
-                var right = expression( this.lbp );
-                return {
-                    expression: right,
-                    type: 'void '
-                }
-            };
-        },
-        'delete': function(){
-            this.lbp = 1;
-            this.nud = function( left ){
-                var right = expression( this.lbp );
-                return {
-                    expression: right,
-                    type: 'delete '
-                }
-            };
-            this.led = function(){
-                return 'sd';
-            }
-        },
-        '*=': function(){
-            this.lbp = 2;
-            this.led = function( left ){
-                var right = expression( this.lbp );
-                return {
-                    left: left,
-                    right: right,
-                    type: '*='
-                }
-            };
-        },
-        '/=': function(){
-            this.lbp = 2;
-            this.led = function( left ){
-                var right = expression( this.lbp );
-                return {
-                    left: left,
-                    right: right,
-                    type: '/='
-                }
-            };
-        },
-        '+=': function(){
-            this.lbp = 2;
-            this.led = function( left ){
-                var right = expression( this.lbp );
-                return {
-                    left: left,
-                    right: right,
-                    type: '/='
-                }
-            };
-        },
-        '-=': function(){
-            this.lbp = 2;
-            this.led = function( left ){
-                var right = expression( this.lbp );
-                return {
-                    left: left,
-                    right: right,
-                    type: '/='
-                }
-            };
-        },
-        '||': function(){
-            this.lbp = 5;
-            this.led = function( left ){
-                var right = expression( this.lbp );
-                return {
-                    left: left,
-                    right: right,
-                    type: '||'
-                }
-            };
-            this.nud = function(){
-                return expression(100);
-            }
-        },
-        '&&': function(){
-            this.lbp = 5;
-            this.led = function( left ){
-                var right = expression( this.lbp );
-                return {
-                    left: left,
-                    right: right,
-                    type: '&&'
-                }
-            };
-            this.nud = function(){
-                return expression(100);
-            }
-        },
-        '==': function(){
-            this.lbp = 6;
-            this.led = function( left ){
-                var right = expression( this.lbp );
-                return {
-                    left: left,
-                    right: right,
-                    type: '=='
-                }
-            };
-            this.nud = function(){
-                return expression(100);
-            }
-        },
-        '!=': function(){
-            this.lbp = 6;
-            this.led = function( left ){
-                var right = expression( this.lbp );
-                return {
-                    left: left,
-                    right: right,
-                    type: '!='
-                }
-            };
-            this.nud = function(){
-                return expression(100);
-            }
-        },
-
-        '+': function(){
-            this.lbp = 10;
-            this.led = function( left ){
-                var right = expression( this.lbp );
-                return {
-                    left: left,
-                    right: right,
-                    type: '+'
-                }
-            };
-            this.nud = function(){
-                return expression(100);
-            }
-        },
-        '-': function(){
-            this.lbp = 10;
-            this.led = function( left ){
-                var right = expression( this.lbp );
-                return {
-                    left: left,
-                    right: right,
-                    type: '-'
-                }
-            };
-            this.nud = function(){
-                return expression(100);
-            }
-        },
-        '*': function(){
-            this.lbp = 20;
-            this.led = function( left ){
-                var right = expression( this.lbp );
-                return {
-                    left: left,
-                    right: right,
-                    type: '*'
-                }
-            };
-        },
-        '(': function(){
-            this.lbp = 150;
-            this.nud = function(){
-                var expr = expression();
-                nextToken();
-                return expr;
-            };
-        },
-        ')': function(){
-            this.lbp = 0;
-        },
-        '/': function(){
-            this.lbp = 20;
-            this.led = function( left ){
-                var right = expression( this.lbp );
-                return {
-                    left: left,
-                    right: right,
-                    type: '/'
-                }
-            };
-        },
-        'eof': function(){
-            this.lbp = 0;
-            this.type = 'eof';
+    },
+    getPrecedence: function (  ) {
+        var nextToken = tokenList.lookAhead();
+        if ( nextToken.precedence ) {
+            return nextToken.precedence;
         }
-    };
-
-    function parseExpressions(){
-        nextToken();
-        var esLists = [],
-            item;
-        while( item = expression()  ){
-            esLists.push( item );
-            if(currentToken.value==';' || currentToken.type == 'eof' ){
-                break;
-            }
-        }
-        return esLists;
+        return 0;
     }
+};
+
+expressionParser.registerPrefixOperator(operatorTokenMap.deleteOperator);
+expressionParser.registerPrefixOperator(operatorTokenMap.voidOperator);
+expressionParser.registerPrefixOperator(operatorTokenMap.plusOperator)
+expressionParser.registerPrefix(operatorTokenMap.identify, identifyParser);
 
 
+expressionParser.registerInfixOperator(operatorTokenMap.plusOperator);
+expressionParser.registerInfixOperator(operatorTokenMap.mutliOperator);
 
-    console.log(parseExpressions());
-
+console.log(expressionParser.parse(0));
 
 </script>

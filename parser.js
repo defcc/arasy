@@ -9,13 +9,13 @@ var code = 'function a(b,c){function funName( innerA, innerB ){ function google(
 //var lexer = YAP('');
 
 //statements
-//var a;
-//var code = 'var a,b,c';
+
+var code = 'a,b;';
 
 //complex
 
 //expression
-var code = '[function a(arg){var a,b;}, "abc"]';
+//var code = '[function a(arg){var a,b;}, "abc"]';
 
 
 var lexer = YAP( code );
@@ -28,6 +28,7 @@ var isInArray = [];
 var isInParen = [];
 
 var isInObject = [];
+
 
 function Node( type ){
     this.type = type;
@@ -419,6 +420,40 @@ Parser.prototype.parseSwitchCase = function(){
 
 
 
+// a+4*3
+
+Parser.prototype.parseExpressionElements = function(){
+    var expression = this.parseExpression();
+    var peekToken  = this.peekToken();
+    if( mustBe(';', peekToken) ){
+        return expression;
+    }
+    //(
+    if( mustBe('(', peekToken) ){
+        //parseCallExpression
+        return this.parseCallExpression( expression );
+    }
+    //[ a+3[1]
+    if( mustBe('[', peekToken) ){
+        //parseMember
+
+    }
+    //.identify
+    if( mustBe('.', peekToken) ){
+
+    }
+
+    //,
+    if( mustBe(',', peekToken) ){
+        //comma 语句
+    }
+
+    //+
+    if( mustBe('+', peekToken) ){
+        //plus
+
+    }
+};
 
 //parseExpression
 //考虑到是从前向后解析的，同时各种不同的表达式，需要向后解析到特定的token才能确定。
@@ -434,6 +469,9 @@ Parser.prototype.parseExpression = function(){
     }
 
     if( isInParen.length && mustBe(')', peekToken) ){
+        return;
+    }
+    if( mustBe(';', peekToken )){
         return;
     }
 
@@ -470,6 +508,16 @@ Parser.prototype.parseExpression = function(){
     //function expression
     if( mustBe('function', peekToken) ){
         return this.parseFunctionExpression();
+    }
+
+    //new
+    if( match({type: 'keywords', value: 'new'}, peekToken) ){
+        return this.parseNewExpression();
+    }
+
+    //delete
+    if( mustBe('delete', peekToken) ){
+        return this.parseUnaryExpression();
     }
 
     return {};
@@ -585,11 +633,17 @@ Parser.prototype.parseMemberExpression = function(){
 };
 
 Parser.prototype.parseNewExpression = function(){
-
+    var node = new Node('NewExpression');
+    node.callee = this.parseExpression();
+    node.arguments = this.parseParamsList();
+    return node;
 };
 
-Parser.prototype.parseCallExpression = function(){
-
+Parser.prototype.parseCallExpression = function( expression ){
+    var node = new Node('CallExpression');
+    node.callee = expression;
+    node.params = this.parseParamsList();
+    return node;
 };
 
 
@@ -599,8 +653,30 @@ Parser.prototype.parsePostfixExpression = function(){
 };
 
 
-Parser.prototype.parseUnaryExpression = function(){
+Parser.prototype.parseUnaryExpressionElement = function( token ){
+    var node = new Node('UnaryExpression');
+    node.operator = token.value;
+    node.argument = this.parseUnaryExpression();
+    return node;
+};
 
+
+Parser.prototype.parseUnaryExpression = function(){
+    var peekToken = this.peekToken();
+    if( mustBe('delete', peekToken)
+        || mustBe('void', peekToken)
+        || mustBe('typeof', peekToken)
+        || mustBe('++', peekToken)
+        || mustBe('--', peekToken)
+        || mustBe('-', peekToken)
+        || mustBe('+', peekToken)
+        || mustBe('~', peekToken)
+        || mustBe('!', peekToken)
+    ){
+        return this.parseUnaryExpressionElement( peekToken )
+    }else{
+        return this.parseMemberExpression();
+    }
 };
 
 
