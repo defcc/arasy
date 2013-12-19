@@ -9,7 +9,38 @@
 </html>
 
 <script>
-var types = ['deleteOperator', 'voidOperator', 'identify', 'typeofOperator',  'plusOperator', 'mutliOperator'];
+
+/*
+*
+--------------------------------------
+  operator  |  precedence   |    ex
+--------------------------------------
+   dot      |      20       |    .
+   typeof   |      18       |    typeof
+   mutli    |      18       |    x
+   div      |      18       |    /
+   plus     |      17       |    +
+   minus    |      17       |    -
+   void     |      10       |    void
+            |               |
+            |               |
+            |               |
+            |               |
+
+
+* */
+
+
+var types = ['deleteOperator',
+    'voidOperator',
+    'identify',
+    'typeofOperator',
+    'plusOperator',
+    'mutliOperator',
+    'divOperator',
+    'minusOperator',
+    'dotOperator'
+];
 function makeObject( array ){
     var obj = {};
     for ( var i = 0; i < array.length; i++ ) {
@@ -20,17 +51,35 @@ function makeObject( array ){
 
 var operatorTokenMap = makeObject( types );
 
+
+
+
+var testTokenList = [{
+    type: operatorTokenMap.identify,
+    val: 'a',
+    precedence: 1
+},{
+    type: operatorTokenMap.minusOperator,
+    val: '-',
+    precedence: 2
+},{
+    type: operatorTokenMap.identify,
+    val: 'b',
+    precedence: 1
+},{
+    type: operatorTokenMap.plusOperator,
+    val: '+',
+    precedence: 2
+},{
+    type: operatorTokenMap.identify,
+    val: 'c',
+    precedence: 1
+}];
+
+
 var tokenList = {
     index: 0,
     list: [{
-        type: operatorTokenMap.deleteOperator,
-        val: 'delete',
-        precedence: 1
-    }, {
-        type: operatorTokenMap.identify,
-        val: 'a',
-        precedence: 1
-    }, {
         type: 'eof',
         val: 'eof'
     }],
@@ -56,8 +105,20 @@ var tokenList = {
     }
 };
 
+
+
+
+makeTestToken(tokenList.list, testTokenList);
+
+function makeTestToken( source, testTokens ){
+    var testTokenLen = testTokens.length;
+    for ( var i = 0; i < testTokenLen; i++ ) {
+        source.unshift( testTokens.pop() );
+    }
+}
+
 var prefixOperatorParser = function( expressionParser, token ){
-    var operand = expressionParser.parse();
+    var operand = expressionParser.parse( token.precedence );
     return {
         type: 'UnaryExpression',
         operator: token.val,
@@ -67,7 +128,7 @@ var prefixOperatorParser = function( expressionParser, token ){
 };
 
 var infixOperatorParser = function( expressionParser, left,  token ){
-    var operand = expressionParser.parse();
+    var operand = expressionParser.parse( token.precedence );
     return {
         type: 'BinaryExpression',
         operator: token.val,
@@ -129,12 +190,16 @@ var expressionParser = {
 
 expressionParser.registerPrefixOperator(operatorTokenMap.deleteOperator);
 expressionParser.registerPrefixOperator(operatorTokenMap.voidOperator);
-expressionParser.registerPrefixOperator(operatorTokenMap.plusOperator)
+expressionParser.registerPrefixOperator(operatorTokenMap.plusOperator);
+expressionParser.registerPrefixOperator(operatorTokenMap.typeofOperator);
 expressionParser.registerPrefix(operatorTokenMap.identify, identifyParser);
 
 
 expressionParser.registerInfixOperator(operatorTokenMap.plusOperator);
 expressionParser.registerInfixOperator(operatorTokenMap.mutliOperator);
+expressionParser.registerInfixOperator(operatorTokenMap.divOperator);
+expressionParser.registerInfixOperator(operatorTokenMap.minusOperator);
+expressionParser.registerInfixOperator(operatorTokenMap.dotOperator);
 
 console.log(expressionParser.parse(0));
 
