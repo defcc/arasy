@@ -15,14 +15,16 @@
 --------------------------------------
   operator  |  precedence   |    ex
 --------------------------------------
-   dot      |      20       |    .
-   typeof   |      18       |    typeof
+   dot      |      30       |    .
+   typeof   |      20       |    typeof
+   void     |      19       |    void
    mutli    |      18       |    x
    div      |      18       |    /
    plus     |      17       |    +
    minus    |      17       |    -
-   void     |      10       |    void
-            |               |
+
+
+   (        |      2        |    groupOperator
             |               |
             |               |
             |               |
@@ -31,15 +33,19 @@
 * */
 
 
-var types = ['deleteOperator',
+var types = [
+    'dotOperator',
+    'typeofOperator',
+    'deleteOperator',
     'voidOperator',
     'identify',
-    'typeofOperator',
     'plusOperator',
     'mutliOperator',
     'divOperator',
     'minusOperator',
-    'dotOperator'
+    'leftParenOperator',
+    'groupOperator'
+
 ];
 function makeObject( array ){
     var obj = {};
@@ -54,26 +60,34 @@ var operatorTokenMap = makeObject( types );
 
 
 
-var testTokenList = [{
-    type: operatorTokenMap.identify,
-    val: 'a',
-    precedence: 1
-},{
-    type: operatorTokenMap.minusOperator,
-    val: '-',
-    precedence: 2
-},{
+var testTokenList = [ {
     type: operatorTokenMap.identify,
     val: 'b',
     precedence: 1
-},{
-    type: operatorTokenMap.plusOperator,
-    val: '+',
+}, {
+    type: operatorTokenMap.mutliOperator,
+    val: '*',
+    precedence: 18
+}, {
+    type: operatorTokenMap.groupOperator,
+    val: '(',
     precedence: 2
-},{
+}, {
     type: operatorTokenMap.identify,
-    val: 'c',
+    val: 'a',
     precedence: 1
+}, {
+    type: operatorTokenMap.mutliOperator,
+    val: '*',
+    precedence: 18
+}, {
+    type: operatorTokenMap.identify,
+    val: 'b',
+    precedence: 1
+}, {
+    type: operatorTokenMap.groupOperator,
+    val: ')',
+    precedence: 2
 }];
 
 
@@ -145,6 +159,15 @@ var identifyParser = function( expressionParser, token ){
     }
 };
 
+var groupParser = function( expressionParser, token ){
+    var groupExp = expressionParser.parse( token.precedence );
+    var rightParen = tokenList.consume();
+    return {
+        type: 'GroupExpression',
+        argument: groupExp
+    }
+};
+
 var expressionParser = {
     prefixParselet: [],
     infixParselet: [],
@@ -191,8 +214,10 @@ var expressionParser = {
 expressionParser.registerPrefixOperator(operatorTokenMap.deleteOperator);
 expressionParser.registerPrefixOperator(operatorTokenMap.voidOperator);
 expressionParser.registerPrefixOperator(operatorTokenMap.plusOperator);
+expressionParser.registerPrefixOperator(operatorTokenMap.minusOperator);
 expressionParser.registerPrefixOperator(operatorTokenMap.typeofOperator);
 expressionParser.registerPrefix(operatorTokenMap.identify, identifyParser);
+expressionParser.registerPrefix(operatorTokenMap.groupOperator, groupParser);
 
 
 expressionParser.registerInfixOperator(operatorTokenMap.plusOperator);
