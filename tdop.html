@@ -61,10 +61,26 @@ var operatorTokenMap = makeObject( types );
 
 
 var testTokenList = [ {
+    type: operatorTokenMap.groupOperator,
+    val: '(',
+    precedence: 2
+}, {
+    type: operatorTokenMap.groupOperator,
+    val: '(',
+    precedence: 2
+}, {
+    type: operatorTokenMap.identify,
+    val: 'a',
+    precedence: 1
+}, {
+    type: operatorTokenMap.mutliOperator,
+    val: '*',
+    precedence: 18
+}, {
     type: operatorTokenMap.identify,
     val: 'b',
     precedence: 1
-}, {
+},{
     type: operatorTokenMap.mutliOperator,
     val: '*',
     precedence: 18
@@ -84,6 +100,10 @@ var testTokenList = [ {
     type: operatorTokenMap.identify,
     val: 'b',
     precedence: 1
+}, {
+    type: operatorTokenMap.groupOperator,
+    val: ')',
+    precedence: 2
 }, {
     type: operatorTokenMap.groupOperator,
     val: ')',
