@@ -25,8 +25,7 @@
 
 
    (        |      2        |    groupOperator
-            |               |
-            |               |
+   [        |      2        |    arrayOperator
             |               |
 
 
@@ -43,8 +42,8 @@ var types = [
     'mutliOperator',
     'divOperator',
     'minusOperator',
-    'leftParenOperator',
-    'groupOperator'
+    'groupOperator',
+    'arrayOperator'
 
 ];
 function makeObject( array ){
@@ -61,52 +60,36 @@ var operatorTokenMap = makeObject( types );
 
 
 var testTokenList = [ {
-    type: operatorTokenMap.groupOperator,
-    val: '(',
+    type: operatorTokenMap.arrayOperator,
+    val: '[',
     precedence: 2
 }, {
-    type: operatorTokenMap.groupOperator,
-    val: '(',
-    precedence: 2
-}, {
-    type: operatorTokenMap.identify,
-    val: 'a',
-    precedence: 1
-}, {
-    type: operatorTokenMap.mutliOperator,
-    val: '*',
-    precedence: 18
-}, {
-    type: operatorTokenMap.identify,
-    val: 'b',
-    precedence: 1
-},{
-    type: operatorTokenMap.mutliOperator,
-    val: '*',
-    precedence: 18
-}, {
-    type: operatorTokenMap.groupOperator,
-    val: '(',
+    type: operatorTokenMap.arrayOperator,
+    val: '[',
     precedence: 2
 }, {
     type: operatorTokenMap.identify,
     val: 'a',
     precedence: 1
 }, {
-    type: operatorTokenMap.mutliOperator,
-    val: '*',
-    precedence: 18
-}, {
-    type: operatorTokenMap.identify,
-    val: 'b',
-    precedence: 1
-}, {
-    type: operatorTokenMap.groupOperator,
-    val: ')',
+    type: operatorTokenMap.arrayOperator,
+    val: ']',
     precedence: 2
 }, {
-    type: operatorTokenMap.groupOperator,
-    val: ')',
+    type: operatorTokenMap.arrayOperator,
+    val: ']',
+    precedence: 2
+}, {
+    type: operatorTokenMap.arrayOperator,
+    val: '[',
+    precedence: 2
+}, {
+    type: operatorTokenMap.identify,
+    val: 'a',
+    precedence: 1
+}, {
+    type: operatorTokenMap.arrayOperator,
+    val: ']',
     precedence: 2
 }];
 
@@ -179,12 +162,43 @@ var identifyParser = function( expressionParser, token ){
     }
 };
 
+//group parser for (
+
 var groupParser = function( expressionParser, token ){
     var groupExp = expressionParser.parse( token.precedence );
     var rightParen = tokenList.consume();
+    //TODO check rightParen is just ")"
     return {
         type: 'GroupExpression',
-        argument: groupExp
+        argument: groupExp,
+        prefix: true
+    }
+};
+
+//arrayParser for [
+var arrayParser = function( expressionParser, token ){
+    var arrayExp = expressionParser.parse( token.precedence );
+    var rightParen = tokenList.consume();
+
+    return {
+        type: 'ArrayExpression',
+        argument: arrayExp,
+        prefix: true
+    }
+};
+
+//parse a[b]
+
+var valReadParser = function( expressionParser, left, token ){
+    var operand = expressionParser.parse( token.precedence );
+    var rightParen = tokenList.consume();
+
+    return {
+        type: 'ValReadExpression',
+        operator: '[',
+        infix: true,
+        left: left,
+        right: operand
     }
 };
 
@@ -238,6 +252,7 @@ expressionParser.registerPrefixOperator(operatorTokenMap.minusOperator);
 expressionParser.registerPrefixOperator(operatorTokenMap.typeofOperator);
 expressionParser.registerPrefix(operatorTokenMap.identify, identifyParser);
 expressionParser.registerPrefix(operatorTokenMap.groupOperator, groupParser);
+expressionParser.registerPrefix(operatorTokenMap.arrayOperator, arrayParser);
 
 
 expressionParser.registerInfixOperator(operatorTokenMap.plusOperator);
@@ -245,6 +260,7 @@ expressionParser.registerInfixOperator(operatorTokenMap.mutliOperator);
 expressionParser.registerInfixOperator(operatorTokenMap.divOperator);
 expressionParser.registerInfixOperator(operatorTokenMap.minusOperator);
 expressionParser.registerInfixOperator(operatorTokenMap.dotOperator);
+expressionParser.registerInfix(operatorTokenMap.arrayOperator, valReadParser);
 
 console.log(expressionParser.parse(0));
 
