@@ -26,7 +26,7 @@
 
    (        |      2        |    groupOperator
    [        |      2        |    arrayOperator
-            |               |
+   =        |      1        |    simpleAssignOperator
 
 
 * */
@@ -43,7 +43,8 @@ var types = [
     'divOperator',
     'minusOperator',
     'groupOperator',
-    'arrayOperator'
+    'arrayOperator',
+    'simpleAssignOperator'
 
 ];
 function makeObject( array ){
@@ -60,37 +61,33 @@ var operatorTokenMap = makeObject( types );
 
 
 var testTokenList = [ {
-    type: operatorTokenMap.arrayOperator,
-    val: '[',
-    precedence: 2
-}, {
-    type: operatorTokenMap.arrayOperator,
-    val: '[',
-    precedence: 2
-}, {
     type: operatorTokenMap.identify,
     val: 'a',
     precedence: 1
 }, {
-    type: operatorTokenMap.arrayOperator,
-    val: ']',
-    precedence: 2
-}, {
-    type: operatorTokenMap.arrayOperator,
-    val: ']',
-    precedence: 2
-}, {
-    type: operatorTokenMap.arrayOperator,
-    val: '[',
-    precedence: 2
-}, {
-    type: operatorTokenMap.identify,
-    val: 'a',
+    type: operatorTokenMap.simpleAssignOperator,
+    val: '=',
     precedence: 1
-}, {
-    type: operatorTokenMap.arrayOperator,
-    val: ']',
-    precedence: 2
+},{
+    type: operatorTokenMap.identify,
+    val: 'b',
+    precedence: 1
+},{
+    type: operatorTokenMap.simpleAssignOperator,
+    val: '=',
+    precedence: 1
+},{
+    type: operatorTokenMap.identify,
+    val: 'c',
+    precedence: 1
+},{
+    type: operatorTokenMap.plusOperator,
+    val: '+',
+    precedence: 17
+},{
+    type: operatorTokenMap.identify,
+    val: 'd',
+    precedence: 1
 }];
 
 
@@ -188,7 +185,6 @@ var arrayParser = function( expressionParser, token ){
 };
 
 //parse a[b]
-
 var valReadParser = function( expressionParser, left, token ){
     var operand = expressionParser.parse( token.precedence );
     var rightParen = tokenList.consume();
@@ -196,6 +192,19 @@ var valReadParser = function( expressionParser, left, token ){
     return {
         type: 'ValReadExpression',
         operator: '[',
+        infix: true,
+        left: left,
+        right: operand
+    }
+};
+
+//parse a = b = c
+var assignParser = function( expressionParser, left, token ){
+    var operand = expressionParser.parse( token.precedence - 1 );
+
+    return {
+        type: 'assignExpression',
+        operator: '=',
         infix: true,
         left: left,
         right: operand
@@ -260,6 +269,7 @@ expressionParser.registerInfixOperator(operatorTokenMap.mutliOperator);
 expressionParser.registerInfixOperator(operatorTokenMap.divOperator);
 expressionParser.registerInfixOperator(operatorTokenMap.minusOperator);
 expressionParser.registerInfixOperator(operatorTokenMap.dotOperator);
+expressionParser.registerInfix(operatorTokenMap.simpleAssignOperator, assignParser);
 expressionParser.registerInfix(operatorTokenMap.arrayOperator, valReadParser);
 
 console.log(expressionParser.parse(0));
