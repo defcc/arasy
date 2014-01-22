@@ -24,13 +24,28 @@
    minus    |      17       |    -
 
 
-   (        |      2        |    groupOperator
-   [        |      2        |    arrayOperator
+   (        |      31       |    groupOperator
+   [        |      31       |    arrayOperator
    =        |      1        |    simpleAssignOperator
 
 
 * */
 
+var precedence = {
+    groupOperator: 31,
+    arrayOperator: 31,
+    dotOperator: 30,
+    typeofOperator: 20,
+    deleteOperator: 10,
+    voidOperator: 10,
+    plusOperator: 17,
+    minusOperator: 17,
+    mutliOperator: 18,
+    divOperator: 18,
+
+    simpleAssignOperator: 1,
+    identify: 1
+};
 
 var types = [
     'dotOperator',
@@ -45,7 +60,6 @@ var types = [
     'groupOperator',
     'arrayOperator',
     'simpleAssignOperator'
-
 ];
 function makeObject( array ){
     var obj = {};
@@ -62,32 +76,31 @@ var operatorTokenMap = makeObject( types );
 
 var testTokenList = [ {
     type: operatorTokenMap.identify,
-    val: 'a',
-    precedence: 1
+    val: 'a'
 }, {
     type: operatorTokenMap.simpleAssignOperator,
-    val: '=',
-    precedence: 1
+    val: '='
 },{
     type: operatorTokenMap.identify,
-    val: 'b',
-    precedence: 1
+    val: 'b'
 },{
     type: operatorTokenMap.simpleAssignOperator,
-    val: '=',
-    precedence: 1
-},{
+    val: '='
+}, {
     type: operatorTokenMap.identify,
-    val: 'c',
-    precedence: 1
+    val: 'c'
 },{
     type: operatorTokenMap.plusOperator,
-    val: '+',
-    precedence: 17
+    val: '*'
 },{
     type: operatorTokenMap.identify,
-    val: 'd',
-    precedence: 1
+    val: 'c1'
+}, {
+    type: operatorTokenMap.mutliOperator,
+    val: '*'
+},{
+    type: operatorTokenMap.identify,
+    val: 'd'
 }];
 
 
@@ -132,7 +145,7 @@ function makeTestToken( source, testTokens ){
 }
 
 var prefixOperatorParser = function( expressionParser, token ){
-    var operand = expressionParser.parse( token.precedence );
+    var operand = expressionParser.parse( getPrecedenceByToken( token) );
     return {
         type: 'UnaryExpression',
         operator: token.val,
@@ -142,7 +155,7 @@ var prefixOperatorParser = function( expressionParser, token ){
 };
 
 var infixOperatorParser = function( expressionParser, left,  token ){
-    var operand = expressionParser.parse( token.precedence );
+    var operand = expressionParser.parse( getPrecedenceByToken( token ) );
     return {
         type: 'BinaryExpression',
         operator: token.val,
@@ -162,7 +175,7 @@ var identifyParser = function( expressionParser, token ){
 //group parser for (
 
 var groupParser = function( expressionParser, token ){
-    var groupExp = expressionParser.parse( token.precedence );
+    var groupExp = expressionParser.parse( getPrecedenceByToken( token ) );
     var rightParen = tokenList.consume();
     //TODO check rightParen is just ")"
     return {
@@ -174,7 +187,7 @@ var groupParser = function( expressionParser, token ){
 
 //arrayParser for [
 var arrayParser = function( expressionParser, token ){
-    var arrayExp = expressionParser.parse( token.precedence );
+    var arrayExp = expressionParser.parse( getPrecedenceByToken( token ) );
     var rightParen = tokenList.consume();
 
     return {
@@ -186,7 +199,7 @@ var arrayParser = function( expressionParser, token ){
 
 //parse a[b]
 var valReadParser = function( expressionParser, left, token ){
-    var operand = expressionParser.parse( token.precedence );
+    var operand = expressionParser.parse( getPrecedenceByToken( token ) );
     var rightParen = tokenList.consume();
 
     return {
@@ -200,7 +213,7 @@ var valReadParser = function( expressionParser, left, token ){
 
 //parse a = b = c
 var assignParser = function( expressionParser, left, token ){
-    var operand = expressionParser.parse( token.precedence - 1 );
+    var operand = expressionParser.parse( getPrecedenceByToken( token ) - 1 );
 
     return {
         type: 'assignExpression',
@@ -247,12 +260,17 @@ var expressionParser = {
     },
     getPrecedence: function (  ) {
         var nextToken = tokenList.lookAhead();
-        if ( nextToken.precedence ) {
-            return nextToken.precedence;
+        var precedence = getPrecedenceByToken( nextToken );
+        if ( getPrecedenceByToken( nextToken ) ) {
+            return precedence;
         }
         return 0;
     }
 };
+
+function getPrecedenceByToken( token ){
+    return precedence[ token.type ];
+}
 
 expressionParser.registerPrefixOperator(operatorTokenMap.deleteOperator);
 expressionParser.registerPrefixOperator(operatorTokenMap.voidOperator);
