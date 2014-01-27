@@ -9,28 +9,6 @@
 </html>
 
 <script>
-
-/*
-*
---------------------------------------
-  operator  |  precedence   |    ex
---------------------------------------
-   dot      |      30       |    .
-   typeof   |      20       |    typeof
-   void     |      19       |    void
-   mutli    |      18       |    x
-   div      |      18       |    /
-   plus     |      17       |    +
-   minus    |      17       |    -
-
-
-   (        |      31       |    groupOperator
-   [        |      31       |    arrayOperator
-   =        |      1        |    simpleAssignOperator
-
-
-* */
-
 var precedence = {
     groupOperator: 31,
 
@@ -82,6 +60,7 @@ var precedence = {
     identify: 1
 };
 
+
 function makeObject( precedenceMap ){
     var obj = {};
 
@@ -92,8 +71,6 @@ function makeObject( precedenceMap ){
 }
 
 var operatorTokenMap = makeObject( precedence );
-
-
 
 
 var testTokenList = [ {
@@ -303,6 +280,7 @@ expressionParser.registerPrefixOperator(operatorTokenMap.unaryOperator);
 expressionParser.registerPrefixOperator(operatorTokenMap.unarynegationOperator);
 expressionParser.registerPrefixOperator(operatorTokenMap.typeofOperator);
 expressionParser.registerPrefixOperator(operatorTokenMap.incrementOperator);
+expressionParser.registerPrefixOperator(operatorTokenMap.decrementOperator);
 
 expressionParser.registerPrefix(operatorTokenMap.identify, identifyParser);
 expressionParser.registerPrefix(operatorTokenMap.groupOperator, groupParser);
