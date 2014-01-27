@@ -33,43 +33,64 @@
 
 var precedence = {
     groupOperator: 31,
-    arrayOperator: 31,
-    dotOperator: 30,
-    typeofOperator: 20,
-    deleteOperator: 10,
-    voidOperator: 10,
-    plusOperator: 17,
-    minusOperator: 17,
-    mutliOperator: 18,
-    divOperator: 18,
 
-    simpleAssignOperator: 1,
+    arrayOperator: 30,
+    dotOperator: 30,
+    newOperator: 30,
+    callOperator: 30,
+    incrementOperator: 29,
+    decrementOperator: 29,
+
+    logicalnotOperator: 28,
+    bitwisenotOperator: 28,
+    unaryOperator: 28,
+    unarynegationOperator: 28,
+    typeofOperator: 28,
+    deleteOperator: 28,
+    voidOperator: 28,
+
+
+    mutliOperator: 26,
+    divOperator: 26,
+    modulusOperator: 26,
+
+
+    additionOperator: 24,
+    subtractionOperator: 24,
+
+
+    bitwiseshiftOperator: 22,
+
+    relationalOperator: 20,
+    inOperator: 20,
+    instanceofOperator: 20,
+
+    equalityOperator: 18,
+
+    bitwiseandOperator: 16,
+    bitwisexorOperator: 15,
+    bitwiseorOperator: 14,
+    logicalandOperator: 13,
+    logicalorOperator: 12,
+    conditionalOperator: 11,
+
+    assignmentOperator: 10,
+
+    comma: 9,
+
     identify: 1
 };
 
-var types = [
-    'dotOperator',
-    'typeofOperator',
-    'deleteOperator',
-    'voidOperator',
-    'identify',
-    'plusOperator',
-    'mutliOperator',
-    'divOperator',
-    'minusOperator',
-    'groupOperator',
-    'arrayOperator',
-    'simpleAssignOperator'
-];
-function makeObject( array ){
+function makeObject( precedenceMap ){
     var obj = {};
-    for ( var i = 0; i < array.length; i++ ) {
-        obj[ array[i] ] = array[i];
+
+    for ( var key in precedenceMap ) {
+        obj[ key ] = key;
     }
     return obj;
 }
 
-var operatorTokenMap = makeObject( types );
+var operatorTokenMap = makeObject( precedence );
 
 
 
@@ -78,19 +99,19 @@ var testTokenList = [ {
     type: operatorTokenMap.identify,
     val: 'a'
 }, {
-    type: operatorTokenMap.simpleAssignOperator,
+    type: operatorTokenMap.assignmentOperator,
     val: '='
 },{
     type: operatorTokenMap.identify,
     val: 'b'
 },{
-    type: operatorTokenMap.simpleAssignOperator,
+    type: operatorTokenMap.assignmentOperator,
     val: '='
 }, {
     type: operatorTokenMap.identify,
     val: 'c'
 },{
-    type: operatorTokenMap.plusOperator,
+    type: operatorTokenMap.mutliOperator,
     val: '*'
 },{
     type: operatorTokenMap.identify,
@@ -99,6 +120,9 @@ var testTokenList = [ {
     type: operatorTokenMap.mutliOperator,
     val: '*'
 },{
+    type: operatorTokenMap.unaryOperator,
+    val: '+'
+}, {
     type: operatorTokenMap.identify,
     val: 'd'
 }];
@@ -274,20 +298,20 @@ function getPrecedenceByToken( token ){
 
 expressionParser.registerPrefixOperator(operatorTokenMap.deleteOperator);
 expressionParser.registerPrefixOperator(operatorTokenMap.voidOperator);
-expressionParser.registerPrefixOperator(operatorTokenMap.plusOperator);
-expressionParser.registerPrefixOperator(operatorTokenMap.minusOperator);
+expressionParser.registerPrefixOperator(operatorTokenMap.unaryOperator);
+expressionParser.registerPrefixOperator(operatorTokenMap.unarynegationOperator);
 expressionParser.registerPrefixOperator(operatorTokenMap.typeofOperator);
 expressionParser.registerPrefix(operatorTokenMap.identify, identifyParser);
 expressionParser.registerPrefix(operatorTokenMap.groupOperator, groupParser);
 expressionParser.registerPrefix(operatorTokenMap.arrayOperator, arrayParser);
 
 
-expressionParser.registerInfixOperator(operatorTokenMap.plusOperator);
+expressionParser.registerInfixOperator(operatorTokenMap.additionOperator);
 expressionParser.registerInfixOperator(operatorTokenMap.mutliOperator);
 expressionParser.registerInfixOperator(operatorTokenMap.divOperator);
-expressionParser.registerInfixOperator(operatorTokenMap.minusOperator);
+expressionParser.registerInfixOperator(operatorTokenMap.subtractionOperator);
 expressionParser.registerInfixOperator(operatorTokenMap.dotOperator);
-expressionParser.registerInfix(operatorTokenMap.simpleAssignOperator, assignParser);
+expressionParser.registerInfix(operatorTokenMap.assignmentOperator, assignParser);
 expressionParser.registerInfix(operatorTokenMap.arrayOperator, valReadParser);
 
 console.log(expressionParser.parse(0));
