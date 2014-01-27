@@ -38,6 +38,7 @@ var precedence = {
     dotOperator: 30,
     newOperator: 30,
     callOperator: 30,
+
     incrementOperator: 29,
     decrementOperator: 29,
 
@@ -120,8 +121,8 @@ var testTokenList = [ {
     type: operatorTokenMap.mutliOperator,
     val: '*'
 },{
-    type: operatorTokenMap.unaryOperator,
-    val: '+'
+    type: operatorTokenMap.incrementOperator,
+    val: '++'
 }, {
     type: operatorTokenMap.identify,
     val: 'd'
@@ -301,6 +302,8 @@ expressionParser.registerPrefixOperator(operatorTokenMap.voidOperator);
 expressionParser.registerPrefixOperator(operatorTokenMap.unaryOperator);
 expressionParser.registerPrefixOperator(operatorTokenMap.unarynegationOperator);
 expressionParser.registerPrefixOperator(operatorTokenMap.typeofOperator);
+expressionParser.registerPrefixOperator(operatorTokenMap.incrementOperator);
+
 expressionParser.registerPrefix(operatorTokenMap.identify, identifyParser);
 expressionParser.registerPrefix(operatorTokenMap.groupOperator, groupParser);
 expressionParser.registerPrefix(operatorTokenMap.arrayOperator, arrayParser);
