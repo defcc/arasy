@@ -143,6 +143,15 @@ var infixOperatorParser = function( expressionParser, left,  token ){
     }
 };
 
+var postfixOperatorParser = function( expressionParser, left, token ){
+    return {
+        type: 'postfixExpression',
+        operator: token.val,
+        postfix: true,
+        argument: left
+    }
+};
+
 var identifyParser = function( expressionParser, token ){
     return {
         type: 'Identifier',
@@ -270,6 +279,9 @@ expressionParser.registerInfixOperator(operatorTokenMap.subtractionOperator);
 expressionParser.registerInfixOperator(operatorTokenMap.dotOperator);
 expressionParser.registerInfix(operatorTokenMap.assignmentOperator, assignParser);
 expressionParser.registerInfix(operatorTokenMap.arrayOperator, valReadParser);
+
+expressionParser.registerInfix(operatorTokenMap.incrementOperator, postfixOperatorParser);
+expressionParser.registerInfix(operatorTokenMap.decrementOperator, postfixOperatorParser);
 
 console.log(expressionParser.parse(0));
 
