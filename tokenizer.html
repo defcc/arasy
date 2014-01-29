@@ -73,7 +73,7 @@ function parse(){
 	var start = +new Date();
 
 
-	var tokenList = YAP(codeStr, +keepWs, startInfo ).parse();
+	var tokenList = YAP(codeStr, +keepWs, startInfo );
 	console.log('time used:', (+new Date() - start));
 
 	console.log(tokenList);

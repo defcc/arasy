@@ -8,9 +8,9 @@ jsLexer is Yet Another js lexer
 3. *测试用例*
 
 #API
-YAP(codeStr, isKeepWhiteSpaceToken, startInfo).parse();
+YAP(codeStr, isKeepWhiteSpaceToken, startInfo);
 
-结果： tokenList:Array
+结果： {nextToken: function}
 
 参数
 
