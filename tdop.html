@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <script src="temp/precedence.js"></script>
+    <script src="temp/scanner.js"></script>
+    <script src="temp/expressiontest.js"></script>
     <script src="lexer.js" ></script>
 </head>
 <body>
@@ -9,125 +12,7 @@
 </html>
 
 <script>
-var precedence = {
-    groupOperator: -1,
-
-    arrayOperator: 30,
-    dotOperator: 30,
-    newOperator: 30,
-    callOperator: 30,
-
-    incrementOperator: 29,
-    decrementOperator: 29,
-
-    logicalnotOperator: 28,
-    bitwisenotOperator: 28,
-    unaryOperator: 28,
-    unarynegationOperator: 28,
-    typeofOperator: 28,
-    deleteOperator: 28,
-    voidOperator: 28,
-
-
-    mutliOperator: 26,
-    divOperator: 26,
-    modulusOperator: 26,
-
-
-    additionOperator: 24,
-    subtractionOperator: 24,
-
-
-    bitwiseshiftOperator: 22,
-
-    relationalOperator: 20,
-    inOperator: 20,
-    instanceofOperator: 20,
-
-    equalityOperator: 18,
-
-    bitwiseandOperator: 16,
-    bitwisexorOperator: 15,
-    bitwiseorOperator: 14,
-    logicalandOperator: 13,
-    logicalorOperator: 12,
-    conditionalOperator: 11,
-
-    assignmentOperator: 10,
-
-    commaOperator: 9,
-
-    identify: 1,
-    functionExpression: 1
-};
-
-
-function makeObject( precedenceMap ){
-    var obj = {};
-
-    for ( var key in precedenceMap ) {
-        obj[ key ] = key;
-    }
-    return obj;
-}
-
-var operatorTokenMap = makeObject( precedence );
-
-var tokensMap = makeObject( precedence );
-
-
-var testTokenList = [{
-    type: operatorTokenMap.newOperator,
-    val: 'new'
-},{
-    type: operatorTokenMap.identify,
-    val: 'a'
-},{
-    type: operatorTokenMap.groupOperator,
-    val: '('
-},{
-    type: operatorTokenMap.groupOperator,
-    val: ')'
-}, {
-    type: operatorTokenMap.mutliOperator,
-    val: '*'
-},{
-    type: operatorTokenMap.identify,
-    val: '4'
-}];
-
-
-var tokenList = {
-    index: 0,
-    list: [{
-        type: 'eof',
-        val: 'eof'
-    }],
-    consume: function(){
-        if ( this.eof() ) {
-            return this.eof();
-        }
-        return tokenList.list[ this.index++ ];
-    },
-    lookAhead: function(){
-        if ( this.eof() ) {
-            return this.eof();
-        }
-        return tokenList.list[ this.index ];
-    },
-    eof: function(){
-        if ( this.index >= tokenList.list.length - 1 ) {
-            return {
-                type: 'eof',
-                val: 'eof'
-            }
-        }
-    }
-};
-
-
-
-
+var testTokenList = callTest;
 makeTestToken(tokenList.list, testTokenList);
 
 function makeTestToken( source, testTokens ){
