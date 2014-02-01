@@ -10,7 +10,7 @@
 
 <script>
 var precedence = {
-    groupOperator: 31,
+    groupOperator: -1,
 
     arrayOperator: 30,
     dotOperator: 30,
@@ -77,26 +77,23 @@ var tokensMap = makeObject( precedence );
 
 
 var testTokenList = [{
-    type: operatorTokenMap.identify,
-    val: 'a'
-},{
-    type: operatorTokenMap.mutliOperator,
-    val: '*'
-},{
-    type: operatorTokenMap.identify,
-    val: 'b'
-},{
-    type: operatorTokenMap.commaOperator,
-    val: ','
+    type: operatorTokenMap.newOperator,
+    val: 'new'
 },{
     type: operatorTokenMap.identify,
     val: 'a'
 },{
+    type: operatorTokenMap.groupOperator,
+    val: '('
+},{
+    type: operatorTokenMap.groupOperator,
+    val: ')'
+}, {
     type: operatorTokenMap.mutliOperator,
     val: '*'
 },{
     type: operatorTokenMap.identify,
-    val: 'b'
+    val: '4'
 }];
 
 
@@ -182,6 +179,7 @@ var identifyParser = function( expressionParser, token ){
 var groupParser = function( expressionParser, token ){
     var groupExp = expressionParser.parse( getPrecedenceByToken( token ) );
     var rightParen = tokenList.consume();
+    return groupExp;
     //TODO check rightParen is just ")"
     return {
         type: 'GroupExpression',
@@ -208,11 +206,9 @@ var valReadParser = function( expressionParser, left, token ){
     var rightParen = tokenList.consume();
 
     return {
-        type: 'ValReadExpression',
-        operator: '[',
-        infix: true,
-        left: left,
-        right: operand
+        type: 'MemberExpression',
+        object: left,
+        property: operand
     }
 };
 
@@ -257,15 +253,17 @@ var paramsListParser = function(){
 };
 
 //parse a(a+b, c+d);
-var argumentsParser = function( expressionParser, token ){
-    var rs = [],
-        item;
+var argumentsParser = function( expressionParser ){
+    var rs = [];
 
     //consume left paren;
     tokenList.consume();
-
-    expressionParser.parse(0);
-
+    var nextToken = tokenList.lookAhead();
+    if ( nextToken.val != ')' ) {
+        rs = expressionParser.parse(0);
+    }
+    tokenList.consume();
+    return rs;
 
 };
 
@@ -299,11 +297,8 @@ var newParser = function( expressionParser, token ){
     var argumentsParam = [];
     var leftParen = tokenList.lookAhead();
     if ( leftParen.val == '(' ) {
-        argumentsParam = paramsListParser();
+        argumentsParam = argumentsParser( expressionParser );
     }
-    //must be right paren;
-
-    tokenList.consume();
 
     return {
         "type": 'newExpression',
