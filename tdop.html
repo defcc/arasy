@@ -12,15 +12,7 @@
 </html>
 
 <script>
-var testTokenList = callTest;
-makeTestToken(tokenList.list, testTokenList);
 
-function makeTestToken( source, testTokens ){
-    var testTokenLen = testTokens.length;
-    for ( var i = 0; i < testTokenLen; i++ ) {
-        source.unshift( testTokens.pop() );
-    }
-}
 
 var prefixOperatorParser = function( expressionParser, token ){
     var operand = expressionParser.parse( getPrecedenceByToken( token) );
@@ -45,9 +37,9 @@ var infixOperatorParser = function( expressionParser, left,  token ){
 
 var postfixOperatorParser = function( expressionParser, left, token ){
     return {
-        type: 'postfixExpression',
+        type: 'updateExpression',
         operator: token.val,
-        postfix: true,
+        prefix: false,
         argument: left
     }
 };
@@ -56,6 +48,12 @@ var identifyParser = function( expressionParser, token ){
     return {
         type: 'Identifier',
         name: token.val
+    }
+};
+
+var thisParser = function( expressionParser, token ){
+    return {
+        type: 'thisExpression'
     }
 };
 
@@ -265,6 +263,7 @@ expressionParser.registerPrefixOperator(operatorTokenMap.typeofOperator);
 expressionParser.registerPrefixOperator(operatorTokenMap.incrementOperator);
 expressionParser.registerPrefixOperator(operatorTokenMap.decrementOperator);
 
+expressionParser.registerPrefix(operatorTokenMap.this, thisParser);
 expressionParser.registerPrefix(operatorTokenMap.identify, identifyParser);
 expressionParser.registerPrefix(operatorTokenMap.groupOperator, groupParser);
 expressionParser.registerPrefix(operatorTokenMap.arrayOperator, arrayParser);

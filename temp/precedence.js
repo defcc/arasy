@@ -47,7 +47,8 @@ var precedence = {
     commaOperator: 9,
 
     identify: 1,
-    functionExpression: 1
+    functionExpression: 1,
+    'this': 1
 };
 
 
