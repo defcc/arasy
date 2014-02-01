@@ -55,9 +55,10 @@ var precedence = {
 
     assignmentOperator: 10,
 
-    comma: 9,
+    commaOperator: 9,
 
-    identify: 1
+    identify: 1,
+    functionExpression: 1
 };
 
 
@@ -72,13 +73,30 @@ function makeObject( precedenceMap ){
 
 var operatorTokenMap = makeObject( precedence );
 
+var tokensMap = makeObject( precedence );
 
-var testTokenList = [ {
+
+var testTokenList = [{
     type: operatorTokenMap.identify,
     val: 'a'
 },{
-    type: operatorTokenMap.incrementOperator,
-    val: '++'
+    type: operatorTokenMap.mutliOperator,
+    val: '*'
+},{
+    type: operatorTokenMap.identify,
+    val: 'b'
+},{
+    type: operatorTokenMap.commaOperator,
+    val: ','
+},{
+    type: operatorTokenMap.identify,
+    val: 'a'
+},{
+    type: operatorTokenMap.mutliOperator,
+    val: '*'
+},{
+    type: operatorTokenMap.identify,
+    val: 'b'
 }];
 
 
@@ -211,6 +229,106 @@ var assignParser = function( expressionParser, left, token ){
     }
 };
 
+var paramsListParser = function(){
+    var rs = [],
+            item;
+
+    tokenList.consume();
+    //match({type: 'punctuator', value: '('}, this.nextToken());
+
+    var peekToken = tokenList.lookAhead();
+    if( peekToken.type == tokensMap.identify ){
+        while( (item = tokenList.consume()).type == tokensMap.identify ){
+            rs.push({
+                type: 'Identifier',
+                name: item.val
+            });
+            var nextToken = tokenList.lookAhead();
+            if(nextToken.val != ','){
+                break;
+            }else{
+                tokenList.consume();
+            }
+        }
+    }
+    //match({type: 'punctuator', value: ')'}, this.nextToken());
+    tokenList.consume();
+    return rs;
+};
+
+//parse a(a+b, c+d);
+var argumentsParser = function( expressionParser, token ){
+    var rs = [],
+        item;
+
+    //consume left paren;
+    tokenList.consume();
+
+    expressionParser.parse(0);
+
+
+};
+
+//function identifierName(opt) ( arguments )
+var functionParser = function( expressionParser, token ){
+    var identifyerName = null;
+    var lookaheadToken = tokenList.lookAhead();
+    var isIdentifierNameToken = lookaheadToken.type == tokensMap.identify;
+    if ( isIdentifierNameToken ) {
+        identifyerName = {
+            type: 'Identifier',
+            name: lookaheadToken.val
+        };
+        tokenList.consume();
+    }
+    var params = paramsListParser();
+
+    return {
+        type: 'functionExpression',
+        id: identifyerName,
+        params: params
+    }
+
+};
+
+//new expression
+var newParser = function( expressionParser, token ){
+    var identify = tokenList.consume();
+
+    //check arguments;
+    var argumentsParam = [];
+    var leftParen = tokenList.lookAhead();
+    if ( leftParen.val == '(' ) {
+        argumentsParam = paramsListParser();
+    }
+    //must be right paren;
+
+    tokenList.consume();
+
+    return {
+        "type": 'newExpression',
+        "callee": identify,
+        "arguments": argumentsParam
+    }
+};
+
+//infix parser
+//a+b,c
+var commaParser = function( expressionParser,  left, token ){
+    var rs = [ left ];
+    var expressionItem;
+    while( expressionItem = expressionParser.parse( getPrecedenceByToken( token ) ) ) {
+        rs.push( expressionItem );
+        var nextToken = tokenList.lookAhead();
+        if ( nextToken.val == ',' ) {
+            tokenList.consume();
+        } else {
+            break;
+        }
+    }
+    return rs;
+};
+
 var expressionParser = {
     prefixParselet: [],
     infixParselet: [],
@@ -270,6 +388,9 @@ expressionParser.registerPrefixOperator(operatorTokenMap.decrementOperator);
 expressionParser.registerPrefix(operatorTokenMap.identify, identifyParser);
 expressionParser.registerPrefix(operatorTokenMap.groupOperator, groupParser);
 expressionParser.registerPrefix(operatorTokenMap.arrayOperator, arrayParser);
+expressionParser.registerPrefix(operatorTokenMap.functionExpression, functionParser);
+
+expressionParser.registerPrefix(operatorTokenMap.newOperator, newParser);
 
 
 expressionParser.registerInfixOperator(operatorTokenMap.additionOperator);
@@ -277,11 +398,15 @@ expressionParser.registerInfixOperator(operatorTokenMap.mutliOperator);
 expressionParser.registerInfixOperator(operatorTokenMap.divOperator);
 expressionParser.registerInfixOperator(operatorTokenMap.subtractionOperator);
 expressionParser.registerInfixOperator(operatorTokenMap.dotOperator);
+
+
 expressionParser.registerInfix(operatorTokenMap.assignmentOperator, assignParser);
 expressionParser.registerInfix(operatorTokenMap.arrayOperator, valReadParser);
 
 expressionParser.registerInfix(operatorTokenMap.incrementOperator, postfixOperatorParser);
 expressionParser.registerInfix(operatorTokenMap.decrementOperator, postfixOperatorParser);
+
+expressionParser.registerInfix(operatorTokenMap.commaOperator, commaParser);
 
 console.log(expressionParser.parse(0));
 
