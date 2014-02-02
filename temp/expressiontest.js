@@ -108,8 +108,24 @@ var postfixTest = [{
     val: 'b'
 }];
 
+var identifierTest = [{
+    type: operatorTokenMap.identify,
+    val: 'b'
+}];
 
-var testTokenList = prefixTest;
+var literalTest = [{
+    type: operatorTokenMap.number,
+    val: 2
+},{
+    type: operatorTokenMap.additionOperator,
+    val: '+'
+},{
+    type: operatorTokenMap.identify,
+    val: 'c'
+}];
+
+
+var testTokenList = literalTest;
 makeTestToken(tokenList.list, testTokenList);
 
 

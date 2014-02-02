@@ -51,6 +51,13 @@ var identifyParser = function( expressionParser, token ){
     }
 };
 
+var literalParser = function( expressionParser, token ){
+    return {
+        type: 'Literal',
+        value: token.val
+    }
+};
+
 var thisParser = function( expressionParser, token ){
     return {
         type: 'thisExpression'
@@ -265,6 +272,7 @@ expressionParser.registerPrefixOperator(operatorTokenMap.decrementOperator);
 
 expressionParser.registerPrefix(operatorTokenMap.this, thisParser);
 expressionParser.registerPrefix(operatorTokenMap.identify, identifyParser);
+expressionParser.registerPrefix(operatorTokenMap.number, literalParser);
 expressionParser.registerPrefix(operatorTokenMap.groupOperator, groupParser);
 expressionParser.registerPrefix(operatorTokenMap.arrayOperator, arrayParser);
 expressionParser.registerPrefix(operatorTokenMap.functionExpression, functionParser);
