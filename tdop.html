@@ -237,6 +237,9 @@ var objectExpressionParser = function( expressionParser, token ){
 
     objectRs.properties = parseObjectExpressionElements();
 
+    //consume }
+    tokenList.consume();
+
     return objectRs;
 
 

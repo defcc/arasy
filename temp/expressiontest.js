@@ -218,6 +218,12 @@ var objectExpressionTest = [{
 }, {
     type: operatorTokenMap.bracesRight,
     val: '}'
+},{
+    type: operatorTokenMap.mutliOperator,
+    val: '+'
+},{
+    type: operatorTokenMap.identify,
+    val: 'b'
 }];
 
 
