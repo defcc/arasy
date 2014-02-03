@@ -18,6 +18,24 @@ var callTest = [{
     val: '4'
 }];
 
+var functionCallExpressionTest = [{
+    type: operatorTokenMap.identify,
+    val: 'a'
+},{
+    type: operatorTokenMap.groupOperator,
+    val: '('
+},{
+    type: operatorTokenMap.groupOperator,
+    val: ')'
+}, {
+    type: operatorTokenMap.mutliOperator,
+    val: '*'
+},{
+    type: operatorTokenMap.identify,
+    val: '4'
+}];
+
+
 var functionExpTest = [{
     type: operatorTokenMap.functionExpression,
     val: 'function'
@@ -226,8 +244,7 @@ var objectExpressionTest = [{
     val: 'b'
 }];
 
-
-var testTokenList = objectExpressionTest;
+var testTokenList = functionCallExpressionTest;
 makeTestToken(tokenList.list, testTokenList);
 
 
