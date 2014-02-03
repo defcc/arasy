@@ -124,8 +124,63 @@ var literalTest = [{
     val: 'c'
 }];
 
+var arrayExpTest = [{
+    type: operatorTokenMap.arrayOperator,
+    val: '['
+},{
+    type: operatorTokenMap.identify,
+    val: 'a'
+},{
+    type: operatorTokenMap.commaOperator,
+    val: ','
+},{
+    type: operatorTokenMap.identify,
+    val: 'a'
+},{
+    type: operatorTokenMap.commaOperator,
+    val: ','
+},{
+    type: operatorTokenMap.arrayOperator,
+    val: '['
+},{
+    type: operatorTokenMap.identify,
+    val: 'a'
+},{
+    type: operatorTokenMap.arrayOperatorRight,
+    val: ']'
+},{
+    type: operatorTokenMap.arrayOperatorRight,
+    val: ']'
+}];
 
-var testTokenList = literalTest;
+var memberExpressionTest = [{
+    type: operatorTokenMap.identify,
+    val: 'a'
+},{
+    type: operatorTokenMap.arrayOperator,
+    val: '['
+},{
+    type: operatorTokenMap.identify,
+    val: 'a'
+},{
+    type: operatorTokenMap.subtractionOperator,
+    val: '-'
+},{
+    type: operatorTokenMap.identify,
+    val: 'b'
+},{
+    type: operatorTokenMap.commaOperator,
+    val: ','
+},{
+    type: operatorTokenMap.identify,
+    val: 'c'
+},{
+    type: operatorTokenMap.arrayOperatorRight,
+    val: ']'
+}];
+
+
+var testTokenList = memberExpressionTest;
 makeTestToken(tokenList.list, testTokenList);
 
 

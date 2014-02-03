@@ -13,6 +13,13 @@
 
 <script>
 
+function makeArray( obj ){
+    if ( Object.prototype.toString.call( obj ) == '[object Array]' ) {
+        return obj;
+    } else {
+        return [obj];
+    }
+}
 
 var prefixOperatorParser = function( expressionParser, token ){
     var operand = expressionParser.parse( getPrecedenceByToken( token) );
@@ -78,27 +85,34 @@ var groupParser = function( expressionParser, token ){
     }
 };
 
-//arrayParser for [
+//arrayExpressionParser for [
 var arrayParser = function( expressionParser, token ){
-    var arrayExp = expressionParser.parse( getPrecedenceByToken( token ) );
-    var rightParen = tokenList.consume();
+    var rs = [];
+
+    var nextToken = tokenList.lookAhead();
+    if ( nextToken.val != ']' ) {
+        rs = expressionParser.parse(0);
+    }
+    //must be right bracket
+    tokenList.consume();
 
     return {
         type: 'ArrayExpression',
-        argument: arrayExp,
-        prefix: true
+        elements: makeArray( rs )
     }
 };
 
 //parse a[b]
-var valReadParser = function( expressionParser, left, token ){
-    var operand = expressionParser.parse( getPrecedenceByToken( token ) );
-    var rightParen = tokenList.consume();
+var memberExpressionParser = function( expressionParser, left, token ){
+
+    var propertyArg = expressionParser.parse(0);
+
+    tokenList.consume();
 
     return {
         type: 'MemberExpression',
         object: left,
-        property: operand
+        property: propertyArg
     }
 };
 
@@ -288,7 +302,7 @@ expressionParser.registerInfixOperator(operatorTokenMap.dotOperator);
 
 
 expressionParser.registerInfix(operatorTokenMap.assignmentOperator, assignParser);
-expressionParser.registerInfix(operatorTokenMap.arrayOperator, valReadParser);
+expressionParser.registerInfix(operatorTokenMap.arrayOperator, memberExpressionParser);
 
 expressionParser.registerInfix(operatorTokenMap.incrementOperator, postfixOperatorParser);
 expressionParser.registerInfix(operatorTokenMap.decrementOperator, postfixOperatorParser);
