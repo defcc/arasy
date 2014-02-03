@@ -116,6 +116,16 @@ var memberExpressionParser = function( expressionParser, left, token ){
     }
 };
 
+var dotExpressionParser = function( expressionParser, left, token ){
+    var propertyArg = tokenList.consume();
+
+    return {
+        type: 'MemberExpression',
+        object: left,
+        property: propertyArg
+    }
+};
+
 //parse a = b = c
 var assignParser = function( expressionParser, left, token ){
     var operand = expressionParser.parse( getPrecedenceByToken( token ) - 1 );
@@ -160,8 +170,9 @@ var paramsListParser = function(){
 var argumentsParser = function( expressionParser ){
     var rs = [];
 
+    var nextToken = tokenList.lookAhead();
     //consume left paren;
-    tokenList.consume();
+    nextToken.val == '(' && tokenList.consume();
     var nextToken = tokenList.lookAhead();
     if ( nextToken.val != ')' ) {
         rs = expressionParser.parse(0);
@@ -209,6 +220,25 @@ var newParser = function( expressionParser, token ){
         "callee": identify,
         "arguments": argumentsParam
     }
+};
+
+var callerParser = function( expressionParser, left, token ){
+    var identify = left;
+
+    var argumentsParam = [];
+    var rightParen = tokenList.lookAhead();
+    if ( rightParen.val != ')' ) {
+        argumentsParam = argumentsParser( expressionParser );
+    } else {
+        tokenList.consume();
+    }
+
+    return {
+        "type": 'CallExpression',
+        "callee": identify,
+        "arguments": argumentsParam
+    }
+
 };
 
 //infix parser
@@ -312,7 +342,7 @@ var expressionParser = {
     getPrecedence: function (  ) {
         var nextToken = tokenList.lookAhead();
         var precedence = getPrecedenceByToken( nextToken );
-        if ( getPrecedenceByToken( nextToken ) ) {
+        if ( precedence ) {
             return precedence;
         }
         return 0;
@@ -352,11 +382,15 @@ expressionParser.registerInfixOperator(operatorTokenMap.dotOperator);
 
 expressionParser.registerInfix(operatorTokenMap.assignmentOperator, assignParser);
 expressionParser.registerInfix(operatorTokenMap.arrayOperator, memberExpressionParser);
+expressionParser.registerInfix(operatorTokenMap.dotOperator, dotExpressionParser);
+
 
 expressionParser.registerInfix(operatorTokenMap.incrementOperator, postfixOperatorParser);
 expressionParser.registerInfix(operatorTokenMap.decrementOperator, postfixOperatorParser);
 
 expressionParser.registerInfix(operatorTokenMap.commaOperator, commaParser);
+
+expressionParser.registerInfix(operatorTokenMap.callOperator, callerParser);
 
 console.log(expressionParser.parse(0));
 

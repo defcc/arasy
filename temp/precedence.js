@@ -1,5 +1,5 @@
 var precedence = {
-    groupOperator: -1,
+    groupOperator: 0,
 
     arrayOperator: 30,
     dotOperator: 30,
