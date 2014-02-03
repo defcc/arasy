@@ -179,8 +179,49 @@ var memberExpressionTest = [{
     val: ']'
 }];
 
+var objectExpressionTest = [{
+    type: operatorTokenMap.braces,
+    val: '{'
+},{
+    type: operatorTokenMap.identify,
+    val: 'a'
+},{
+    type: operatorTokenMap.maoType,
+    val: ':'
+},{
+    type: operatorTokenMap.groupOperator,
+    val: '('
+},{
+    type: operatorTokenMap.identify,
+    val: 'b'
+},{
+    type: operatorTokenMap.mutliOperator,
+    val: '+'
+},{
+    type: operatorTokenMap.identify,
+    val: 'b'
+},{
+    type: operatorTokenMap.groupOperator,
+    val: ')'
+},{
+    type: operatorTokenMap.commaOperator,
+    val: ','
+},{
+    type: operatorTokenMap.identify,
+    val: 'c'
+},{
+    type: operatorTokenMap.maoType,
+    val: ':'
+},{
+    type: operatorTokenMap.identify,
+    val: 'd'
+}, {
+    type: operatorTokenMap.bracesRight,
+    val: '}'
+}];
 
-var testTokenList = memberExpressionTest;
+
+var testTokenList = objectExpressionTest;
 makeTestToken(tokenList.list, testTokenList);
 
 

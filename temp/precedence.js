@@ -49,7 +49,8 @@ var precedence = {
     identify: 1,
     functionExpression: 1,
     'this': 1,
-    'number': 1
+    'number': 1,
+    'braces': 1
 };
 
 

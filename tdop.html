@@ -228,9 +228,53 @@ var commaParser = function( expressionParser,  left, token ){
     return rs;
 };
 
+//objectExpressionParser
+var objectExpressionParser = function( expressionParser, token ){
+    var objectRs = {
+        type: "ObjectExpression",
+        properties: []
+    };
+
+    objectRs.properties = parseObjectExpressionElements();
+
+    return objectRs;
+
+
+    function parseObjectExpressionElements(){
+        var rs = [],
+            item;
+
+        while( item = parseObjectItem() ){
+            rs.push( item );
+
+            var peekToken = tokenList.lookAhead();
+            if( peekToken.val != ',' ){
+                break;
+            }else{
+                tokenList.consume();
+            }
+        }
+        return rs;
+    }
+
+    function parseObjectItem(){
+        var rs = {};
+
+        rs.type = 'Property';
+        rs.key = tokenList.consume();
+        //consume :
+        tokenList.consume();
+
+        rs.value = expressionParser.parse(10);
+        rs.kind = "init";
+
+        return rs;
+    }
+};
+
 var expressionParser = {
-    prefixParselet: [],
-    infixParselet: [],
+    prefixParselet: {},
+    infixParselet: {},
     registerPrefix: function( tokenType, parselet ){
         this.prefixParselet[ tokenType ] = parselet;
     },
@@ -292,6 +336,8 @@ expressionParser.registerPrefix(operatorTokenMap.arrayOperator, arrayParser);
 expressionParser.registerPrefix(operatorTokenMap.functionExpression, functionParser);
 
 expressionParser.registerPrefix(operatorTokenMap.newOperator, newParser);
+
+expressionParser.registerPrefix(operatorTokenMap.braces, objectExpressionParser);
 
 
 expressionParser.registerInfixOperator(operatorTokenMap.additionOperator);
