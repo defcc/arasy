@@ -198,12 +198,21 @@ var functionParser = function( expressionParser, token ){
     }
     var params = paramsListParser();
 
+    //consume {
+    tokenList.consume();
+
+    var functionBody = blockParser();
+
     return {
         type: 'functionExpression',
         id: identifyerName,
-        params: params
-    }
+        params: params,
+        body: functionBody
+    };
 
+    function blockParser(){
+
+    }
 };
 
 //new expression

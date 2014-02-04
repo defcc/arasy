@@ -93,14 +93,14 @@ var functionExpTest = [{
     type: operatorTokenMap.identify,
     val: 'arg1'
 },{
-    type: operatorTokenMap.commaOperator,
-    val: ','
-},{
-    type: operatorTokenMap.identify,
-    val: 'arg2'
-},{
-    type: operatorTokenMap.groupOperator,
+    type: operatorTokenMap.groupOperatorRight,
     val: ')'
+},{
+    type: operatorTokenMap.braces,
+    val: '{'
+},{
+    type: operatorTokenMap.bracesRight,
+    val: '}'
 }];
 
 
