@@ -51,8 +51,26 @@ var functionCallExpressionTest = [{
 }];
 
 var dotMemberExpressionTest = [{
+    type: operatorTokenMap.groupOperator,
+    val: '('
+}, {
+    type: operatorTokenMap.groupOperator,
+    val: '('
+},{
     type: operatorTokenMap.identify,
     val: 'a'
+}, {
+    type: operatorTokenMap.dotOperator,
+    val: '.'
+}, {
+    type: operatorTokenMap.identify,
+    val: 'b'
+}, {
+    type: operatorTokenMap.groupOperatorRight,
+    val: ')'
+},{
+    type: operatorTokenMap.groupOperatorRight,
+    val: ')'
 },{
     type: operatorTokenMap.dotOperator,
     val: '.'
@@ -270,7 +288,7 @@ var objectExpressionTest = [{
     val: 'b'
 }];
 
-var testTokenList = dotMemberExpressionTest;
+var testTokenList = functionExpTest;
 makeTestToken(tokenList.list, testTokenList);
 
 
