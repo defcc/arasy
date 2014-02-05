@@ -134,7 +134,7 @@ var assignParser = function( expressionParser, left, token ){
 
     return {
         type: 'assignExpression',
-        operator: '=',
+        operator: token.val,
         infix: true,
         left: left,
         right: operand
@@ -399,6 +399,9 @@ expressionParser.registerInfixOperator(operatorTokenMap.bitwiseshiftOperator);
 
 //gt、gte、lt、lte、in、instanceof
 expressionParser.registerInfixOperator(operatorTokenMap.relationalOperator);
+
+// ==、===、!=、!==
+expressionParser.registerInfixOperator(operatorTokenMap.equalityOperator);
 
 
 expressionParser.registerInfix(operatorTokenMap.assignmentOperator, assignParser);
