@@ -160,6 +160,12 @@ var postfixTest = [{
     type: operatorTokenMap.identify,
     val: 'a'
 },{
+    type: operatorTokenMap.dotOperator,
+    val: '.'
+}, {
+    type: operatorTokenMap.identify,
+    val: 'b'
+}, {
     type: operatorTokenMap.incrementOperator,
     val: '++'
 },{
@@ -288,7 +294,46 @@ var objectExpressionTest = [{
     val: 'b'
 }];
 
-var testTokenList = functionExpTest;
+
+var deleteExpressionTest = [{
+    type: operatorTokenMap.voidOperator,
+    val: 'void'
+},{
+    type: operatorTokenMap.voidOperator,
+    val: 'void'
+},{
+    type: operatorTokenMap.voidOperator,
+    val: 'void'
+},{
+    type: operatorTokenMap.identify,
+    val: 'a'
+},{
+    type: operatorTokenMap.mutliOperator,
+    val: '+'
+},{
+    type: operatorTokenMap.identify,
+    val: 'b'
+}];
+
+
+var relationalExpressionTest = [{
+    type: operatorTokenMap.identify,
+    val: 'a'
+},{
+    type: operatorTokenMap.mutliOperator,
+    val: '+'
+},{
+    type: operatorTokenMap.identify,
+    val: 'b'
+},{
+    type: operatorTokenMap.relationalOperator,
+    val: '>='
+},{
+    type: operatorTokenMap.identify,
+    val: 'c'
+}];
+
+var testTokenList = relationalExpressionTest;
 makeTestToken(tokenList.list, testTokenList);
 
 

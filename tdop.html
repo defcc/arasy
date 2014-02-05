@@ -371,6 +371,10 @@ expressionParser.registerPrefixOperator(operatorTokenMap.unarynegationOperator);
 expressionParser.registerPrefixOperator(operatorTokenMap.typeofOperator);
 expressionParser.registerPrefixOperator(operatorTokenMap.incrementOperator);
 expressionParser.registerPrefixOperator(operatorTokenMap.decrementOperator);
+expressionParser.registerPrefixOperator(operatorTokenMap.bitwisenotOperator);
+expressionParser.registerPrefixOperator(operatorTokenMap.logicalnotOperator);
+
+
 
 expressionParser.registerPrefix(operatorTokenMap.this, thisParser);
 expressionParser.registerPrefix(operatorTokenMap.identify, identifyParser);
@@ -389,6 +393,12 @@ expressionParser.registerInfixOperator(operatorTokenMap.mutliOperator);
 expressionParser.registerInfixOperator(operatorTokenMap.divOperator);
 expressionParser.registerInfixOperator(operatorTokenMap.subtractionOperator);
 expressionParser.registerInfixOperator(operatorTokenMap.dotOperator);
+expressionParser.registerInfixOperator(operatorTokenMap.bitwiseandOperator);
+expressionParser.registerInfixOperator(operatorTokenMap.bitwiseorOperator);
+expressionParser.registerInfixOperator(operatorTokenMap.bitwiseshiftOperator);
+
+//gt、gte、lt、lte、in、instanceof
+expressionParser.registerInfixOperator(operatorTokenMap.relationalOperator);
 
 
 expressionParser.registerInfix(operatorTokenMap.assignmentOperator, assignParser);

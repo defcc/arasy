@@ -30,8 +30,6 @@ var precedence = {
     bitwiseshiftOperator: 22,
 
     relationalOperator: 20,
-    inOperator: 20,
-    instanceofOperator: 20,
 
     equalityOperator: 18,
 
