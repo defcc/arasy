@@ -333,7 +333,31 @@ var relationalExpressionTest = [{
     val: 'c'
 }];
 
-var testTokenList = relationalExpressionTest;
+
+var assignmentExpressionTest = [{
+    type: operatorTokenMap.identify,
+    val: 'a'
+},{
+    type: operatorTokenMap.assignmentOperator,
+    val: '+='
+},{
+    type: operatorTokenMap.identify,
+    val: 'b'
+},{
+    type: operatorTokenMap.assignmentOperator,
+    val: '='
+},{
+    type: operatorTokenMap.identify,
+    val: 'b'
+},{
+    type: operatorTokenMap.equalityOperator,
+    val: '!=='
+},{
+    type: operatorTokenMap.identify,
+    val: 'c'
+}];
+
+var testTokenList = assignmentExpressionTest;
 makeTestToken(tokenList.list, testTokenList);
 
 
