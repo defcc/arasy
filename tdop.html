@@ -130,6 +130,9 @@ var dotExpressionParser = function( expressionParser, left, token ){
 
 //parse a = b = c
 var assignParser = function( expressionParser, left, token ){
+
+    //TODO check Invalid left-hand side in assignment
+
     var operand = expressionParser.parse( getPrecedenceByToken( token ) - 1 );
 
     return {
@@ -396,6 +399,11 @@ expressionParser.registerInfixOperator(operatorTokenMap.dotOperator);
 expressionParser.registerInfixOperator(operatorTokenMap.bitwiseandOperator);
 expressionParser.registerInfixOperator(operatorTokenMap.bitwiseorOperator);
 expressionParser.registerInfixOperator(operatorTokenMap.bitwiseshiftOperator);
+
+expressionParser.registerInfixOperator(operatorTokenMap.logicalandOperator);
+expressionParser.registerInfixOperator(operatorTokenMap.logicalorOperator);
+
+
 
 //gt、gte、lt、lte、in、instanceof
 expressionParser.registerInfixOperator(operatorTokenMap.relationalOperator);

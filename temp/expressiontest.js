@@ -338,8 +338,8 @@ var assignmentExpressionTest = [{
     type: operatorTokenMap.identify,
     val: 'a'
 },{
-    type: operatorTokenMap.assignmentOperator,
-    val: '+='
+    type: operatorTokenMap.logicalandOperator,
+    val: '&&'
 },{
     type: operatorTokenMap.identify,
     val: 'b'
