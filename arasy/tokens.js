@@ -7,7 +7,8 @@ var tokenType = {
     'Punctuator': 'Punctuator',
     'Null': 'Null',
     'Boolean': 'Boolean',
-    'RegularExpression': 'RegularExpression'
+    'RegularExpression': 'RegularExpression',
+    'Eof': 'eof'
 };
 
 var literalTypeMap = {
