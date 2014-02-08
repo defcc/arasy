@@ -21,17 +21,4 @@ var singelTokenParser = function( expressionParser, token ){
     return rs;
 };
 
-var literalParser = function( expressionParser, token ){
-    return {
-        type: 'Literal',
-        value: token.value
-    }
-};
-
-var thisParser = function( expressionParser, token ){
-    return {
-        type: 'thisExpression'
-    }
-};
-
 arasy.expressionParser.registerPrefixParselet( expressionTokenMap.singleToken, singelTokenParser );

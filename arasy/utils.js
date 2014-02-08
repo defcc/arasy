@@ -1,10 +1,20 @@
-function makeMap( str ){
-    var rs = {},
-        arr = str.split( ' ' ),
-        arrLen = arr.length;
+function makeMap( source ){
+    var rs = {};
 
-    for ( i = 0; i < arrLen; i++ ) {
-        rs[ arr[i] ] = arr[i];
+    if ( Object.prototype.toString.call( source ) == '[object String]' ) {
+        source = source.split( ' ' );
+        var sourceLen = source.length;
+
+        for ( i = 0; i < sourceLen; i++ ) {
+            rs[ source[i] ] = source[i];
+        }
+    } else {
+        for ( var key in source ) {
+            if ( source.hasOwnProperty( key ) ) {
+                rs[ key ] = key;
+            }
+        }
     }
+
     return rs;
 }

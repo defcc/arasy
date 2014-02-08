@@ -73,8 +73,7 @@ var precedence = {
 
     commaOperator: 9,
 
-    IdentifierName: 1,
-    Literal: 1,
+    singleToken: 1,
 
     functionExpressionStart: 1,
     objectExpressionStart: 1,
@@ -82,59 +81,7 @@ var precedence = {
     groupOperator: 0
 };
 
-var expressionTokenMap = {
-    arrayOperator: 30,
-    dotOperator: 30,
-    newOperator: 30,
-    callOperator: 30,
-
-    incrementOperator: 29,
-    decrementOperator: 29,
-
-    logicalnotOperator: 28,
-    bitwisenotOperator: 28,
-    unaryOperator: 28,
-    unarynegationOperator: 28,
-    typeofOperator: 28,
-    deleteOperator: 28,
-    voidOperator: 28,
-
-
-    mutliOperator: 26,
-    divOperator: 26,
-    modulusOperator: 26,
-
-
-    additionOperator: 24,
-    subtractionOperator: 24,
-
-
-    bitwiseshiftOperator: 22,
-
-    relationalOperator: 20,
-
-    equalityOperator: 18,
-
-    bitwiseandOperator: 16,
-    bitwisexorOperator: 15,
-    bitwiseorOperator: 14,
-    logicalandOperator: 13,
-    logicalorOperator: 12,
-    conditionalOperator: 11,
-
-    assignmentOperator: 10,
-
-    commaOperator: 9,
-
-    IdentifierName: 1,
-
-    functionExpressionStart: 1,
-    objectExpressionStart: 1,
-
-    groupOperator: 0
-};
-
-var expressionTokenMap =
+var expressionTokenMap = makeMap( precedence );
 
 function getPrecedenceByToken( token ){
     return precedence[ token.expType ] || 0;
