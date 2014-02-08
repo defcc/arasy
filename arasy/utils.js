@@ -18,3 +18,11 @@ function makeMap( source ){
 
     return rs;
 }
+
+function makeArray( obj ){
+    if ( Object.prototype.toString.call( obj ) == '[object Array]' ) {
+        return obj;
+    } else {
+        return [obj];
+    }
+}
