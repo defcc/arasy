@@ -364,7 +364,7 @@ var expressionParser = {
 };
 
 function getPrecedenceByToken( token ){
-    return precedence[ token.type ];
+    return precedence[ token.type ] || 0;
 }
 
 expressionParser.registerPrefixOperator(operatorTokenMap.deleteOperator);
