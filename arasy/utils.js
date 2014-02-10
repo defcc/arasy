@@ -1,5 +1,6 @@
-function makeMap( source ){
+function makeMap( source, delimiter ){
     var rs = {};
+    delimiter = arguments.length == 2 ? delimiter : ' ';
 
     if ( Object.prototype.toString.call( source ) == '[object String]' ) {
         source = source.split( ' ' );
@@ -26,3 +27,36 @@ function makeArray( obj ){
         return [obj];
     }
 }
+var tokenGenerator = {
+    type: '',
+    value: '',
+    start: '',
+    end: '',
+    startLine: '',
+    endLine: '',
+    start: function( type, start, startLine ){
+        this.type = type;
+        this.start = start;
+        this.startLine = startLine;
+    },
+    end: function( val, end, endLine ){
+        this.value = val;
+        this.end = end;
+        this.endLine = endLine;
+    },
+    getToken: function( type ){
+        if ( type == tokenType.Eof ) {
+            return {
+                type: tokenType.Eof
+            }
+        }
+        return {
+            type: this.type,
+            value: this.value,
+            start: this.start,
+            end: this.end,
+            startLine: this.startLine,
+            endLine: this.endLine
+        }
+    }
+};
