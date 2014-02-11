@@ -43,6 +43,9 @@ arasy.scanner = function( source ){
     function retract(){
         index--;
     }
+    function newLine(){
+        lineNum++;
+    }
 
     function isNumericStart( chr ){
         //0~9
@@ -101,6 +104,10 @@ arasy.scanner = function( source ){
         return whiteSpaceMap[chr.charCodeAt(0).toString(16)];
     }
 
+    function isEscape( chr ){
+        return chr == '\\';
+    }
+
     function isIdentifierStart( chr ){
         if ( isStringStart( chr ) ) {
             return false;
@@ -133,9 +140,7 @@ arasy.scanner = function( source ){
         var dotExists = 0;
         var eExists = 0;
 
-        var start = index + 1;
-
-        tokenGenerator.start( tokensMap.Numeric, start, lineNum );
+        tokenGenerator.start( tokensMap.Numeric, index, lineNum );
 
         //check HexIntegerLiteral
         if ( currentChr == 0 ) {
@@ -191,7 +196,48 @@ arasy.scanner = function( source ){
     }
 
     function string(){
+        var startString = next();
+        var string_quote = startString;
+        var extVal = 0;
+        if( window.initStateInfo && window.initStateInfo.extVal ){
+            string_quote =  initStateInfo.extVal;
+            extVal = 1;
+        }
 
+        var chr = '';
+        var stringVal = startString;
+        tokenGenerator.start( tokenType.String, index, lineNum );
+
+        if( extVal && startString == string_quote ){
+            //如果是有开始信息的,且第一个字符是字符串的开始字符，那么直接结束
+        }else{
+            while( chr = next() ){
+                //如果后面是新行，那么token中断
+                //todo raise error
+                if( isTerminator( chr ) ){
+                    retract();
+                    break;
+                }
+                //如果是转义字符，那么向前看一个
+                if( isEscape( chr ) ){
+                    //换行转义。那么加一行
+                    if( isTerminator( peek() ) ){
+                        newLine();
+                    }
+                    stringVal += chr + next();
+                }else{
+                    stringVal += chr;
+                    //如果是字符串结束符
+                    if( chr == string_quote ){
+                        break;
+                    }
+                }
+            }
+        }
+
+        tokenGenerator.end( stringVal, index, lineNum );
+
+        return tokenGenerator.getToken();
     }
 
     function comment(){
