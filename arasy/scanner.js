@@ -126,6 +126,11 @@ arasy.scanner = function( source ){
         return chr == '\'' || chr == '"';
     }
     function isPunctuatorStart( chr ){
+        var nextChr = peek();
+        if ( chr == '\\' && nextChr == 'u' ) {
+            //identifier todo 检测后面是四个数字，否则raise error
+            return false;
+        }
         return operatorMap[chr];
     }
     function isTerminator( chr ){
