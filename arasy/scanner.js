@@ -294,7 +294,47 @@ arasy.scanner = function( source ){
     }
 
     function regexp(){
+        ///\/
+        /*
+         '[' => 91, ']' => 93
+         */
+        var chr = next();
+        var regexpStr = chr;
 
+
+        var isInClass = 0;
+
+        tokenGenerator.start( tokenType.RegularExpression, index, lineNum );
+
+        while( chr = next() ){
+
+            //换行的话，直接回退上一步
+            if( isTerminator( chr ) ){
+                retract();
+                break;
+            }
+
+            regexpStr += chr;
+
+            if( chr == '[' ){
+                isInClass = 1;
+            }
+            if( chr == ']' ){
+                isInClass = 0;
+            }
+            // 转义的\
+            if( chr == '\\' ){
+                regexpStr += next();
+            }
+            if( !isInClass && chr == '/' ){
+                //如果match到最后的/，那么
+                break;
+            }
+
+        }
+
+        tokenGenerator.end( regexpStr, index, lineNum );
+        return tokenGenerator.getToken();
     }
 
     function punctuator(){
