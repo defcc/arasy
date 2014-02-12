@@ -5,6 +5,12 @@ arasy.scanner = function( source ){
     var sourceLen = source.length;
     var lineNum = 0;
 
+    var acceptRegexp = 1;
+
+    function updateRegexpAcceptable( env ){
+        acceptRegexp  = 0;
+    }
+
     var tokenGenerator = {
         type: '',
         value: '',
@@ -45,7 +51,8 @@ arasy.scanner = function( source ){
         nextToken: nextToken
     };
 
-    function nextToken(){
+    function nextToken( env ){
+        updateRegexpAcceptable( env );
         for ( ; index < sourceLen; index++ ) {
             action();
         }
@@ -57,12 +64,12 @@ arasy.scanner = function( source ){
             numeric();
         } else if ( isStringStart( chr ) ) {
             string();
-        } else if ( isPunctuatorStart( chr ) ) {
-            punctuator();
-        } else if ( isRegexpStart( chr ) ) {
-            regexp();
         } else if ( isCommentStart( chr ) ) {
             comment();
+        } else if ( isRegexpStart( chr ) ) {
+            regexp();
+        } else if ( isPunctuatorStart( chr ) ) {
+            punctuator();
         } else if( isTerminator( chr ) ){
             terminator();
         } else {
@@ -114,12 +121,16 @@ arasy.scanner = function( source ){
         return hexDigitMap.hasOwnProperty( chr );
     }
 
-    function isRegexpStart(){
-
+    function isRegexpStart( chr ){
+        if ( chr == '/' &&  regexpAcceptable ) {
+            return 1;
+        }
+        return 0;
     }
 
     function isCommentStart(){
-
+        var nextChr = peek();
+        return chr == '/' && (nextChr == '/' || nextChr == '*');
     }
 
     function isStringStart( chr ) {
@@ -421,7 +432,7 @@ arasy.scanner = function( source ){
         tokenGenerator.end( identifierStr );
 
 
-        if( keywordsMap( identifierStr ) ){
+        if( keywordsMap( String(identifierStr) ) ){
             type = tokenType.Keywords;
         }
         return tokenGenerator.getToken( type );
