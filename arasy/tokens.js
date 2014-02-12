@@ -8,7 +8,8 @@ var tokenType = {
     'Null': 'Null',
     'Boolean': 'Boolean',
     'RegularExpression': 'RegularExpression',
-    'Eof': 'eof'
+    'Eof': 'eof',
+    'Comment': 'Comment'
 };
 
 var literalTypeMap = {
@@ -17,6 +18,11 @@ var literalTypeMap = {
     'Null': 1,
     'Boolean': 1,
     'RegularExpression': 1
+};
+
+var commentType = {
+    'SingleLineComment': 'SingleLineComment',
+    'MultiLineComment': 'MultiLineComment'
 };
 
 var keywordsStr = "break do instanceof typeof case else new var catch finally return void continue for switch while" +

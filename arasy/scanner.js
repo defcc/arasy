@@ -241,7 +241,56 @@ arasy.scanner = function( source ){
     }
 
     function comment(){
+        var currentChr = next();
+        var commentStr = currentChr;
 
+        var extVal = 0;
+        var nextChr = peek();
+
+        var currentCommentType;
+
+        if( window.initStateInfo && window.initStateInfo.extVal ){
+            currentCommentType =  window.initStateInfo.extVal;
+            extVal = 1;
+        }else{
+            if ( nextChr == '*' ) {
+                currentCommentType = commentType.MultiLineComment;
+            } else {
+                currentCommentType = commentType.SingleLineComment;
+            }
+        }
+
+        tokenGenerator.start( tokenType.Comment, index, lineNum );
+
+        commentStr += next();
+
+        var chr;
+        if( currentCommentType == commentType.SingleLineComment ){
+            while(chr = next()){
+                if( isTerminator( chr ) ){
+                    retract();
+                    break;
+                }
+                commentStr += chr;
+            }
+        }else{
+            while(chr = next()){
+                nextChr = peek();
+
+                if( chr == '*' && nextChr == '/' ){
+                    next();
+                    commentStr += '*/';
+                    break;
+                }
+                if( isTerminator( chr ) ){
+                    newLine();
+                }
+                commentStr += chr;
+            }
+        }
+        tokenGenerator.end( commentStr, index, lineNum );
+
+        return tokenGenerator.getToken();
     }
 
     function regexp(){
