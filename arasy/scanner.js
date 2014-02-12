@@ -338,7 +338,22 @@ arasy.scanner = function( source ){
     }
 
     function punctuator(){
+        var punctuatorStr = '';
+        var currentChr = '';
 
+        tokenGenerator.start( tokenType.Punctuator, index + 1, lineNum );
+
+        while( currentChr = next() ){
+            if( !operatorMap[ punctuatorStr + currentChr ] ){
+                retract();
+                break;
+            } else {
+                punctuatorStr += currentChr;
+            }
+        }
+
+        tokenGenerator.end( punctuatorStr, index, lineNum );
+        return tokenGenerator.getToken();
     }
     function terminator(){
 
