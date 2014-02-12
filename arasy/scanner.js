@@ -5,6 +5,42 @@ arasy.scanner = function( source ){
     var sourceLen = source.length;
     var lineNum = 0;
 
+    var tokenGenerator = {
+        type: '',
+        value: '',
+        start: '',
+        end: '',
+        startLine: '',
+        endLine: '',
+        start: function( type ){
+            this.type = type;
+            this.start = index;
+            this.startLine = lineNum;
+            return this;
+        },
+        end: function( val ){
+            this.value = val;
+            this.end = index;
+            this.endLine = lineNum;
+            return this;
+        },
+        getToken: function( type ){
+            if ( type == tokenType.Eof ) {
+                return {
+                    type: tokenType.Eof
+                }
+            }
+            return {
+                type: type || this.type,
+                value: this.value,
+                start: this.start,
+                end: this.end,
+                startLine: this.startLine,
+                endLine: this.endLine
+            }
+        }
+    };
+
     return {
         nextToken: nextToken
     };
@@ -29,6 +65,8 @@ arasy.scanner = function( source ){
             comment();
         } else if( isTerminator( chr ) ){
             terminator();
+        } else {
+            identifier();
         }
     }
 
@@ -140,7 +178,7 @@ arasy.scanner = function( source ){
         var dotExists = 0;
         var eExists = 0;
 
-        tokenGenerator.start( tokensMap.Numeric, index, lineNum );
+        tokenGenerator.start( tokensMap.Numeric );
 
         //check HexIntegerLiteral
         if ( currentChr == 0 ) {
@@ -191,7 +229,7 @@ arasy.scanner = function( source ){
             //todo raise error;
         }
 
-        tokenGenerator.end( numericVal, index, lineNum );
+        tokenGenerator.end( numericVal );
         return tokenGenerator.getToken();
     }
 
@@ -206,7 +244,7 @@ arasy.scanner = function( source ){
 
         var chr = '';
         var stringVal = startString;
-        tokenGenerator.start( tokenType.String, index, lineNum );
+        tokenGenerator.start( tokenType.String );
 
         if( extVal && startString == string_quote ){
             //如果是有开始信息的,且第一个字符是字符串的开始字符，那么直接结束
@@ -235,7 +273,7 @@ arasy.scanner = function( source ){
             }
         }
 
-        tokenGenerator.end( stringVal, index, lineNum );
+        tokenGenerator.end( stringVal );
 
         return tokenGenerator.getToken();
     }
@@ -260,7 +298,7 @@ arasy.scanner = function( source ){
             }
         }
 
-        tokenGenerator.start( tokenType.Comment, index, lineNum );
+        tokenGenerator.start( tokenType.Comment );
 
         commentStr += next();
 
@@ -288,7 +326,7 @@ arasy.scanner = function( source ){
                 commentStr += chr;
             }
         }
-        tokenGenerator.end( commentStr, index, lineNum );
+        tokenGenerator.end( commentStr );
 
         return tokenGenerator.getToken();
     }
@@ -304,7 +342,7 @@ arasy.scanner = function( source ){
 
         var isInClass = 0;
 
-        tokenGenerator.start( tokenType.RegularExpression, index, lineNum );
+        tokenGenerator.start( tokenType.RegularExpression );
 
         while( chr = next() ){
 
@@ -333,15 +371,16 @@ arasy.scanner = function( source ){
 
         }
 
-        tokenGenerator.end( regexpStr, index, lineNum );
+        tokenGenerator.end( regexpStr );
         return tokenGenerator.getToken();
     }
 
     function punctuator(){
-        var punctuatorStr = '';
-        var currentChr = '';
+        var currentChr = next();
+        var punctuatorStr = currentChr;
 
-        tokenGenerator.start( tokenType.Punctuator, index + 1, lineNum );
+
+        tokenGenerator.start( tokenType.Punctuator );
 
         while( currentChr = next() ){
             if( !operatorMap[ punctuatorStr + currentChr ] ){
@@ -352,10 +391,41 @@ arasy.scanner = function( source ){
             }
         }
 
-        tokenGenerator.end( punctuatorStr, index, lineNum );
+        tokenGenerator.end( punctuatorStr );
         return tokenGenerator.getToken();
     }
-    function terminator(){
 
+    function identifier(){
+        var currentChr = next();
+
+        var identifierStr = currentChr;
+        var type = tokenType.Identifier;
+
+        tokenGenerator.start( tokenType.Identifier );
+
+        while( currentChr = next() ){
+            if( isWhiteSpace( currentChr ) || isTerminator( currentChr ) || isPunctuatorStart( currentChr )
+                || isStringStart( currentChr )
+                ){
+                retract();
+                break;
+            }
+            identifierStr += currentChr;
+        }
+
+        tokenGenerator.end( identifierStr );
+
+
+        if( keywordsMap( identifierStr ) ){
+            type = tokenType.Keywords;
+        }
+        return tokenGenerator.getToken( type );
+    }
+
+    function terminator(){
+        tokenGenerator.start( tokenType.Terminator );
+        next();
+        tokenGenerator.end( '\n' );
+        return tokenGenerator.getToken();
     }
 };

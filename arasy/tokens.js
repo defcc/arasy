@@ -9,7 +9,8 @@ var tokenType = {
     'Boolean': 'Boolean',
     'RegularExpression': 'RegularExpression',
     'Eof': 'eof',
-    'Comment': 'Comment'
+    'Comment': 'Comment',
+    'Terminator': 'Terminator'
 };
 
 var literalTypeMap = {
