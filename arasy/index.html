@@ -2,9 +2,22 @@
 <script src="tokens.js"></script>
 <script src="parser.js"></script>
 <script src="scanner.js"></script>
+<textarea id="playground" style="width: 500px; height: 300px;"></textarea>
 <script>
-    var scanner = arasy.scanner('/12/');
-    scanner.nextToken();
-    scanner.nextToken();
-    scanner.nextToken()
+    document.getElementById('playground').onkeyup = function(){
+        parseInput( this.value );
+    };
+
+    function parseInput( source ){
+        var scanner = arasy.scanner( source );
+        var token;
+        while ( true ) {
+            token = scanner.nextToken();
+            console.log( token );
+            if ( tokenType.Eof == token.type ) {
+                break;
+            }
+        }
+    }
+
 </script>

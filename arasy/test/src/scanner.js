@@ -188,3 +188,29 @@ test('正则表达式', function(){
     equal( secondToken.type, tokenType.Eof );
     equal( secondToken.value, undefined );
 });
+
+module('String parse.');
+
+test('字符串', function(){
+    var code1 = '\'baidu\\n\'';
+    var arasyScanner = arasy.scanner( code1 );
+    var firstToken = arasyScanner.nextToken();
+    var secondToken = arasyScanner.nextToken();
+
+    equal( firstToken.type, tokenType.String );
+    equal( firstToken.value, '\'baidu\\n\'');
+    equal( secondToken.type, tokenType.Eof );
+    equal( secondToken.value, undefined );
+
+
+
+    var code2 = '"\'\\""';
+    var arasyScanner = arasy.scanner( code2 );
+    var firstToken = arasyScanner.nextToken();
+    var secondToken = arasyScanner.nextToken();
+
+    equal( firstToken.type, tokenType.String );
+    equal( firstToken.value, '"\'\""');
+    equal( secondToken.type, tokenType.Eof );
+    equal( secondToken.value, undefined );
+});

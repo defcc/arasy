@@ -24,8 +24,12 @@ arasy.scanner = function( source ){
             return this;
         },
         end: function( val ){
+            if ( eof() ) {
+                this.endIndex = index - 1;
+            } else {
+                this.endIndex = index;
+            }
             this.value = val;
-            this.endIndex = index;
             this.endLine = lineNum;
             return this;
         },
@@ -52,6 +56,7 @@ arasy.scanner = function( source ){
 
     function nextToken( env ){
         updateRegexpAcceptable( env );
+        skipWhitespace();
         if ( eof() ) {
             return tokenGenerator.getToken( tokenType.Eof );
         }
@@ -59,8 +64,6 @@ arasy.scanner = function( source ){
     }
 
     function action(){
-        skipWhitespace();
-
         var chr = peek();
         var peekPos = index + 1;
 
@@ -81,7 +84,6 @@ arasy.scanner = function( source ){
         } else {
             token = identifier();
         }
-        console.log( token );
         return token;
     }
 
@@ -134,6 +136,9 @@ arasy.scanner = function( source ){
     }
 
     function isNumber( chr, nonZero ){
+        if ( !/[0-9]/.test( chr ) ) {
+            return false;
+        }
         var min = nonZero ? 1 : 0;
         return chr >= min && chr <= 9;
     }
