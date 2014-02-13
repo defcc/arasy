@@ -94,6 +94,35 @@ test('Numeric width dot', function(){
     equal( secondToken.value, undefined );
 });
 
+module('Punctuator Parse.');
+
+test('i+++a', function(){
+    var code1 = 'i+++a';
+    var arasyScanner = arasy.scanner( code1 );
+    var firstToken = arasyScanner.nextToken();
+    var secondToken = arasyScanner.nextToken();
+    var thirdToken = arasyScanner.nextToken();
+
+    equal( firstToken.type, tokenType.Identifier );
+    equal( firstToken.value, 'i');
+    equal( secondToken.type, tokenType.Punctuator );
+    equal( secondToken.value, '++' );
+
+    equal( thirdToken.type, tokenType.Punctuator );
+    equal( thirdToken.value, '+' );
+
+
+    var code2 = '.12';
+    var arasyScanner = arasy.scanner( code2 );
+    var firstToken = arasyScanner.nextToken();
+    var secondToken = arasyScanner.nextToken();
+
+    equal( firstToken.type, tokenType.Numeric, 'Numeric类型' );
+    equal( firstToken.value, 0.12);
+    equal( secondToken.type, tokenType.Eof );
+    equal( secondToken.value, undefined );
+});
+
 
 
 module('Expression Parse');
