@@ -125,7 +125,7 @@ test('i+++a', function(){
 
 module('Comment parse.');
 
-test('//assa', function(){
+test('注释', function(){
     var code1 = '//aasa';
     var arasyScanner = arasy.scanner( code1 );
     var firstToken = arasyScanner.nextToken();
@@ -147,4 +147,14 @@ test('//assa', function(){
     equal( firstToken.value, code2);
     equal( secondToken.type, tokenType.Eof );
     equal( secondToken.value, undefined );
+
+    var code2 = '/**/var';
+    var arasyScanner = arasy.scanner( code2 );
+    var firstToken = arasyScanner.nextToken();
+    var secondToken = arasyScanner.nextToken();
+
+    equal( firstToken.type, tokenType.Comment );
+    equal( firstToken.value, '/**/');
+    equal( secondToken.type, tokenType.Keywords );
+    equal( secondToken.value, 'var' );
 });
