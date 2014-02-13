@@ -157,8 +157,6 @@ test('注释', function(){
     equal( firstToken.value, '/**/');
     equal( secondToken.type, tokenType.Keywords );
     equal( secondToken.value, 'var' );
-
-    equal(1,2);
 });
 
 
