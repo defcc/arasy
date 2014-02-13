@@ -3,7 +3,7 @@ function makeMap( source, delimiter ){
     delimiter = arguments.length == 2 ? delimiter : ' ';
 
     if ( Object.prototype.toString.call( source ) == '[object String]' ) {
-        source = source.split( ' ' );
+        source = source.split( delimiter );
         var sourceLen = source.length;
 
         for ( i = 0; i < sourceLen; i++ ) {

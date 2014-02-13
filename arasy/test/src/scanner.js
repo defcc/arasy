@@ -17,7 +17,6 @@ test('\\u1283 ', function(){
     var firstToken = arasyScanner.nextToken();
     var secondToken = arasyScanner.nextToken();
 
-    console.log(firstToken);
     ok( firstToken.type == tokenType.Identifier, '第一个token为Identifier，实际为' + firstToken.type );
     ok( firstToken.value == '\\u12345', '第一个token的value为\\u12345', '实际为' + firstToken.value );
     ok( secondToken.type == tokenType.Eof, '第二个token为Eof' );
@@ -32,12 +31,69 @@ test('0x123 ', function(){
     var firstToken = arasyScanner.nextToken();
     var secondToken = arasyScanner.nextToken();
 
-    console.log(firstToken);
-    ok( firstToken.type == tokenType.Numeric, '第一个token为，实际为' + firstToken.type );
+    equal( firstToken.type, tokenType.Numeric );
     equal( firstToken.value, 0x123);
-    ok( secondToken.type == tokenType.Eof, '第二个token为Eof' );
-    ok( secondToken.value == undefined, '第二个token的value为undefined' );
+    equal( secondToken.type, tokenType.Eof );
+    equal( secondToken.value, undefined );
+
+
+    var code1 = '012345';
+    var arasyScanner = arasy.scanner( code1 );
+    var firstToken = arasyScanner.nextToken();
+    var secondToken = arasyScanner.nextToken();
+
+    equal( firstToken.type, tokenType.Numeric );
+    equal( firstToken.value, 12345);
+    equal( secondToken.type, tokenType.Eof );
+    equal( secondToken.value, undefined );
 });
+
+test('ExponentPartopt ', function(){
+    var code1 = '19293E1';
+    var arasyScanner = arasy.scanner( code1 );
+    var firstToken = arasyScanner.nextToken();
+    var secondToken = arasyScanner.nextToken();
+
+    equal( firstToken.type, tokenType.Numeric );
+    equal( firstToken.value, 19293e1);
+    equal( secondToken.type, tokenType.Eof );
+    equal( secondToken.value, undefined );
+
+
+    var code2 = '19293E+1';
+    var arasyScanner = arasy.scanner( code2 );
+    var firstToken = arasyScanner.nextToken();
+    var secondToken = arasyScanner.nextToken();
+
+    equal( firstToken.type, tokenType.Numeric, 'Numeric类型' );
+    equal( firstToken.value, 19293e1);
+    equal( secondToken.type, tokenType.Eof );
+    equal( secondToken.value, undefined );
+});
+
+test('Numeric width dot', function(){
+    var code1 = '123.1';
+    var arasyScanner = arasy.scanner( code1 );
+    var firstToken = arasyScanner.nextToken();
+    var secondToken = arasyScanner.nextToken();
+
+    equal( firstToken.type, tokenType.Numeric );
+    equal( firstToken.value, 123.1);
+    equal( secondToken.type, tokenType.Eof );
+    equal( secondToken.value, undefined );
+
+
+    var code2 = '.12';
+    var arasyScanner = arasy.scanner( code2 );
+    var firstToken = arasyScanner.nextToken();
+    var secondToken = arasyScanner.nextToken();
+
+    equal( firstToken.type, tokenType.Numeric, 'Numeric类型' );
+    equal( firstToken.value, 0.12);
+    equal( secondToken.type, tokenType.Eof );
+    equal( secondToken.value, undefined );
+});
+
 
 
 module('Expression Parse');

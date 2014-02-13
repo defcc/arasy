@@ -62,21 +62,27 @@ arasy.scanner = function( source ){
         skipWhitespace();
 
         var chr = peek();
-        if ( isNumericStart( chr ) ) {
-            return numeric();
+        var chr2 = peek( 2 );
+
+        var token;
+
+        if ( isNumericStart( chr, chr2 ) ) {
+            token = numeric();
         } else if ( isStringStart( chr ) ) {
-            return string();
+            token = string();
         } else if ( isCommentStart( chr ) ) {
-            return comment();
+            token = comment();
         } else if ( isRegexpStart( chr ) ) {
-            return regexp();
+            token = regexp();
         } else if ( isPunctuatorStart( chr ) ) {
-            return punctuator();
+            token = punctuator();
         } else if( isTerminator( chr ) ){
-            return terminator();
+            token = terminator();
         } else {
-            return identifier();
+            token = identifier();
         }
+        console.log( token );
+        return token;
     }
 
     function skipWhitespace(){
@@ -108,7 +114,7 @@ arasy.scanner = function( source ){
         lineNum++;
     }
 
-    function isNumericStart( chr ){
+    function isNumericStart( chr, peekChr ){
         //0~9
         if ( isNumber( chr ) ) {
             return true;
@@ -116,8 +122,7 @@ arasy.scanner = function( source ){
 
         //.12
         if ( chr == '.' ) {
-            var nextChr = peek();
-            return isNumber( nextChr );
+            return isNumber( peekChr );
         }
 
         return false;
@@ -133,7 +138,7 @@ arasy.scanner = function( source ){
     }
 
     function isHexDigit( chr ){
-        var hexDigitMap = makeMap('0123456789abcdefABCDEF');
+        var hexDigitMap = makeMap('0123456789abcdefABCDEF', '');
         return hexDigitMap.hasOwnProperty( chr );
     }
 
@@ -213,17 +218,19 @@ arasy.scanner = function( source ){
         tokenGenerator.start( tokenType.Numeric );
 
         //check HexIntegerLiteral
-        if ( currentChr == 0 ) {
-            next_chr = peek();
-            if ( next_chr == 'x' || next_chr == 'X' ) {
-                numericVal = '0' + next_chr;
-                while ( currentChr = next() ) {
-                    if ( isHexDigit( currentChr ) ) {
-                        numericVal += currentChr;
-                    } else if ( isIdentifierStart( currentChr ) ) {
-                        retract();
-                        break;
-                    }
+
+        next_chr = peek();
+        //0x为16进制
+        //否则为8进制
+        if ( currentChr == 0 && next_chr == 'x' || next_chr == 'X' ) {
+            numericVal = '0' + next_chr;
+            next();
+            while ( currentChr = next() ) {
+                if ( isHexDigit( currentChr ) ) {
+                    numericVal += currentChr;
+                } else if ( isIdentifierStart( currentChr ) ) {
+                    retract();
+                    break;
                 }
             }
         } else {
@@ -239,10 +246,13 @@ arasy.scanner = function( source ){
                     }
                 }else if( isExponentIndicator(currentChr) && !eExists){
                     //e || E
+                    //e1
+                    //e+1
+                    //e-1
                     next_chr = peek();
-                    if( isNumber( next_chr ) ){
+                    if( isNumber( next_chr ) || next_chr == '+' || next_chr == '-' ){
                         eExists = 1;
-                        numericVal += currentChr;
+                        numericVal += currentChr + next();
                     }else{
                         retract();
                         break;
