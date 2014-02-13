@@ -1,2 +1,1 @@
-var arasy = function(){
-}();
+window.arasy = {};

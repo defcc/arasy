@@ -1,7 +1,6 @@
 arasy.scanner = function( source ){
 
     var index = -1;
-    var source = source;
     var sourceLen = source.length;
     var lineNum = 0;
 
@@ -14,19 +13,19 @@ arasy.scanner = function( source ){
     var tokenGenerator = {
         type: '',
         value: '',
-        start: '',
-        end: '',
+        startIndex: '',
+        endIndex: '',
         startLine: '',
         endLine: '',
         start: function( type ){
             this.type = type;
-            this.start = index;
+            this.startIndex = index;
             this.startLine = lineNum;
             return this;
         },
         end: function( val ){
             this.value = val;
-            this.end = index;
+            this.endIndex = index;
             this.endLine = lineNum;
             return this;
         },
@@ -39,8 +38,8 @@ arasy.scanner = function( source ){
             return {
                 type: type || this.type,
                 value: this.value,
-                start: this.start,
-                end: this.end,
+                start: this.startIndex,
+                end: this.endIndex,
                 startLine: this.startLine,
                 endLine: this.endLine
             }
@@ -53,32 +52,49 @@ arasy.scanner = function( source ){
 
     function nextToken( env ){
         updateRegexpAcceptable( env );
-        for ( ; index < sourceLen; index++ ) {
-            action();
+        if ( eof() ) {
+            return tokenGenerator.getToken( tokenType.Eof );
         }
+        return action();
     }
 
     function action(){
+        skipWhitespace();
+
         var chr = peek();
         if ( isNumericStart( chr ) ) {
-            numeric();
+            return numeric();
         } else if ( isStringStart( chr ) ) {
-            string();
+            return string();
         } else if ( isCommentStart( chr ) ) {
-            comment();
+            return comment();
         } else if ( isRegexpStart( chr ) ) {
-            regexp();
+            return regexp();
         } else if ( isPunctuatorStart( chr ) ) {
-            punctuator();
+            return punctuator();
         } else if( isTerminator( chr ) ){
-            terminator();
+            return terminator();
         } else {
-            identifier();
+            return identifier();
         }
     }
 
+    function skipWhitespace(){
+        var chr;
+        while( chr = next() ){
+            if( !isWhiteSpace( chr ) ){
+                retract();
+                break;
+            }
+        }
+    }
+
+    function eof(){
+        return index >= sourceLen;
+    }
+
     function peek( pos ){
-        return source.charAt( index+ pos || 1 );
+        return source.charAt( index+ (pos || 1) );
     }
 
     function next(){
@@ -128,7 +144,7 @@ arasy.scanner = function( source ){
         return 0;
     }
 
-    function isCommentStart(){
+    function isCommentStart( chr ){
         var nextChr = peek();
         return chr == '/' && (nextChr == '/' || nextChr == '*');
     }
@@ -194,7 +210,7 @@ arasy.scanner = function( source ){
         var dotExists = 0;
         var eExists = 0;
 
-        tokenGenerator.start( tokensMap.Numeric );
+        tokenGenerator.start( tokenType.Numeric );
 
         //check HexIntegerLiteral
         if ( currentChr == 0 ) {
@@ -432,7 +448,7 @@ arasy.scanner = function( source ){
         tokenGenerator.end( identifierStr );
 
 
-        if( keywordsMap( String(identifierStr) ) ){
+        if( keywordsMap[ String(identifierStr) ] ){
             type = tokenType.Keywords;
         }
         return tokenGenerator.getToken( type );
