@@ -221,7 +221,7 @@ arasy.scanner = function( source ){
 
         next_chr = peek();
         //0x为16进制
-        //否则为8进制
+        //否则以0开始的为8进制,todo 在strict mode下8进制的数字字面量会报错
         if ( currentChr == 0 && next_chr == 'x' || next_chr == 'X' ) {
             numericVal = '0' + next_chr;
             next();
