@@ -157,4 +157,34 @@ test('注释', function(){
     equal( firstToken.value, '/**/');
     equal( secondToken.type, tokenType.Keywords );
     equal( secondToken.value, 'var' );
+
+    equal(1,2);
+});
+
+
+
+module('Comment parse.');
+
+test('正则表达式', function(){
+    var code1 = '/12/';
+    var arasyScanner = arasy.scanner( code1 );
+    var firstToken = arasyScanner.nextToken();
+    var secondToken = arasyScanner.nextToken();
+
+    equal( firstToken.type, tokenType.RegularExpression );
+    equal( firstToken.value, '/12/');
+    equal( secondToken.type, tokenType.Eof );
+    equal( secondToken.value, undefined );
+
+
+
+    var code2 = '/[[1]2\n/i';
+    var arasyScanner = arasy.scanner( code2 );
+    var firstToken = arasyScanner.nextToken();
+    var secondToken = arasyScanner.nextToken();
+
+    equal( firstToken.type, tokenType.RegularExpression );
+    equal( firstToken.value, code2);
+    equal( secondToken.type, tokenType.Eof );
+    equal( secondToken.value, undefined );
 });

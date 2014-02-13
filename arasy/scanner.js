@@ -4,10 +4,10 @@ arasy.scanner = function( source ){
     var sourceLen = source.length;
     var lineNum = 0;
 
-    var acceptRegexp = 1;
+    var regexpAcceptable = 1;
 
     function updateRegexpAcceptable( env ){
-        acceptRegexp  = 0;
+        regexpAcceptable  = 1;
     }
 
     var tokenGenerator = {
@@ -70,11 +70,11 @@ arasy.scanner = function( source ){
             token = numeric();
         } else if ( isStringStart( chr ) ) {
             token = string();
-        } else if ( isCommentStart( chr ) ) {
+        } else if ( isCommentStart( chr, chr2 ) ) {
             token = comment();
         } else if ( isRegexpStart( chr ) ) {
             token = regexp();
-        } else if ( isPunctuatorStart( chr ) ) {
+        } else if ( isPunctuatorStart( chr, chr2 ) ) {
             token = punctuator();
         } else if( isTerminator( chr ) ){
             token = terminator();
@@ -149,17 +149,15 @@ arasy.scanner = function( source ){
         return 0;
     }
 
-    function isCommentStart( chr ){
-        var nextChr = peek();
-        return chr == '/' && (nextChr == '/' || nextChr == '*');
+    function isCommentStart( chr, peekChr ){
+        return chr == '/' && (peekChr == '/' || peekChr == '*');
     }
 
     function isStringStart( chr ) {
         return chr == '\'' || chr == '"';
     }
-    function isPunctuatorStart( chr ){
-        var nextChr = peek();
-        if ( chr == '\\' && nextChr == 'u' ) {
+    function isPunctuatorStart( chr, chr2 ){
+        if ( chr == '\\' && chr2 == 'u' ) {
             //identifier todo 检测后面是四个数字，否则raise error
             return false;
         }
@@ -390,8 +388,7 @@ arasy.scanner = function( source ){
 
             //换行的话，直接回退上一步
             if( isTerminator( chr ) ){
-                retract();
-                break;
+                newLine();
             }
 
             regexpStr += chr;
@@ -410,7 +407,14 @@ arasy.scanner = function( source ){
                 //如果match到最后的/，那么
                 break;
             }
+        }
 
+        //check RegularExpressionFlags
+        var peekChr = peek();
+        if ( isIdentifierStart( peekChr ) ) {
+            regexpStr += identifier().value;
+
+            //todo check flags is valid
         }
 
         tokenGenerator.end( regexpStr );

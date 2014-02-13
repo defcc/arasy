@@ -33,8 +33,8 @@ var keywordsMap = makeMap( keywordsStr );
 
 var futureReservedKeywordsMap = makeMap( "class enum extends super const export import" );
 
-var operatorStr = "{ } ( ) [ ] . ; , < > <= >= == != === !== + - * % ++ -- << >> >>> & | ^ ! ~ && || ? : = += -= *=" +
-    " %= <<= >>= >>>= &= |= ^=";
+var operatorStr = "{ } ( ) [ ] . ; , < > <= >= == != === !== + - * % / ++ -- << >> >>> & | ^ ! ~ && || ? : = += -= *=" +
+    " %= /= <<= >>= >>>= &= |= ^=";
 var operatorMap = makeMap( operatorStr );
 
 var precedence = {
