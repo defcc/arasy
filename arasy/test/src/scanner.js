@@ -123,10 +123,28 @@ test('i+++a', function(){
     equal( secondToken.value, undefined );
 });
 
+module('Comment parse.');
+
+test('//assa', function(){
+    var code1 = '//aasa';
+    var arasyScanner = arasy.scanner( code1 );
+    var firstToken = arasyScanner.nextToken();
+    var secondToken = arasyScanner.nextToken();
+
+    equal( firstToken.type, tokenType.Comment );
+    equal( firstToken.value, '//aasa');
+    equal( secondToken.type, tokenType.Eof );
+    equal( secondToken.value, undefined );
 
 
-module('Expression Parse');
 
-test('a.test', function(){
-    ok(1, 'MemberExpression')
+    var code2 = '/**/';
+    var arasyScanner = arasy.scanner( code2 );
+    var firstToken = arasyScanner.nextToken();
+    var secondToken = arasyScanner.nextToken();
+
+    equal( firstToken.type, tokenType.Comment );
+    equal( firstToken.value, code2);
+    equal( secondToken.type, tokenType.Eof );
+    equal( secondToken.value, undefined );
 });
