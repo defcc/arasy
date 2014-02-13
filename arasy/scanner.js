@@ -217,7 +217,7 @@ arasy.scanner = function( source ){
             next_chr = peek();
             if ( next_chr == 'x' || next_chr == 'X' ) {
                 numericVal = '0' + next_chr;
-                while ( currentChr == next() ) {
+                while ( currentChr = next() ) {
                     if ( isHexDigit( currentChr ) ) {
                         numericVal += currentChr;
                     } else if ( isIdentifierStart( currentChr ) ) {

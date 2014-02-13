@@ -26,6 +26,19 @@ test('\\u1283 ', function(){
 
 module('Numeric Parse.');
 
+test('0x123 ', function(){
+    var code = '0x123';
+    var arasyScanner = arasy.scanner( code );
+    var firstToken = arasyScanner.nextToken();
+    var secondToken = arasyScanner.nextToken();
+
+    console.log(firstToken);
+    ok( firstToken.type == tokenType.Numeric, '第一个token为，实际为' + firstToken.type );
+    equal( firstToken.value, 0x123);
+    ok( secondToken.type == tokenType.Eof, '第二个token为Eof' );
+    ok( secondToken.value == undefined, '第二个token的value为undefined' );
+});
+
 
 module('Expression Parse');
 
