@@ -62,19 +62,19 @@ arasy.scanner = function( source ){
         skipWhitespace();
 
         var chr = peek();
-        var chr2 = peek( 2 );
+        var peekPos = index + 1;
 
         var token;
 
-        if ( isNumericStart( chr, chr2 ) ) {
+        if ( isNumericStart( chr, peekPos ) ) {
             token = numeric();
         } else if ( isStringStart( chr ) ) {
             token = string();
-        } else if ( isCommentStart( chr, chr2 ) ) {
+        } else if ( isCommentStart( chr, peekPos ) ) {
             token = comment();
         } else if ( isRegexpStart( chr ) ) {
             token = regexp();
-        } else if ( isPunctuatorStart( chr, chr2 ) ) {
+        } else if ( isPunctuatorStart( chr, peekPos ) ) {
             token = punctuator();
         } else if( isTerminator( chr ) ){
             token = terminator();
@@ -102,6 +102,9 @@ arasy.scanner = function( source ){
     function peek( pos ){
         return source.charAt( index+ (pos || 1) );
     }
+    function peekAt( pos ){
+        return source.charAt( pos );
+    }
 
     function next(){
         index++;
@@ -114,11 +117,13 @@ arasy.scanner = function( source ){
         lineNum++;
     }
 
-    function isNumericStart( chr, peekChr ){
+    function isNumericStart( chr, idx ){
         //0~9
         if ( isNumber( chr ) ) {
             return true;
         }
+
+        var peekChr = peekAt( idx + 1 );
 
         //.12
         if ( chr == '.' ) {
@@ -149,15 +154,17 @@ arasy.scanner = function( source ){
         return 0;
     }
 
-    function isCommentStart( chr, peekChr ){
+    function isCommentStart( chr, idx ){
+        var peekChr = peekAt( idx + 1 );
         return chr == '/' && (peekChr == '/' || peekChr == '*');
     }
 
     function isStringStart( chr ) {
         return chr == '\'' || chr == '"';
     }
-    function isPunctuatorStart( chr, chr2 ){
-        if ( chr == '\\' && chr2 == 'u' ) {
+    function isPunctuatorStart( chr, idx ){
+        var peekChr = peekAt( idx + 1 );
+        if ( chr == '\\' && peekChr == 'u' ) {
             //identifier todo 检测后面是四个数字，否则raise error
             return false;
         }
@@ -181,17 +188,17 @@ arasy.scanner = function( source ){
         return chr == '\\';
     }
 
-    function isIdentifierStart( chr ){
-        if ( isStringStart( chr ) ) {
+    function isIdentifierStart( chr, idx ){
+        if ( isStringStart( chr, idx ) ) {
             return false;
         }
-        if ( isPunctuatorStart( chr ) ) {
+        if ( isPunctuatorStart( chr, idx ) ) {
             return false;
         }
-        if ( isWhiteSpace( chr ) ) {
+        if ( isWhiteSpace( chr, idx ) ) {
             return false;
         }
-        if ( isTerminator( chr ) ) {
+        if ( isTerminator( chr, idx ) ) {
             return false;
         }
         return true;
@@ -411,8 +418,8 @@ arasy.scanner = function( source ){
 
         //check RegularExpressionFlags
         var peekChr = peek();
-        if ( isIdentifierStart( peekChr ) ) {
-            regexpStr += identifier().value;
+        if ( isIdentifierStart( peekChr, index + 1 ) ) {
+            regexpStr += readIdentifier();
 
             //todo check flags is valid
         }
@@ -449,15 +456,7 @@ arasy.scanner = function( source ){
 
         tokenGenerator.start( tokenType.Identifier );
 
-        while( currentChr = next() ){
-            if( isWhiteSpace( currentChr ) || isTerminator( currentChr ) || isPunctuatorStart( currentChr )
-                || isStringStart( currentChr )
-                ){
-                retract();
-                break;
-            }
-            identifierStr += currentChr;
-        }
+        identifierStr += readIdentifier();
 
         tokenGenerator.end( identifierStr );
 
@@ -466,6 +465,20 @@ arasy.scanner = function( source ){
             type = tokenType.Keywords;
         }
         return tokenGenerator.getToken( type );
+    }
+
+    function readIdentifier(){
+        var currentChr;
+        var rs = '';
+
+        while( currentChr = next() ){
+            if( !isIdentifierStart( currentChr, index ) ) {
+                retract();
+                break;
+            }
+            rs += currentChr;
+        }
+        return rs;
     }
 
     function terminator(){
