@@ -96,7 +96,7 @@ arasy.scanner = function( source ){
     }
 
     function eof(){
-        return index >= sourceLen;
+        return index >= sourceLen - 1;
     }
 
     function peek( pos ){
