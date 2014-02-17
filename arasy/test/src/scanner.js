@@ -211,4 +211,14 @@ test('字符串', function(){
     equal( firstToken.value, '"\'\""');
     equal( secondToken.type, tokenType.Eof );
     equal( secondToken.value, undefined );
+
+    var code2 = '\u1234\u2345 a';
+    var arasyScanner = arasy.scanner( code2 );
+    var firstToken = arasyScanner.nextToken();
+    var secondToken = arasyScanner.nextToken();
+
+    equal( firstToken.type, tokenType.Identifier );
+    equal( firstToken.value, String('\u1234\u2345'));
+    equal( secondToken.type, tokenType.Eof );
+    equal( secondToken.value, undefined );
 });
