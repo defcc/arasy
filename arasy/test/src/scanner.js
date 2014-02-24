@@ -208,17 +208,19 @@ test('字符串', function(){
     var secondToken = arasyScanner.nextToken();
 
     equal( firstToken.type, tokenType.String );
-    equal( firstToken.value, '"\'\""');
+    equal( firstToken.value, "\"'\"\"");
     equal( secondToken.type, tokenType.Eof );
     equal( secondToken.value, undefined );
 
-    var code2 = '\u1234\u2345 a';
+    var code2 = '"\u1234\u2345 a"';
     var arasyScanner = arasy.scanner( code2 );
     var firstToken = arasyScanner.nextToken();
     var secondToken = arasyScanner.nextToken();
 
-    equal( firstToken.type, tokenType.Identifier );
-    equal( firstToken.value, String('\u1234\u2345'));
+    console.log( code2, firstToken );
+
+    equal( firstToken.type, tokenType.String );
+    equal( firstToken.value, String('"\u1234\u2345 a"'));
     equal( secondToken.type, tokenType.Eof );
     equal( secondToken.value, undefined );
 });
