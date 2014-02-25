@@ -4,8 +4,11 @@ arasy.expressionParser = function(){
     var infixParselet = {};
 
     return {
+        init: function( scanner ){
+            this.scanner = scanner;
+        },
         parse: function( precedence ){
-            var token = arasy.scanner.lookAhead();
+            var token = this.scanner.lookAhead();
             if ( token.type == 'eof' ) {
                 return;
             }
@@ -13,7 +16,7 @@ arasy.expressionParser = function(){
             var left = prefixParser( this, token );
 
             while ( precedence < this.getPrecedence() ) {
-                var token = arasy.scanner.consume();
+                var token = this.scanner.consume();
                 var infixParser = infixParselet[ token.type ];
                 left = infixParser( this, left, token );
             }
@@ -26,7 +29,7 @@ arasy.expressionParser = function(){
             infixParselet[ tokenType ] = parselet;
         },
         getPrecedence: function(){
-            var nextToken = arasy.scanner.lookAhead();
+            var nextToken = this.scanner.lookAhead();
             var precedence = getPrecedenceByToken( nextToken );
             if ( precedence ) {
                 return precedence;

@@ -8,7 +8,7 @@ var objectExpressionParser = function( expressionParser, token ){
     objectRs.properties = parseObjectExpressionElements();
 
     //consume }
-    arasy.scanner.consume();
+    this.scanner.consume();
 
     return objectRs;
 
@@ -20,11 +20,11 @@ var objectExpressionParser = function( expressionParser, token ){
         while( item = parseObjectItem() ){
             rs.push( item );
 
-            var peekToken = arasy.scanner.lookAhead();
+            var peekToken = this.scanner.lookAhead();
             if( peekToken.val != ',' ){
                 break;
             }else{
-                arasy.scanner.consume();
+                this.scanner.consume();
             }
         }
         return rs;
@@ -34,9 +34,9 @@ var objectExpressionParser = function( expressionParser, token ){
         var rs = {};
 
         rs.type = 'Property';
-        rs.key = arasy.scanner.consume();
+        rs.key = this.scanner.consume();
         //consume :
-        arasy.scanner.consume();
+        this.scanner.consume();
 
         rs.value = expressionParser.parse(10);
         rs.kind = "init";

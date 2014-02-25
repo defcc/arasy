@@ -2,11 +2,11 @@ var callerParser = function( expressionParser, left, token ){
     var identify = left;
 
     var argumentsParam = [];
-    var rightParen = arasy.scanner.lookAhead();
+    var rightParen = this.scanner.lookAhead();
     if ( rightParen.val != ')' ) {
         argumentsParam = argumentsParser( expressionParser );
     } else {
-        arasy.scanner.consume();
+        this.scanner.consume();
     }
 
     return {

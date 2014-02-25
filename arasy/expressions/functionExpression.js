@@ -1,7 +1,7 @@
 //function identifierName(opt) ( arguments )
 var functionParser = function( expressionParser, token ){
     var identifyerName = null;
-    var lookaheadToken = arasy.scanner.lookAhead();
+    var lookaheadToken = this.scanner.lookAhead();
     var isIdentifierNameToken = lookaheadToken.type == tokensMap.identify;
     if ( isIdentifierNameToken ) {
         identifyerName = {
@@ -13,7 +13,7 @@ var functionParser = function( expressionParser, token ){
     var params = paramsListParser();
 
     //consume {
-    arasy.scanner.consume();
+    this.scanner.consume();
 
     var functionBody = blockParser();
 

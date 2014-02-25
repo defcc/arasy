@@ -1,10 +1,10 @@
 //new expression
 var newParser = function( expressionParser, token ){
-    var identify = arasy.scanner.consume();
+    var identify = this.scanner.consume();
 
     //check arguments;
     var argumentsParam = [];
-    var leftParen = arasy.scanner.lookAhead();
+    var leftParen = this.scanner.lookAhead();
     if ( leftParen.val == '(' ) {
         argumentsParam = argumentsParser( expressionParser );
     }

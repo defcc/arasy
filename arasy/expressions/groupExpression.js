@@ -2,7 +2,7 @@
 
 var groupParser = function( expressionParser, token ){
     var groupExp = expressionParser.parse( getPrecedenceByToken( token ) );
-    var rightParen = arasy.scanner.consume();
+    var rightParen = this.scanner.consume();
     return groupExp;
     //TODO check rightParen is just ")"
 };

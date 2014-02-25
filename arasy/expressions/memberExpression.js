@@ -3,7 +3,7 @@ var memberExpressionParser = function( expressionParser, left, token ){
 
     var propertyArg = expressionParser.parse(0);
 
-    arasy.scanner.consume();
+    this.scanner.consume();
 
     return {
         type: 'MemberExpression',

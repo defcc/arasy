@@ -2,13 +2,13 @@
 var argumentsParser = function( expressionParser ){
     var rs = [];
 
-    var nextToken = arasy.scanner.lookAhead();
+    var nextToken = this.scanner.lookAhead();
     //consume left paren;
-    nextToken.val == '(' && arasy.scanner.consume();
+    nextToken.val == '(' && this.scanner.consume();
     var nextToken = tokenList.lookAhead();
     if ( nextToken.val != ')' ) {
         rs = expressionParser.parse(0);
     }
-    arasy.scanner.consume();
+    this.scanner.consume();
     return rs;
 };
