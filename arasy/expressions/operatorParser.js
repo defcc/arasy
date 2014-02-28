@@ -49,3 +49,24 @@ registerPrefixOperator(expressionTokenMap.logicalnotOperator);
 
 arasy.expressionParser.registerInfixParselet(expressionTokenMap.incrementOperator, postfixOperatorParser);
 arasy.expressionParser.registerInfixParselet(expressionTokenMap.decrementOperator, postfixOperatorParser);
+
+
+registerInfixOperator(expressionTokenMap.additionOperator);
+registerInfixOperator(expressionTokenMap.mutliOperator);
+registerInfixOperator(expressionTokenMap.divOperator);
+registerInfixOperator(expressionTokenMap.subtractionOperator);
+registerInfixOperator(expressionTokenMap.dotOperator);
+registerInfixOperator(expressionTokenMap.bitwiseandOperator);
+registerInfixOperator(expressionTokenMap.bitwiseorOperator);
+registerInfixOperator(expressionTokenMap.bitwiseshiftOperator);
+
+registerInfixOperator(expressionTokenMap.logicalandOperator);
+registerInfixOperator(expressionTokenMap.logicalorOperator);
+
+
+
+//gt、gte、lt、lte、in、instanceof
+registerInfixOperator(expressionTokenMap.relationalOperator);
+
+// ==、===、!=、!==
+registerInfixOperator(expressionTokenMap.equalityOperator);
