@@ -21,6 +21,7 @@ arasy.parse = function( source, opts ){
                     currentToken = getNextToken();
                 } else {
                     currentToken = lookaheadToken;
+                    lookaheadTokenConsumed = true;
                 }
                 return currentToken;
             },
