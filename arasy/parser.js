@@ -1,24 +1,31 @@
 window.arasy = {};
 
 arasy.parse = function( source, opts ){
+
+    var lastToken;
+    var currentToken;
+    var lookaheadToken;
+    var lookaheadTokenConsumed = true;
+
     var scanner = getScanner( source, opts );
-    var expressionParser = arasy.expressionParser.init( scanner );
+    arasy.expressionParser.init( scanner );
+    var expressionParser = arasy.expressionParser;
     return parseProgram();
 
     function getScanner( source, opts ){
         var scanner = arasy.scanner( source );
-        var lookaheadToken = null;
-        var lookaheadTokenConsumed = true;
         return {
-            next: function(){
+            nextToken: function(){
+                lastToken = currentToken;
                 if ( lookaheadTokenConsumed ) {
-                    return scanner.nextToken();
+                    currentToken = scanner.nextToken();
                 } else {
-                    return lookaheadToken;
+                    currentToken = lookaheadToken;
                 }
+                return currentToken;
             },
             lookAhead: function(){
-                if ( lookaheadTokenConsumed ) {
+                if ( !lookaheadTokenConsumed ) {
                     return lookaheadToken;
                 } else {
                     var token = scanner.nextToken();
@@ -28,12 +35,19 @@ arasy.parse = function( source, opts ){
                 }
             }
         };
+
+        function getNextToken(){
+            var token = scanner.nextToken();
+            return adjustExpressionType( token );
+        }
+        function adjustExpressionType( token ){
+
+        }
     }
 
     function parseProgram(){
         var programNode = new Node('program');
-        programNode.type = 'program';
-        programNode.body = this.parseSourceElements();
+        programNode.body = parseSourceElements();
         return programNode;
     }
 
@@ -41,24 +55,24 @@ arasy.parse = function( source, opts ){
         var rs = [],
             item;
 
-        var peekToken = tokenList.lookahead();
+        var peekToken = scanner.lookAhead();
 
-        while( (item = this.parseSourceElement()) ){
+        while( (item = parseSourceElement()) ){
             rs.push( item );
         }
         return rs;
     }
 
     function parseSourceElement(){
-        var peekToken = tokenList.lookahead();
+        var peekToken = scanner.lookAhead();
         if( peekToken.type == tokenType.Eof ){
             return;
         }
 
-        if( match({type: 'keywords', value: 'function'}, peekToken )){
-            return this.parseFunctionDeclaration();
+        if( peekToken.value == 'function' ){
+            return parseFunctionDeclaration();
         }else{
-            return this.parseStatements();
+            return parseStatements();
         }
     }
 
@@ -74,68 +88,111 @@ arasy.parse = function( source, opts ){
         var rs = [],
             item;
 
-        while(item = this.parseStatement()){
+        while(item = parseStatement()){
             rs.push( item );
         }
         return rs;
     }
 
     function parseStatement(){
-        var peekToken = this.peekToken();
+        var peekToken = scanner.lookAhead();
 
-        if( peekToken.type == 'eof' ){
-            return;
-        }
-
-        if( isInBlockBody.length && mustBe('}', peekToken) ){
-            return;
-        }
-
-        //接下来是一个函数定义
-        if( mustBe('function', peekToken) ){
+        if( peekToken.type == tokenType.Eof ){
             return;
         }
 
         if( mustBe('{', peekToken) ){
-            return this.parseBlock();
+            return parseBlock();
         }else{
             if( mustBe('var', peekToken) ){
-                return this.parseVariableStatement()
+                return parseVariableStatement()
             }
             if( mustBe(';', peekToken) ){
-                return this.parseEmptyStatement();
+                return parseEmptyStatement();
             }
             if( mustBe('if', peekToken) ){
-                return this.parseIfStatement();
+                return parseIfStatement();
             }
 
-            if( mustBe('do', peekToken) ){
-                return this.parseEmptyStatement();
-            }
-            if( mustBe('for', peekToken) ){
-                return this.parseIfStatement();
-            }
-            if( mustBe('continue', peekToken) ){
-                return this.parseEmptyStatement();
-            }
-            if( mustBe('with', peekToken) ){
-                return this.parseIfStatement();
-            }
-
-            if( mustBe('switch', peekToken) ){
-                return this.parseEmptyStatement();
-            }
-            if( mustBe('throw', peekToken) ){
-                return this.parseIfStatement();
-            }
-
-            if( mustBe('debugger', peekToken) ){
-                return this.parseIfStatement();
-            }
-            if( mustBe('label', peekToken) ){
-                return this.parseIfStatement();
-            }
-            return this.parseExpressionStatement();
+//            if( mustBe('do', peekToken) ){
+//                return parseDoStatement();
+//            }
+//            if( mustBe('for', peekToken) ){
+//                return parseForStatement();
+//            }
+//            if( mustBe('continue', peekToken) ){
+//                return parseContinueStatement();
+//            }
+//            if( mustBe('with', peekToken) ){
+//                return parseWithStatement();
+//            }
+//
+//            if( mustBe('switch', peekToken) ){
+//                return parseSwitchStatement();
+//            }
+//            if( mustBe('throw', peekToken) ){
+//                return parseThrowStatement();
+//            }
+//
+//            if( mustBe('debugger', peekToken) ){
+//                return parseDebuggerStatement();
+//            }
+            return parseExpressionStatement();
         }
+    }
+
+    function parseVariableDeclarationList(){
+        var rs = [],
+            item;
+        while(item = parseVariableDeclaration()){
+            rs.push( item );
+
+            var nextToke = scanner.lookAhead();
+            if(!match({type: 'punctuator', value: ','}, nextToke)){
+                break;
+            }else{
+                this.nextToken();
+            }
+        }
+        return rs;
+    }
+
+    function parseVariableDeclaration(){
+        var variableDeclarationNode = new Node('variableDeclaration');
+        var ID = match( {type: 'ID'}, scanner.nextToken() );
+        variableDeclarationNode.id = ID;
+
+        var peekToken = scanner.lookAhead();
+        var assign = match({value: '='}, peekToken);
+        if( assign ){
+            scanner.nextToken();
+            var init = parseExpressionStatement();
+            variableDeclarationNode.init = init;
+        }
+        return variableDeclarationNode;
+    }
+
+    function parseExpressionStatement(){
+        return expressionParser.parse( 0 );
+    }
+
+    function Node( type ){
+        this.type = type;
+    }
+
+    function mustBe( val, token ){
+        return token.value == val;
+    }
+
+    function match( obj, token ){
+        var typeRs = valueRs = 1;
+        if( obj.type && obj.type != token.type ){
+            typeRs = 0;
+        }
+        if( obj.value && obj.value != token.value ){
+            valueRs = 0;
+        }
+
+        return typeRs == 1 && valueRs == 1 ? token : false;
     }
 };
