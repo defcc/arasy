@@ -12,12 +12,12 @@ arasy.expressionParser = function(){
             if ( token.type == 'eof' ) {
                 return;
             }
-            var prefixParser = prefixParselet[ token.expType || token.type ];
+            var prefixParser = prefixParselet[ token.expType ];
             var left = prefixParser( this, token );
 
             while ( precedence < this.getPrecedence() ) {
                 var token = this.scanner.nextToken();
-                var infixParser = infixParselet[ token.type ];
+                var infixParser = infixParselet[ token.expType ];
                 left = infixParser( this, left, token );
             }
             return left;
