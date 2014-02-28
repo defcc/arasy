@@ -3,9 +3,9 @@ var commaParser = function( expressionParser,  left, token ){
     var expressionItem;
     while( expressionItem = expressionParser.parse( getPrecedenceByToken( token ) ) ) {
         rs.push( expressionItem );
-        var nextToken = tokenList.lookAhead();
+        var nextToken = expressionParser.scanner.lookAhead();
         if ( nextToken.val == ',' ) {
-            tokenList.consume();
+            expressionParser.scanner.nextToken();
         } else {
             break;
         }
