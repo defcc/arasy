@@ -41,7 +41,13 @@ arasy.parse = function( source, opts ){
             return adjustExpressionType( token );
         }
         function adjustExpressionType( token ){
-
+            if ( keywords2ExpType[ token.value ] ) {
+                return keywords2ExpType[ token.value ];
+            }
+            if ( operator2ExpType[ token.value ] ) {
+                return operator2ExpType[ token.value ];
+            }
+            //todo check context and lookup specialOperator2ExpType
         }
     }
 
