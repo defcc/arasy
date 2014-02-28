@@ -7,4 +7,4 @@ var groupParser = function( expressionParser, token ){
     //TODO check rightParen is just ")"
 };
 
-arasy.registerPrefixParselet(expressionTokenMap.groupOperator, groupParser);
+arasy.expressionParser.registerPrefixParselet(expressionTokenMap.groupOperator, groupParser);

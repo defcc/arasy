@@ -29,4 +29,4 @@ var functionParser = function( expressionParser, token ){
     }
 };
 
-arasy.registerPrefixParselet(expressionTokenMap.functionExpressionStart, functionParser);
+arasy.expressionParser.registerPrefixParselet(expressionTokenMap.functionExpressionStart, functionParser);

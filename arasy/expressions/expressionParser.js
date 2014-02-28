@@ -12,7 +12,7 @@ arasy.expressionParser = function(){
             if ( token.type == 'eof' ) {
                 return;
             }
-            var prefixParser = prefixParselet[ token.expType ];
+            var prefixParser = prefixParselet[ token.expType || token.type ];
             var left = prefixParser( this, token );
 
             while ( precedence < this.getPrecedence() ) {

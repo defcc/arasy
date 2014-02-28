@@ -28,7 +28,7 @@ var postfixOperatorParser = function( expressionParser, left, token ){
     };
 };
 
-var registerPrefixOperator = function( opType ){
+var registerPrefixOperator = function( expType ){
     arasy.expressionParser.registerPrefixParselet( expType, prefixOperatorParser );
 };
 
@@ -37,15 +37,15 @@ var registerInfixOperator = function( expType ){
 };
 
 
-registerPrefixOperator(operatorTokenMap.deleteOperator);
-registerPrefixOperator(operatorTokenMap.voidOperator);
-registerPrefixOperator(operatorTokenMap.unaryOperator);
-registerPrefixOperator(operatorTokenMap.unarynegationOperator);
-registerPrefixOperator(operatorTokenMap.typeofOperator);
-registerPrefixOperator(operatorTokenMap.incrementOperator);
-registerPrefixOperator(operatorTokenMap.decrementOperator);
-registerPrefixOperator(operatorTokenMap.bitwisenotOperator);
-registerPrefixOperator(operatorTokenMap.logicalnotOperator);
+registerPrefixOperator(expressionTokenMap.deleteOperator);
+registerPrefixOperator(expressionTokenMap.voidOperator);
+registerPrefixOperator(expressionTokenMap.unaryOperator);
+registerPrefixOperator(expressionTokenMap.unarynegationOperator);
+registerPrefixOperator(expressionTokenMap.typeofOperator);
+registerPrefixOperator(expressionTokenMap.incrementOperator);
+registerPrefixOperator(expressionTokenMap.decrementOperator);
+registerPrefixOperator(expressionTokenMap.bitwisenotOperator);
+registerPrefixOperator(expressionTokenMap.logicalnotOperator);
 
-arasy.expressionParser.registerInfixParselet(operatorTokenMap.incrementOperator, postfixOperatorParser);
-arasy.expressionParser.registerInfixParselet(operatorTokenMap.decrementOperator, postfixOperatorParser);
+arasy.expressionParser.registerInfixParselet(expressionTokenMap.incrementOperator, postfixOperatorParser);
+arasy.expressionParser.registerInfixParselet(expressionTokenMap.decrementOperator, postfixOperatorParser);

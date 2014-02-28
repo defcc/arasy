@@ -6,7 +6,7 @@ var arrayParser = function( expressionParser, token ){
         rs = expressionParser.parse(0);
     }
     //must be right bracket
-    this.scanner..consume();
+    this.scanner.nextToken();
 
     return {
         type: 'ArrayExpression',
@@ -14,4 +14,4 @@ var arrayParser = function( expressionParser, token ){
     }
 };
 
-expressionParser.registerPrefixParselet(expressionTokenMap.arrayOperator, arrayParser);
+arasy.expressionParser.registerPrefixParselet(expressionTokenMap.arrayOperator, arrayParser);

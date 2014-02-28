@@ -24,6 +24,6 @@ var dotExpressionParser = function( expressionParser, left, token ){
     }
 };
 
-arasy.registerInfixParselet(expressionTokenMap.arrayOperator, memberExpressionParser);
+arasy.expressionParser.registerInfixParselet(expressionTokenMap.arrayOperator, memberExpressionParser);
 
-arasy.registerInfixParselet(expressionTokenMap.dotOperator, dotExpressionParser);
+arasy.expressionParser.registerInfixParselet(expressionTokenMap.dotOperator, dotExpressionParser);

@@ -16,4 +16,4 @@ var newParser = function( expressionParser, token ){
     }
 };
 
-arasy.registerInfixParselet(expressionTokenMap.newOperator, newParser);
+arasy.expressionParser.registerInfixParselet(expressionTokenMap.newOperator, newParser);
