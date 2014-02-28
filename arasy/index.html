@@ -2,6 +2,20 @@
 <script src="tokens.js"></script>
 <script src="parser.js"></script>
 <script src="scanner.js"></script>
+<script src="expressions/expressionParser.js"></script>
+<script src="expressions/arguments.js"></script>
+<script src="expressions/arrayExpression.js"></script>
+<script src="expressions/assignExpression.js"></script>
+<script src="expressions/callExpression.js"></script>
+<script src="expressions/comma.js"></script>
+<script src="expressions/functionExpression.js"></script>
+<script src="expressions/groupExpression.js"></script>
+<script src="expressions/memberExpression.js"></script>
+<script src="expressions/newExpression.js"></script>
+<script src="expressions/operatorParser.js"></script>
+<script src="expressions/params.js"></script>
+<script src="expressions/singletoken.js"></script>
+
 <textarea id="playground" style="width: 500px; height: 300px;"></textarea>
 <script>
     document.getElementById('playground').onkeyup = function(){
@@ -9,15 +23,7 @@
     };
 
     function parseInput( source ){
-        var scanner = arasy.scanner( source );
-        var token;
-        while ( true ) {
-            token = scanner.nextToken();
-            console.log( token );
-            if ( tokenType.Eof == token.type ) {
-                break;
-            }
-        }
+        var scanner = arasy.parse( source );
     }
 
 </script>
