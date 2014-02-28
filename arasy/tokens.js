@@ -91,6 +91,97 @@ var precedence = {
 
 var expressionTokenMap = makeMap( precedence );
 
+var tokenType2ExpType = {};
+tokenType2ExpType[tokenType.Identifier]        = expressionTokenMap.singleToken;
+tokenType2ExpType[tokenType.String]            = expressionTokenMap.singleToken;
+tokenType2ExpType[tokenType.Numeric]           = expressionTokenMap.singleToken;
+tokenType2ExpType[tokenType.Null]              = expressionTokenMap.singleToken;
+tokenType2ExpType[tokenType.Boolean]           = expressionTokenMap.singleToken;
+tokenType2ExpType[tokenType.RegularExpression] = expressionTokenMap.singleToken;
+
+var keywords2ExpType = {
+    'new': expressionTokenMap.newOperator,
+    'this': expressionTokenMap.singleToken,
+    'function': expressionTokenMap.functionExpressionStart,
+    'typeof': expressionTokenMap.typeofOperator,
+    'delete': expressionTokenMap.deleteOperator,
+    'void': expressionTokenMap.voidOperator,
+    'in': expressionTokenMap.relationalOperator,
+    'instanceof': expressionTokenMap.relationalOperator
+};
+
+var operator2ExpType = {
+    '[': expressionTokenMap.arrayOperator,
+    '.': expressionTokenMap.dotOperator,
+    '(': expressionTokenMap.callOperator,
+    '++': expressionTokenMap.incrementOperator,
+    '--': expressionTokenMap.decrementOperator,
+    '~': expressionTokenMap.bitwisenotOperator,
+    '!': expressionTokenMap.logicalnotOperator,
+    '+': expressionTokenMap.unaryOperator,
+    '-': expressionTokenMap.unaryOperator,
+    '*': expressionTokenMap.mutliOperator,
+    '/': expressionTokenMap.divOperator,
+    '%': expressionTokenMap.modulusOperator,
+    '+': expressionTokenMap.additionOperator,
+    '-': expressionTokenMap.subtractionOperator,
+    '<<': expressionTokenMap.bitwiseshiftOperator,
+    '>>': expressionTokenMap.bitwiseshiftOperator,
+    '>>>': expressionTokenMap.bitwiseshiftOperator,
+    '<': expressionTokenMap.relationalOperator,
+    '>': expressionTokenMap.relationalOperator,
+    '<=': expressionTokenMap.relationalOperator,
+    '>=': expressionTokenMap.relationalOperator,
+    '==': expressionTokenMap.equalityOperator,
+    '!=': expressionTokenMap.relationalOperator,
+    '===': expressionTokenMap.relationalOperator,
+    '!==': expressionTokenMap.relationalOperator,
+    '&': expressionTokenMap.bitwiseandOperator,
+    '^': expressionTokenMap.bitwisexorOperator,
+    '|': expressionTokenMap.bitwiseorOperator,
+    '&&': expressionTokenMap.logicalandOperator,
+    '||': expressionTokenMap.logicalorOperator,
+    '?': expressionTokenMap.conditionalOperator,
+
+    '=': expressionTokenMap.assignmentOperator,
+    '*=': expressionTokenMap.assignmentOperator,
+    '/=': expressionTokenMap.assignmentOperator,
+    '%=': expressionTokenMap.assignmentOperator,
+    '+=': expressionTokenMap.assignmentOperator,
+    '-=': expressionTokenMap.assignmentOperator,
+    '<<=': expressionTokenMap.assignmentOperator,
+    '>>=': expressionTokenMap.assignmentOperator,
+    '>>>=': expressionTokenMap.assignmentOperator,
+    '&=': expressionTokenMap.assignmentOperator,
+    '^=': expressionTokenMap.assignmentOperator,
+    '|=': expressionTokenMap.assignmentOperator,
+    ',': expressionTokenMap.commaOperator
+};
+
+//有歧义的类型，需要结合上下文进行判断
+var specialOperator2ExpType = {
+    '(': {
+        'call': expressionTokenMap.callOperator,
+        'group': expressionTokenMap.groupOperator
+    },
+    '+': {
+        'unary': expressionTokenMap.unaryOperator,
+        'addition': expressionTokenMap.additionOperator
+    },
+    '-': {
+        'unary': expressionTokenMap.unaryOperator,
+        'subtraction': expressionTokenMap.subtractionOperator
+    }
+};
+
+
+
+function getExpressionTokenType( token ){
+    var map = {};
+    map[tokenType.Identifier] = expressionTokenMap.singleToken;
+    map[tokenType.Identifier] = expressionTokenMap.singleToken;
+}
+
 function getPrecedenceByToken( token ){
     return precedence[ token.expType ] || 0;
 }
