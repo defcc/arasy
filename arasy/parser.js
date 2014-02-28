@@ -79,7 +79,7 @@ arasy.parse = function( source, opts ){
 
     function parseSourceElement(){
         var peekToken = scanner.lookAhead();
-        if( peekToken.type == tokenType.Eof ){
+        if( peekToken.type == TokenType.Eof ){
             return;
         }
 
@@ -111,7 +111,7 @@ arasy.parse = function( source, opts ){
     function parseStatement(){
         var peekToken = scanner.lookAhead();
 
-        if( peekToken.type == tokenType.Eof ){
+        if( peekToken.type == TokenType.Eof ){
             return;
         }
 

@@ -5,9 +5,9 @@ test('var a ', function(){
     var firstToken = arasyScanner.nextToken();
     var secondToken = arasyScanner.nextToken();
 
-    ok( firstToken.type == tokenType.Keywords, '第一个token为Keywords' );
+    ok( firstToken.type == TokenType.Keywords, '第一个token为Keywords' );
     ok( firstToken.value == 'var', '第一个token的value为var' );
-    ok( secondToken.type == tokenType.Identifier, '第二个token为Identifier' );
+    ok( secondToken.type == TokenType.Identifier, '第二个token为Identifier' );
     ok( secondToken.value == 'a', '第二个token的value为a' );
 });
 
@@ -17,9 +17,9 @@ test('\\u1283 ', function(){
     var firstToken = arasyScanner.nextToken();
     var secondToken = arasyScanner.nextToken();
 
-    ok( firstToken.type == tokenType.Identifier, '第一个token为Identifier，实际为' + firstToken.type );
+    ok( firstToken.type == TokenType.Identifier, '第一个token为Identifier，实际为' + firstToken.type );
     ok( firstToken.value == '\\u12345', '第一个token的value为\\u12345', '实际为' + firstToken.value );
-    ok( secondToken.type == tokenType.Eof, '第二个token为Eof' );
+    ok( secondToken.type == TokenType.Eof, '第二个token为Eof' );
     ok( secondToken.value == undefined, '第二个token的value为undefined' );
 });
 
@@ -31,9 +31,9 @@ test('0x123 ', function(){
     var firstToken = arasyScanner.nextToken();
     var secondToken = arasyScanner.nextToken();
 
-    equal( firstToken.type, tokenType.Numeric );
+    equal( firstToken.type, TokenType.Numeric );
     equal( firstToken.value, 0x123);
-    equal( secondToken.type, tokenType.Eof );
+    equal( secondToken.type, TokenType.Eof );
     equal( secondToken.value, undefined );
 
 
@@ -42,9 +42,9 @@ test('0x123 ', function(){
     var firstToken = arasyScanner.nextToken();
     var secondToken = arasyScanner.nextToken();
 
-    equal( firstToken.type, tokenType.Numeric );
+    equal( firstToken.type, TokenType.Numeric );
     equal( firstToken.value, 12345);
-    equal( secondToken.type, tokenType.Eof );
+    equal( secondToken.type, TokenType.Eof );
     equal( secondToken.value, undefined );
 });
 
@@ -54,9 +54,9 @@ test('ExponentPartopt ', function(){
     var firstToken = arasyScanner.nextToken();
     var secondToken = arasyScanner.nextToken();
 
-    equal( firstToken.type, tokenType.Numeric );
+    equal( firstToken.type, TokenType.Numeric );
     equal( firstToken.value, 19293e1);
-    equal( secondToken.type, tokenType.Eof );
+    equal( secondToken.type, TokenType.Eof );
     equal( secondToken.value, undefined );
 
 
@@ -65,9 +65,9 @@ test('ExponentPartopt ', function(){
     var firstToken = arasyScanner.nextToken();
     var secondToken = arasyScanner.nextToken();
 
-    equal( firstToken.type, tokenType.Numeric, 'Numeric类型' );
+    equal( firstToken.type, TokenType.Numeric, 'Numeric类型' );
     equal( firstToken.value, 19293e1);
-    equal( secondToken.type, tokenType.Eof );
+    equal( secondToken.type, TokenType.Eof );
     equal( secondToken.value, undefined );
 });
 
@@ -77,9 +77,9 @@ test('Numeric width dot', function(){
     var firstToken = arasyScanner.nextToken();
     var secondToken = arasyScanner.nextToken();
 
-    equal( firstToken.type, tokenType.Numeric );
+    equal( firstToken.type, TokenType.Numeric );
     equal( firstToken.value, 123.1);
-    equal( secondToken.type, tokenType.Eof );
+    equal( secondToken.type, TokenType.Eof );
     equal( secondToken.value, undefined );
 
 
@@ -88,9 +88,9 @@ test('Numeric width dot', function(){
     var firstToken = arasyScanner.nextToken();
     var secondToken = arasyScanner.nextToken();
 
-    equal( firstToken.type, tokenType.Numeric, 'Numeric类型' );
+    equal( firstToken.type, TokenType.Numeric, 'Numeric类型' );
     equal( firstToken.value, 0.12);
-    equal( secondToken.type, tokenType.Eof );
+    equal( secondToken.type, TokenType.Eof );
     equal( secondToken.value, undefined );
 });
 
@@ -103,12 +103,12 @@ test('i+++a', function(){
     var secondToken = arasyScanner.nextToken();
     var thirdToken = arasyScanner.nextToken();
 
-    equal( firstToken.type, tokenType.Identifier );
+    equal( firstToken.type, TokenType.Identifier );
     equal( firstToken.value, 'i');
-    equal( secondToken.type, tokenType.Punctuator );
+    equal( secondToken.type, TokenType.Punctuator );
     equal( secondToken.value, '++' );
 
-    equal( thirdToken.type, tokenType.Punctuator );
+    equal( thirdToken.type, TokenType.Punctuator );
     equal( thirdToken.value, '+' );
 
 
@@ -117,9 +117,9 @@ test('i+++a', function(){
     var firstToken = arasyScanner.nextToken();
     var secondToken = arasyScanner.nextToken();
 
-    equal( firstToken.type, tokenType.Numeric, 'Numeric类型' );
+    equal( firstToken.type, TokenType.Numeric, 'Numeric类型' );
     equal( firstToken.value, 0.12);
-    equal( secondToken.type, tokenType.Eof );
+    equal( secondToken.type, TokenType.Eof );
     equal( secondToken.value, undefined );
 });
 
@@ -131,9 +131,9 @@ test('注释', function(){
     var firstToken = arasyScanner.nextToken();
     var secondToken = arasyScanner.nextToken();
 
-    equal( firstToken.type, tokenType.Comment );
+    equal( firstToken.type, TokenType.Comment );
     equal( firstToken.value, '//aasa');
-    equal( secondToken.type, tokenType.Eof );
+    equal( secondToken.type, TokenType.Eof );
     equal( secondToken.value, undefined );
 
 
@@ -143,9 +143,9 @@ test('注释', function(){
     var firstToken = arasyScanner.nextToken();
     var secondToken = arasyScanner.nextToken();
 
-    equal( firstToken.type, tokenType.Comment );
+    equal( firstToken.type, TokenType.Comment );
     equal( firstToken.value, code2);
-    equal( secondToken.type, tokenType.Eof );
+    equal( secondToken.type, TokenType.Eof );
     equal( secondToken.value, undefined );
 
     var code2 = '/**/var';
@@ -153,9 +153,9 @@ test('注释', function(){
     var firstToken = arasyScanner.nextToken();
     var secondToken = arasyScanner.nextToken();
 
-    equal( firstToken.type, tokenType.Comment );
+    equal( firstToken.type, TokenType.Comment );
     equal( firstToken.value, '/**/');
-    equal( secondToken.type, tokenType.Keywords );
+    equal( secondToken.type, TokenType.Keywords );
     equal( secondToken.value, 'var' );
 });
 
@@ -169,9 +169,9 @@ test('正则表达式', function(){
     var firstToken = arasyScanner.nextToken();
     var secondToken = arasyScanner.nextToken();
 
-    equal( firstToken.type, tokenType.RegularExpression );
+    equal( firstToken.type, TokenType.RegularExpression );
     equal( firstToken.value, '/12/');
-    equal( secondToken.type, tokenType.Eof );
+    equal( secondToken.type, TokenType.Eof );
     equal( secondToken.value, undefined );
 
 
@@ -181,9 +181,9 @@ test('正则表达式', function(){
     var firstToken = arasyScanner.nextToken();
     var secondToken = arasyScanner.nextToken();
 
-    equal( firstToken.type, tokenType.RegularExpression );
+    equal( firstToken.type, TokenType.RegularExpression );
     equal( firstToken.value, code2);
-    equal( secondToken.type, tokenType.Eof );
+    equal( secondToken.type, TokenType.Eof );
     equal( secondToken.value, undefined );
 });
 
@@ -195,9 +195,9 @@ test('字符串', function(){
     var firstToken = arasyScanner.nextToken();
     var secondToken = arasyScanner.nextToken();
 
-    equal( firstToken.type, tokenType.String );
+    equal( firstToken.type, TokenType.String );
     equal( firstToken.value, '\'baidu\\n\'');
-    equal( secondToken.type, tokenType.Eof );
+    equal( secondToken.type, TokenType.Eof );
     equal( secondToken.value, undefined );
 
 
@@ -207,9 +207,9 @@ test('字符串', function(){
     var firstToken = arasyScanner.nextToken();
     var secondToken = arasyScanner.nextToken();
 
-    equal( firstToken.type, tokenType.String );
+    equal( firstToken.type, TokenType.String );
     equal( firstToken.value, "\"'\"\"");
-    equal( secondToken.type, tokenType.Eof );
+    equal( secondToken.type, TokenType.Eof );
     equal( secondToken.value, undefined );
 
     var code2 = '"\u1234\u2345 a"';
@@ -219,8 +219,8 @@ test('字符串', function(){
 
     console.log( code2, firstToken );
 
-    equal( firstToken.type, tokenType.String );
+    equal( firstToken.type, TokenType.String );
     equal( firstToken.value, String('"\u1234\u2345 a"'));
-    equal( secondToken.type, tokenType.Eof );
+    equal( secondToken.type, TokenType.Eof );
     equal( secondToken.value, undefined );
 });

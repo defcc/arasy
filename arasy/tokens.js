@@ -1,5 +1,5 @@
 //7.5
-var tokenType = {
+var TokenType = {
     'Identifier': 'Identifier',
     'Keywords': 'Keywords',
     'Numeric': 'Numeric',
@@ -92,12 +92,12 @@ var precedence = {
 var expressionTokenMap = makeMap( precedence );
 
 var tokenType2ExpType = {};
-tokenType2ExpType[tokenType.Identifier]        = expressionTokenMap.singleToken;
-tokenType2ExpType[tokenType.String]            = expressionTokenMap.singleToken;
-tokenType2ExpType[tokenType.Numeric]           = expressionTokenMap.singleToken;
-tokenType2ExpType[tokenType.Null]              = expressionTokenMap.singleToken;
-tokenType2ExpType[tokenType.Boolean]           = expressionTokenMap.singleToken;
-tokenType2ExpType[tokenType.RegularExpression] = expressionTokenMap.singleToken;
+tokenType2ExpType[TokenType.Identifier]        = expressionTokenMap.singleToken;
+tokenType2ExpType[TokenType.String]            = expressionTokenMap.singleToken;
+tokenType2ExpType[TokenType.Numeric]           = expressionTokenMap.singleToken;
+tokenType2ExpType[TokenType.Null]              = expressionTokenMap.singleToken;
+tokenType2ExpType[TokenType.Boolean]           = expressionTokenMap.singleToken;
+tokenType2ExpType[TokenType.RegularExpression] = expressionTokenMap.singleToken;
 
 var keywords2ExpType = {
     'new': expressionTokenMap.newOperator,

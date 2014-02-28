@@ -3,7 +3,7 @@ var singelTokenParser = function( expressionParser, token ){
 
     var tokenType = token.type;
 
-    if ( tokenType == tokenType.Identifier ) {
+    if ( tokenType == TokenType.Identifier ) {
         rs = {
             type: 'Identifier',
             name: token.value

@@ -34,9 +34,9 @@ arasy.scanner = function( source ){
             return this;
         },
         getToken: function( type ){
-            if ( type == tokenType.Eof ) {
+            if ( type == TokenType.Eof ) {
                 return {
-                    type: tokenType.Eof
+                    type: TokenType.Eof
                 }
             }
             return {
@@ -58,7 +58,7 @@ arasy.scanner = function( source ){
         updateRegexpAcceptable( env );
         skipWhitespace();
         if ( eof() ) {
-            return tokenGenerator.getToken( tokenType.Eof );
+            return tokenGenerator.getToken( TokenType.Eof );
         }
         return action();
     }
@@ -225,7 +225,7 @@ arasy.scanner = function( source ){
         var dotExists = 0;
         var eExists = 0;
 
-        tokenGenerator.start( tokenType.Numeric );
+        tokenGenerator.start( TokenType.Numeric );
 
         //check HexIntegerLiteral
 
@@ -296,7 +296,7 @@ arasy.scanner = function( source ){
 
         var chr = '';
         var stringVal = startString;
-        tokenGenerator.start( tokenType.String );
+        tokenGenerator.start( TokenType.String );
 
         if( extVal && startString == string_quote ){
             //如果是有开始信息的,且第一个字符是字符串的开始字符，那么直接结束
@@ -350,7 +350,7 @@ arasy.scanner = function( source ){
             }
         }
 
-        tokenGenerator.start( tokenType.Comment );
+        tokenGenerator.start( TokenType.Comment );
 
         commentStr += next();
 
@@ -394,7 +394,7 @@ arasy.scanner = function( source ){
 
         var isInClass = 0;
 
-        tokenGenerator.start( tokenType.RegularExpression );
+        tokenGenerator.start( TokenType.RegularExpression );
 
         while( chr = next() ){
 
@@ -438,7 +438,7 @@ arasy.scanner = function( source ){
         var punctuatorStr = currentChr;
 
 
-        tokenGenerator.start( tokenType.Punctuator );
+        tokenGenerator.start( TokenType.Punctuator );
 
         while( currentChr = next() ){
             if( !operatorMap[ punctuatorStr + currentChr ] ){
@@ -457,9 +457,9 @@ arasy.scanner = function( source ){
         var currentChr = next();
 
         var identifierStr = currentChr;
-        var type = tokenType.Identifier;
+        var type = TokenType.Identifier;
 
-        tokenGenerator.start( tokenType.Identifier );
+        tokenGenerator.start( TokenType.Identifier );
 
         identifierStr += readIdentifier();
 
@@ -467,7 +467,7 @@ arasy.scanner = function( source ){
 
 
         if( keywordsMap[ String(identifierStr) ] ){
-            type = tokenType.Keywords;
+            type = TokenType.Keywords;
         }
         return tokenGenerator.getToken( type );
     }
@@ -487,7 +487,7 @@ arasy.scanner = function( source ){
     }
 
     function terminator(){
-        tokenGenerator.start( tokenType.Terminator );
+        tokenGenerator.start( TokenType.Terminator );
         next();
         tokenGenerator.end( '\n' );
         return tokenGenerator.getToken();
