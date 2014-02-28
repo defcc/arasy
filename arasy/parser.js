@@ -188,7 +188,9 @@ arasy.parse = function( source, opts ){
     }
 
     function parseExpressionStatement(){
-        return expressionParser.parse( 0 );
+        var node = new Node('ExpressionStatement');
+        node.expressions = expressionParser.parse( 0 );
+        return node;
     }
 
     function Node( type ){
