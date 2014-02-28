@@ -42,6 +42,11 @@ arasy.parse = function( source, opts ){
         }
         function adjustExpressionType( token ){
             var expType;
+
+            if ( tokenType2ExpType[ token.type ] ) {
+                expType = tokenType2ExpType[ token.type ];
+            }
+
             if ( keywords2ExpType[ token.value ] ) {
                 expType = keywords2ExpType[ token.value ];
             }
