@@ -174,14 +174,6 @@ var specialOperator2ExpType = {
     }
 };
 
-
-
-function getExpressionTokenType( token ){
-    var map = {};
-    map[tokenType.Identifier] = expressionTokenMap.singleToken;
-    map[tokenType.Identifier] = expressionTokenMap.singleToken;
-}
-
 function getPrecedenceByToken( token ){
     return precedence[ token.expType ] || 0;
 }
