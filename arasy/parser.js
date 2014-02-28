@@ -18,7 +18,7 @@ arasy.parse = function( source, opts ){
             nextToken: function(){
                 lastToken = currentToken;
                 if ( lookaheadTokenConsumed ) {
-                    currentToken = scanner.nextToken();
+                    currentToken = getNextToken();
                 } else {
                     currentToken = lookaheadToken;
                 }
@@ -28,7 +28,7 @@ arasy.parse = function( source, opts ){
                 if ( !lookaheadTokenConsumed ) {
                     return lookaheadToken;
                 } else {
-                    var token = scanner.nextToken();
+                    var token = getNextToken();
                     lookaheadToken = token;
                     lookaheadTokenConsumed = false;
                     return token;
@@ -41,12 +41,15 @@ arasy.parse = function( source, opts ){
             return adjustExpressionType( token );
         }
         function adjustExpressionType( token ){
+            var expType;
             if ( keywords2ExpType[ token.value ] ) {
-                return keywords2ExpType[ token.value ];
+                expType = keywords2ExpType[ token.value ];
             }
             if ( operator2ExpType[ token.value ] ) {
-                return operator2ExpType[ token.value ];
+                expType = operator2ExpType[ token.value ];
             }
+            token.expType = expType;
+            return token;
             //todo check context and lookup specialOperator2ExpType
         }
     }
