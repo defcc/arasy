@@ -7,7 +7,7 @@ arasy.expressionParser = function(){
         init: function( scanner ){
             this.scanner = scanner;
         },
-        parse: function( precedence ){
+        parse: function( precedence, noComma ){
             var token = this.scanner.nextToken();
             if ( token.type == 'eof' ) {
                 return;
@@ -17,6 +17,10 @@ arasy.expressionParser = function(){
 
             while ( precedence < this.getPrecedence() ) {
                 var token = this.scanner.nextToken();
+                if ( noComma && match({value: ','}, token.value) ) {
+                    this.scanner.retract();
+                    break;
+                }
                 var infixParser = infixParselet[ token.expType ];
                 left = infixParser( this, left, token );
             }
