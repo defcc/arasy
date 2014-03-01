@@ -6,6 +6,7 @@ arasy.parse = function( source, opts ){
     var currentToken;
     var lookaheadToken;
     var lookaheadTokenConsumed = true;
+    var isInBlockBody = [];
 
     var scanner = getScanner( source, opts );
     arasy.expressionParser.init( scanner );
@@ -99,20 +100,15 @@ arasy.parse = function( source, opts ){
         if( peekToken.type == TokenType.Eof ){
             return;
         }
+        if( isInBlockBody.length && mustBe('}', peekToken) ){
+            return;
+        }
 
         if( peekToken.value == 'function' ){
             return parseFunctionDeclaration();
         }else{
             return parseStatements();
         }
-    }
-
-    function parseFunctionDeclaration(){
-
-    }
-
-    function parseBlock(){
-
     }
 
     function parseStatements(){
@@ -129,6 +125,10 @@ arasy.parse = function( source, opts ){
         var peekToken = scanner.lookAhead();
 
         if( peekToken.type == TokenType.Eof ){
+            return;
+        }
+
+        if( isInBlockBody.length && mustBe('}', peekToken) ){
             return;
         }
 
@@ -170,6 +170,30 @@ arasy.parse = function( source, opts ){
 //            }
             return parseExpressionStatement();
         }
+    }
+
+    function parseFunctionDeclaration(){
+
+    }
+
+    function parseBlock(){
+        var blockStatement = new Node('blockstatement');
+        mustBe('{', scanner.nextToken());
+
+        isInBlockBody.push(1);
+
+        var peekToken = scanner.lookAhead();
+
+        if ( mustBe('}', peekToken) ) {
+            blockStatement.body = {};
+        } else {
+            blockStatement.body = parseSourceElements();
+        }
+
+        mustBe('}', scanner.nextToken());
+
+        isInBlockBody.pop(1);
+        return blockStatement;
     }
 
     function parseIfStatement(){
