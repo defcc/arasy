@@ -173,7 +173,18 @@ arasy.parse = function( source, opts ){
     }
 
     function parseIfStatement(){
+        var ifNode = new Node('IfStatement');
+        scanner.nextToken();
+        ifNode.test = parseIfTestPart();
+        ifNode.body = parseBlock();
+        return ifNode;
+    }
 
+    function parseIfTestPart(){
+        mustBe( '(', scanner.nextToken() );
+        var expression = expressionParser.parse( 0, 'noComma' );
+        mustBe( ')', scanner.nextToken() );
+        return expression;
     }
 
     function parseEmptyStatement(){
