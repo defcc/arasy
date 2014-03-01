@@ -61,9 +61,18 @@ arasy.parse = function( source, opts ){
             if ( operator2ExpType[ token.value ] ) {
                 expType = operator2ExpType[ token.value ];
             }
+
+            //todo check context and lookup specialOperator2ExpType
+            if ( mustBe( '(', token ) ) {
+                if ( lastToken.type == TokenType.Identifier ) {
+                    expType = specialOperator2ExpType['('].call;
+                } else {
+                    expType = specialOperator2ExpType['('].group;
+                }
+            }
+
             token.expType = expType;
             return token;
-            //todo check context and lookup specialOperator2ExpType
         }
     }
 
