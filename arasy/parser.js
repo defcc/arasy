@@ -16,21 +16,21 @@ arasy.parse = function( source, opts ){
     function getScanner( source, opts ){
         var scanner = arasy.scanner( source );
         return {
-            nextToken: function(){
+            nextToken: function( keepTerminal ){
                 lastToken = currentToken;
                 if ( lookaheadTokenConsumed ) {
-                    currentToken = getNextToken();
+                    currentToken = getNextToken( keepTerminal );
                 } else {
                     currentToken = lookaheadToken;
                     lookaheadTokenConsumed = true;
                 }
                 return currentToken;
             },
-            lookAhead: function(){
+            lookAhead: function( keepTerminal ){
                 if ( !lookaheadTokenConsumed ) {
                     return lookaheadToken;
                 } else {
-                    var token = getNextToken();
+                    var token = getNextToken( keepTerminal );
                     lookaheadToken = token;
                     lookaheadTokenConsumed = false;
                     return token;
@@ -42,10 +42,12 @@ arasy.parse = function( source, opts ){
             }
         };
 
-        function getNextToken(){
+        function getNextToken( keepTerminal ){
             var token = scanner.nextToken();
-            while ( match({type: TokenType.Terminator}, token) ) {
-                token = scanner.nextToken();
+            if ( !keepTerminal ) {
+                while ( match({type: TokenType.Terminator}, token) ) {
+                    token = scanner.nextToken();
+                }
             }
             return adjustExpressionType( token );
         }
@@ -267,8 +269,14 @@ arasy.parse = function( source, opts ){
     function parseExpressionStatement( noComma ){
         var node = new Node('ExpressionStatement');
         node.expressions = expressionParser.parse( 0, noComma);
-        if ( mustBe(';', scanner.lookAhead()) ) {
-            scanner.nextToken();
+
+        var peekToken = scanner.lookAhead( 'keepTerminal' );
+        if ( mustBe(';', peekToken) ) {
+            scanner.nextToken( 'keepTerminal' );
+        } else {
+            if ( match({type: TokenType.Terminator}, peekToken) || match({type: TokenType.Eof}, peekToken) ) {
+                scanner.nextToken( 'keepTerminal' );
+            }
         }
         return node;
     }
