@@ -198,7 +198,12 @@ arasy.parse = function( source, opts ){
         var ifNode = new Node('IfStatement');
         scanner.nextToken();
         ifNode.test = parseIfTestPart();
-        ifNode.body = parseBlock();
+        if ( match({value: '{'}, scanner.lookAhead()) ) {
+            ifNode.body = parseBlock();
+        } else {
+            ifNode.body = parseExpressionStatement(0, 'noComma');
+        }
+
         return ifNode;
     }
 
