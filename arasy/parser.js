@@ -260,6 +260,9 @@ arasy.parse = function( source, opts ){
     function parseExpressionStatement( noComma ){
         var node = new Node('ExpressionStatement');
         node.expressions = expressionParser.parse( 0, noComma);
+        if ( mustBe(';', scanner.lookAhead()) ) {
+            scanner.nextToken();
+        }
         return node;
     }
 
