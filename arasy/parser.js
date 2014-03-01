@@ -43,6 +43,9 @@ arasy.parse = function( source, opts ){
 
         function getNextToken(){
             var token = scanner.nextToken();
+            while ( match({type: TokenType.Terminator}, token) ) {
+                token = scanner.nextToken();
+            }
             return adjustExpressionType( token );
         }
         function adjustExpressionType( token ){
@@ -160,10 +163,16 @@ arasy.parse = function( source, opts ){
         }
     }
 
+    function parseEmptyStatement(){
+        scanner.nextToken();
+        return new Node('EmptyStatement');
+    }
+
     function parseVariableStatement(){
         var variableStatement = new Node('variableDeclarationList');
         mustBe('var', scanner.nextToken());
         variableStatement.declarations = parseVariableDeclarationList();
+        mustBe(';', scanner.nextToken());
         return variableStatement;
     }
 
