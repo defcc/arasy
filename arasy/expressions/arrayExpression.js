@@ -1,12 +1,12 @@
 var arrayParser = function( expressionParser, token ){
     var rs = [];
 
-    var nextToken = this.scanner.lookAhead();
-    if ( nextToken.val != ']' ) {
+    var nextToken = expressionParser.scanner.lookAhead();
+    if ( nextToken.value != ']' ) {
         rs = expressionParser.parse(0);
     }
     //must be right bracket
-    this.scanner.nextToken();
+    expressionParser.scanner.nextToken();
 
     return {
         type: 'ArrayExpression',
