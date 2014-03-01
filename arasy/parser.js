@@ -219,6 +219,10 @@ arasy.parse = function( source, opts ){
         return new Node('EmptyStatement');
     }
 
+    function parseDoWhileStatement(){
+
+    }
+
     function parseVariableStatement(){
         var variableStatement = new Node('variableDeclarationList');
         mustBe('var', scanner.nextToken());
