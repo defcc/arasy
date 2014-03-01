@@ -87,8 +87,6 @@ arasy.parse = function( source, opts ){
         var rs = [],
             item;
 
-        var peekToken = scanner.lookAhead();
-
         while( (item = parseSourceElement()) ){
             rs.push( item );
         }
