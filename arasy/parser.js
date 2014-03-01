@@ -34,6 +34,10 @@ arasy.parse = function( source, opts ){
                     lookaheadTokenConsumed = false;
                     return token;
                 }
+            },
+            retract: function(){
+                lookaheadTokenConsumed = false;
+                lookaheadToken = currentToken;
             }
         };
 
@@ -156,17 +160,24 @@ arasy.parse = function( source, opts ){
         }
     }
 
+    function parseVariableStatement(){
+        var variableStatement = new Node('variableDeclarationList');
+        mustBe('var', scanner.nextToken());
+        variableStatement.declarations = parseVariableDeclarationList();
+        return variableStatement;
+    }
+
     function parseVariableDeclarationList(){
         var rs = [],
             item;
         while(item = parseVariableDeclaration()){
             rs.push( item );
 
-            var nextToke = scanner.lookAhead();
-            if(!match({type: 'punctuator', value: ','}, nextToke)){
+            var nextToken = scanner.lookAhead();
+            if(!match({type: TokenType.Punctuator, value: ','}, nextToken)){
                 break;
             }else{
-                this.nextToken();
+                scanner.nextToken();
             }
         }
         return rs;
@@ -174,42 +185,44 @@ arasy.parse = function( source, opts ){
 
     function parseVariableDeclaration(){
         var variableDeclarationNode = new Node('variableDeclaration');
-        var ID = match( {type: 'ID'}, scanner.nextToken() );
+        var ID = match( {type: TokenType.Identifier}, scanner.nextToken() );
         variableDeclarationNode.id = ID;
 
         var peekToken = scanner.lookAhead();
         var assign = match({value: '='}, peekToken);
         if( assign ){
             scanner.nextToken();
-            var init = parseExpressionStatement();
+            var init = parseExpressionStatement( 'noComma' );
             variableDeclarationNode.init = init;
+        } else {
+            variableDeclarationNode.init = null;
         }
         return variableDeclarationNode;
     }
 
-    function parseExpressionStatement(){
+    function parseExpressionStatement( noComma ){
         var node = new Node('ExpressionStatement');
-        node.expressions = expressionParser.parse( 0 );
+        node.expressions = expressionParser.parse( 0, noComma);
         return node;
     }
 
     function Node( type ){
         this.type = type;
     }
-
-    function mustBe( val, token ){
-        return token.value == val;
-    }
-
-    function match( obj, token ){
-        var typeRs = valueRs = 1;
-        if( obj.type && obj.type != token.type ){
-            typeRs = 0;
-        }
-        if( obj.value && obj.value != token.value ){
-            valueRs = 0;
-        }
-
-        return typeRs == 1 && valueRs == 1 ? token : false;
-    }
 };
+
+function mustBe( val, token ){
+    return token.value == val;
+}
+
+function match( obj, token ){
+    var typeRs = valueRs = 1;
+    if( obj.type && obj.type != token.type ){
+        typeRs = 0;
+    }
+    if( obj.value && obj.value != token.value ){
+        valueRs = 0;
+    }
+
+    return typeRs == 1 && valueRs == 1 ? token : false;
+}
