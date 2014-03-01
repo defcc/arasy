@@ -163,6 +163,10 @@ arasy.parse = function( source, opts ){
         }
     }
 
+    function parseIfStatement(){
+
+    }
+
     function parseEmptyStatement(){
         scanner.nextToken();
         return new Node('EmptyStatement');
