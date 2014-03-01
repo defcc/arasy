@@ -2,9 +2,9 @@
 
 var groupParser = function( expressionParser, token ){
     var groupExp = expressionParser.parse( getPrecedenceByToken( token ) );
-    var rightParen = this.scanner.consume();
-    return groupExp;
     //TODO check rightParen is just ")"
+    mustBe(')', expressionParser.scanner.nextToken());
+    return groupExp;
 };
 
 arasy.expressionParser.registerPrefixParselet(expressionTokenMap.groupOperator, groupParser);
