@@ -17,7 +17,7 @@ arasy.expressionParser = function(){
 
             while ( precedence < this.getPrecedence() ) {
                 var token = this.scanner.nextToken();
-                if ( noComma && match({value: ','}, token.value) ) {
+                if ( noComma && match({value: ','}, token) ) {
                     this.scanner.retract();
                     break;
                 }
