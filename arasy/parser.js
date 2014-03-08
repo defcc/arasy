@@ -16,21 +16,21 @@ arasy.parse = function( source, opts ){
     function getScanner( source, opts ){
         var scanner = arasy.scanner( source );
         return {
-            nextToken: function( keepTerminal ){
+            nextToken: function( ){
                 lastToken = currentToken;
                 if ( lookaheadTokenConsumed ) {
-                    currentToken = getNextToken( keepTerminal );
+                    currentToken = getNextToken( );
                 } else {
                     currentToken = lookaheadToken;
                     lookaheadTokenConsumed = true;
                 }
                 return currentToken;
             },
-            lookAhead: function( keepTerminal ){
+            lookAhead: function( ){
                 if ( !lookaheadTokenConsumed ) {
                     return lookaheadToken;
                 } else {
-                    var token = getNextToken( keepTerminal );
+                    var token = getNextToken( );
                     lookaheadToken = token;
                     lookaheadTokenConsumed = false;
                     return token;
@@ -42,12 +42,10 @@ arasy.parse = function( source, opts ){
             }
         };
 
-        function getNextToken( keepTerminal ){
+        function getNextToken( ){
             var token = scanner.nextToken();
-            if ( !keepTerminal ) {
-                while ( match({type: TokenType.Terminator}, token) ) {
-                    token = scanner.nextToken();
-                }
+            while ( match({type: TokenType.Terminator}, token) ) {
+                token = scanner.nextToken();
             }
             return adjustExpressionType( token );
         }
@@ -225,11 +223,31 @@ arasy.parse = function( source, opts ){
 
     }
 
+    function raiseError( errorToken, msg ){
+        throw new Error( msg + ': ' + errorToken.value );
+    }
+
+    function consumeSemicolon(){
+        var nextToken = scanner.lookAhead();
+        if ( match({value: ';'}, nextToken) ) {
+            scanner.nextToken();
+        } else {
+            var anyTokenAhead =  scanner.lookAhead( 1 );
+            if ( anyTokenAhead.type == TokenType.Eof
+                || anyTokenAhead.type == TokenType.Terminator
+                ) {
+                //insert semicolon;
+            } else {
+                raiseError( anyTokenAhead, 'unexpected token' );
+            }
+        }
+    }
+
     function parseVariableStatement(){
         var variableStatement = new Node('variableDeclarationList');
         mustBe('var', scanner.nextToken());
         variableStatement.declarations = parseVariableDeclarationList();
-        mustBe(';', scanner.nextToken());
+        consumeSemicolon();
         return variableStatement;
     }
 
