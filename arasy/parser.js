@@ -237,13 +237,10 @@ arasy.parse = function( source, opts ){
         if ( match({value: ';'}, nextToken) ) {
             scanner.nextToken();
         } else {
-            var anyTokenAhead =  scanner.lookAhead();
-            if ( anyTokenAhead.type == TokenType.Eof
-                || anyTokenAhead.type == TokenType.Terminator
-                ) {
-                //insert semicolon;
-            } else {
-                raiseError( anyTokenAhead, 'unexpected token' );
+            if ( !nextToken.afterTerminal && !nextToken.type == TokenType.Eof ) {
+                //no auto insert semicolon
+                //unexpected token or unexpected end of input
+                raiseError( nextToken, 'unexpected token' );
             }
         }
     }
