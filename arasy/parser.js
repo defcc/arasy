@@ -43,9 +43,14 @@ arasy.parse = function( source, opts ){
         };
 
         function getNextToken( ){
+            var afterTerminal = 0;
             var token = scanner.nextToken();
             while ( match({type: TokenType.Terminator}, token) ) {
                 token = scanner.nextToken();
+                afterTerminal = 1;
+            }
+            if ( afterTerminal ) {
+                token.afterTerminal = 1;
             }
             return adjustExpressionType( token );
         }
