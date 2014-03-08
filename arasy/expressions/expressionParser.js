@@ -22,6 +22,10 @@ arasy.expressionParser = function(){
                     break;
                 }
                 var infixParser = infixParselet[ token.expType ];
+                if ( !infixParser ) {
+                    this.scanner.retract();
+                    break;
+                }
                 left = infixParser( this, left, token );
             }
             return left;
