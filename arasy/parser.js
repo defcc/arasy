@@ -148,9 +148,9 @@ arasy.parse = function( source, opts ){
                 return parseIfStatement();
             }
 
-//            if( mustBe('do', peekToken) ){
-//                return parseDoStatement();
-//            }
+            if( mustBe('do', peekToken) ){
+                return parseDoWhileStatement();
+            }
 //            if( mustBe('for', peekToken) ){
 //                return parseForStatement();
 //            }
@@ -222,7 +222,7 @@ arasy.parse = function( source, opts ){
         if ( match({value: '{'}, scanner.lookAhead()) ) {
             return parseBlock();
         } else {
-            return parseExpressionStatement(0, 'noComma');
+            return parseStatement();
         }
     }
 
@@ -232,7 +232,19 @@ arasy.parse = function( source, opts ){
     }
 
     function parseDoWhileStatement(){
+        //do statement while (expression);
 
+        scanner.nextToken();
+        var doWhileNode = new Node('DoWhileStatement');
+
+        doWhileNode.body = parseIfBlockPart();
+
+        var nextToken = scanner.nextToken();
+        mustBe( 'while', nextToken );
+
+        doWhileNode.test = parseIfTestPart();
+
+        return doWhileNode;
     }
 
     function raiseError( errorToken, msg ){
