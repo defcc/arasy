@@ -16,7 +16,7 @@ arasy.parse = function( source, opts ){
     function getScanner( source, opts ){
         var scanner = arasy.scanner( source );
         return {
-            nextToken: function( ){
+            nextToken: function(){
                 lastToken = currentToken;
                 if ( lookaheadTokenConsumed ) {
                     currentToken = getNextToken( );
@@ -26,7 +26,7 @@ arasy.parse = function( source, opts ){
                 }
                 return currentToken;
             },
-            lookAhead: function( ){
+            lookAhead: function(){
                 if ( !lookaheadTokenConsumed ) {
                     return lookaheadToken;
                 } else {
@@ -237,7 +237,7 @@ arasy.parse = function( source, opts ){
         if ( match({value: ';'}, nextToken) ) {
             scanner.nextToken();
         } else {
-            var anyTokenAhead =  scanner.lookAhead( 1 );
+            var anyTokenAhead =  scanner.lookAhead();
             if ( anyTokenAhead.type == TokenType.Eof
                 || anyTokenAhead.type == TokenType.Terminator
                 ) {
@@ -293,12 +293,12 @@ arasy.parse = function( source, opts ){
         var node = new Node('ExpressionStatement');
         node.expressions = expressionParser.parse( 0, noComma);
 
-        var peekToken = scanner.lookAhead( 'keepTerminal' );
+        var peekToken = scanner.lookAhead();
         if ( mustBe(';', peekToken) ) {
-            scanner.nextToken( 'keepTerminal' );
+            scanner.nextToken();
         } else {
             if ( match({type: TokenType.Terminator}, peekToken) || match({type: TokenType.Eof}, peekToken) ) {
-                scanner.nextToken( 'keepTerminal' );
+                scanner.nextToken();
             }
         }
         return node;
