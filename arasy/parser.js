@@ -203,12 +203,12 @@ arasy.parse = function( source, opts ){
         var ifNode = new Node('IfStatement');
         scanner.nextToken();
         ifNode.test = parseIfTestPart();
-        if ( match({value: '{'}, scanner.lookAhead()) ) {
-            ifNode.body = parseBlock();
-        } else {
-            ifNode.body = parseExpressionStatement(0, 'noComma');
+        ifNode.consequent = parseIfBlockPart();
+        var lookAhead = scanner.lookAhead();
+        if ( lookAhead.value == 'else' ) {
+            scanner.nextToken();
+            ifNode.alternate = parseIfBlockPart();
         }
-
         return ifNode;
     }
 
@@ -217,6 +217,13 @@ arasy.parse = function( source, opts ){
         var expression = expressionParser.parse( 0, 'noComma' );
         mustBe( ')', scanner.nextToken() );
         return expression;
+    }
+    function parseIfBlockPart(){
+        if ( match({value: '{'}, scanner.lookAhead()) ) {
+            return parseBlock();
+        } else {
+            return parseExpressionStatement(0, 'noComma');
+        }
     }
 
     function parseEmptyStatement(){
