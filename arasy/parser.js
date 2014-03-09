@@ -154,9 +154,9 @@ arasy.parse = function( source, opts ){
             if( mustBe('while', peekToken) ){
                 return parseWhileStatement();
             }
-//            if( mustBe('for', peekToken) ){
-//                return parseForStatement();
-//            }
+            if( mustBe('for', peekToken) ){
+                return parseForStatement();
+            }
 //            if( mustBe('continue', peekToken) ){
 //                return parseContinueStatement();
 //            }
@@ -261,6 +261,16 @@ arasy.parse = function( source, opts ){
         whileNode.body = parseIfBlockPart();
 
         return whileNode;
+    }
+
+    function parseForStatement(){
+
+        scanner.nextToken();
+        var forNode = new Node('ForStatement');
+
+        //for(var i = 0; i < 25; i++)
+        mustBe('(', scanner.nextToken());
+
 
     }
 
