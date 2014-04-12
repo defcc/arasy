@@ -159,12 +159,19 @@ arasy.parse = function( source, opts ){
             if( mustBe('for', peekToken) ){
                 return parseForStatement();
             }
-//            if( mustBe('continue', peekToken) ){
-//                return parseContinueStatement();
-//            }
-//            if( mustBe('with', peekToken) ){
-//                return parseWithStatement();
-//            }
+            if( mustBe('continue', peekToken) ){
+                return parseSimpleStatement('continue');
+            }
+
+            if( mustBe('break', peekToken) ){
+                return parseSimpleStatement('break');
+            }
+            if( mustBe('return', peekToken) ){
+                return parseSimpleStatement('return');
+            }
+            if( mustBe('with', peekToken) ){
+                return parseWithStatement();
+            }
 //
 //            if( mustBe('switch', peekToken) ){
 //                return parseSwitchStatement();
@@ -250,6 +257,69 @@ arasy.parse = function( source, opts ){
         doWhileNode.test = parseIfTestPart();
 
         return doWhileNode;
+    }
+
+
+    // 12.10
+    function parseWithStatement(){
+        // with ( expression ) Statement
+        var withNode = new Node('WithStatement');
+        scanner.nextToken();
+
+        // check (
+        mustBe('(', scanner.nextToken());
+
+        var object = expressionParser.parse( 0 );
+
+        mustBe(')', scanner.nextToken());
+
+        var body = parseStatements();
+
+        withNode.object = object;
+        withNode.body = body;
+
+        return withNode;
+    }
+
+
+    // continue break return
+    function parseSimpleStatement( type ){
+        var statement = {
+            'continue': 'ContinueStatement',
+            'break': 'BreakStatement',
+            'return': 'ReturnStatement'
+        };
+
+        var targetNode = new Node( statement[ type ] );
+        var extraData = null;
+
+        scanner.nextToken();
+
+        // TODO as for contine  & break
+        // 1. no LineTerminator here
+        // 2. only exits in IterationStatement
+        // 3. check label
+
+
+        // TODO return
+        // check in the function scope;
+
+        var peekNode = scanner.lookAhead();
+
+        if ( match({type: TokenType.Identifier}, peekNode) ) {
+            scanner.nextToken();
+            extraData = peekNode;
+        }
+        if ( type == 'return' ) {
+            targetNode['argument'] = extraData;
+        } else {
+            targetNode['label'] = extraData;
+        }
+
+        consumeSemicolon();
+
+        return targetNode;
+
     }
 
     function parseWhileStatement(){
