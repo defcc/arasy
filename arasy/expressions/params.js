@@ -1,26 +1,26 @@
-var paramsListParser = function(){
+var paramsListParser = function( scanner ){
     var rs = [],
         item;
 
-    this.scanner.consume();
+    scanner.nextToken();
     //match({type: 'punctuator', value: '('}, this.nextToken());
 
-    var peekToken = this.scanner.lookAhead();
-    if( peekToken.type == tokensMap.identify ){
-        while( (item = this.scanner.consume()).type == tokensMap.identify ){
+    var peekToken = scanner.lookAhead();
+    if( peekToken.type == TokenType.Identifier ){
+        while( (item = scanner.lookAhead() ).type == TokenType.Identifier ){
             rs.push({
                 type: 'Identifier',
-                name: item.val
+                name: item.value
             });
-            var nextToken = this.scanner.lookAhead();
+            var nextToken = scanner.lookAhead();
             if(nextToken.val != ','){
                 break;
             }else{
-                this.scanner.consume();
+               scanner.nextToken();
             }
         }
     }
     //match({type: 'punctuator', value: ')'}, this.nextToken());
-    this.scanner.consume();
+    scanner.nextToken();
     return rs;
 };
