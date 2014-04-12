@@ -270,49 +270,87 @@ arasy.parse = function( source, opts ){
 
         //for(var i = 0; i < 25; i++)
         mustBe('(', scanner.nextToken());
+
         //if the first token is var;
         var peekToken = scanner.lookAhead();
 
         var init;
+        var initType;
+
         if ( match({value: 'var'}, peekToken) ) {
             scanner.nextToken();
             init = parseVariableDeclarationList();
+            initType = 'VariableDeclaration';
         } else if ( match({value: ';'}, peekToken) ) {
             init = null;
         } else {
             init = expressionParser.parse( 0 );
+            initType = 'Expression';
         }
-
-        mustBe(';', scanner.nextToken());
 
         peekToken = scanner.lookAhead();
 
-        var test;
-        if ( match({value: ';'}, peekToken) ) {
+        //check if it is for in statement
+        if ( mustBe('in', peekToken ) ) {
+            // for in
+            var forInNode = new Node('ForInStatement');
+            var left = init;
+
+            if ( initType == 'VariableDeclaration' && init.length > 1 ) {
+                raiseError( peekToken, ' ForInStatement 只允许一个变量申明 ' );
+            }
+
             scanner.nextToken();
-            test = null;
+
+            var right = expressionParser.parse( 0 );
+
+            mustBe(')', scanner.nextToken());
+
+            var body = parseBlock();
+
+            forInNode.left = left;
+            forInNode.right = right;
+            forInNode.body = body;
+
+            return forInNode;
+
         } else {
-            test = expressionParser.parse( 0 );
+            // for
+
             mustBe(';', scanner.nextToken());
+
+            peekToken = scanner.lookAhead();
+
+            var test;
+            if ( match({value: ';'}, peekToken) ) {
+                scanner.nextToken();
+                test = null;
+            } else {
+                test = expressionParser.parse( 0 );
+                mustBe(';', scanner.nextToken());
+            }
+
+            //update
+            peekToken = scanner.lookAhead();
+            if ( mustBe(')', scanner.lookAhead()) ){
+                scanner.nextToken();
+                update = null;
+            } else {
+                update = expressionParser.parse( 0 );
+
+                // 剩下的 )
+                scanner.nextToken();
+            }
+
+            var body = parseBlock();
+
+            forNode.init = init;
+            forNode.test = test;
+            forNode.update = update;
+            forNode.body = body;
+
+            return forNode;
         }
-
-        //update
-        peekToken = scanner.lookAhead();
-        if ( mustBe(')', scanner.lookAhead()) ){
-            scanner.nextToken();
-            update = null;
-        } else {
-            update = expressionParser.parse( 0 );
-        }
-
-        var body = parseBlock();
-
-        forNode.init = init;
-        forNode.test = test;
-        forNode.update = update;
-        forNode.body = body;
-
-        return forNode;
     }
 
     function raiseError( errorToken, msg ){
