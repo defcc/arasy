@@ -277,8 +277,10 @@ arasy.parse = function( source, opts ){
         if ( match({value: 'var'}, peekToken) ) {
             scanner.nextToken();
             init = parseVariableDeclarationList();
+        } else if ( match({value: ';'}, peekToken) ) {
+            init = null;
         } else {
-            init = parseExpressionStatement();
+            init = expressionParser.parse( 0 );
         }
 
         mustBe(';', scanner.nextToken());
@@ -290,7 +292,7 @@ arasy.parse = function( source, opts ){
             scanner.nextToken();
             test = null;
         } else {
-            test = parseExpressionStatement();
+            test = expressionParser.parse( 0 );
             mustBe(';', scanner.nextToken());
         }
 
@@ -300,7 +302,7 @@ arasy.parse = function( source, opts ){
             scanner.nextToken();
             update = null;
         } else {
-            update = parseExpressionStatement();
+            update = expressionParser.parse( 0 );
         }
 
         var body = parseBlock();
@@ -370,6 +372,8 @@ arasy.parse = function( source, opts ){
         }
         return variableDeclarationNode;
     }
+
+
 
     function parseExpressionStatement( noComma ){
         var node = new Node('ExpressionStatement');
