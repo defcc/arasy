@@ -1,21 +1,21 @@
 //function identifierName(opt) ( arguments )
 var functionParser = function( expressionParser, token ){
+    var scanner = expressionParser.scanner;
+
     var identifyerName = null;
-    var lookaheadToken = this.scanner.lookAhead();
-    var isIdentifierNameToken = lookaheadToken.type == tokensMap.identify;
+    var lookaheadToken = scanner.lookAhead();
+    var isIdentifierNameToken = lookaheadToken.type == TokenType.Identifier;
+
     if ( isIdentifierNameToken ) {
         identifyerName = {
             type: 'Identifier',
-            name: lookaheadToken.val
+            name: lookaheadToken.value
         };
-        tokenList.consume();
+        scanner.nextToken();
     }
-    var params = paramsListParser();
+    var params = paramsListParser( scanner );
 
-    //consume {
-    this.scanner.consume();
-
-    var functionBody = blockParser();
+    var functionBody = arasy.parse.blockParser();
 
     return {
         type: 'functionExpression',
