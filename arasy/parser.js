@@ -270,8 +270,47 @@ arasy.parse = function( source, opts ){
 
         //for(var i = 0; i < 25; i++)
         mustBe('(', scanner.nextToken());
+        //if the first token is var;
+        var peekToken = scanner.lookAhead();
 
+        var init;
+        if ( match({value: 'var'}, peekToken) ) {
+            scanner.nextToken();
+            init = parseVariableDeclarationList();
+        } else {
+            init = parseExpressionStatement();
+        }
 
+        mustBe(';', scanner.nextToken());
+
+        peekToken = scanner.lookAhead();
+
+        var test;
+        if ( match({value: ';'}, peekToken) ) {
+            scanner.nextToken();
+            test = null;
+        } else {
+            test = parseExpressionStatement();
+            mustBe(';', scanner.nextToken());
+        }
+
+        //update
+        peekToken = scanner.lookAhead();
+        if ( mustBe(')', scanner.lookAhead()) ){
+            scanner.nextToken();
+            update = null;
+        } else {
+            update = parseExpressionStatement();
+        }
+
+        var body = parseBlock();
+
+        forNode.init = init;
+        forNode.test = test;
+        forNode.update = update;
+        forNode.body = body;
+
+        return forNode;
     }
 
     function raiseError( errorToken, msg ){
@@ -292,7 +331,7 @@ arasy.parse = function( source, opts ){
     }
 
     function parseVariableStatement(){
-        var variableStatement = new Node('variableDeclarationList');
+        var variableStatement = new Node('variableDeclaration');
         mustBe('var', scanner.nextToken());
         variableStatement.declarations = parseVariableDeclarationList();
         consumeSemicolon();
@@ -316,7 +355,7 @@ arasy.parse = function( source, opts ){
     }
 
     function parseVariableDeclaration(){
-        var variableDeclarationNode = new Node('variableDeclaration');
+        var variableDeclarationNode = new Node('VariableDeclarator');
         var ID = match( {type: TokenType.Identifier}, scanner.nextToken() );
         variableDeclarationNode.id = ID;
 
