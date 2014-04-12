@@ -5,12 +5,14 @@ arasy.parse = function( source, opts ){
     var lastToken;
     var currentToken;
     var lookaheadToken;
+    var expressionParser = arasy.expressionParser;
     var lookaheadTokenConsumed = true;
     var isInBlockBody = [];
 
     var scanner = getScanner( source, opts );
     arasy.expressionParser.init( scanner );
-    var expressionParser = arasy.expressionParser;
+    arasy.parse.blockParser = parseBlock;
+
     return parseProgram();
 
     function getScanner( source, opts ){
@@ -279,12 +281,12 @@ arasy.parse = function( source, opts ){
 
         if ( match({value: 'var'}, peekToken) ) {
             scanner.nextToken();
-            init = parseVariableDeclarationList();
+            init = parseVariableDeclarationList( 1 );
             initType = 'VariableDeclaration';
         } else if ( match({value: ';'}, peekToken) ) {
             init = null;
         } else {
-            init = expressionParser.parse( 0 );
+            init = expressionParser.parse( 0, 0, 1 );
             initType = 'Expression';
         }
 
@@ -298,6 +300,10 @@ arasy.parse = function( source, opts ){
 
             if ( initType == 'VariableDeclaration' && init.length > 1 ) {
                 raiseError( peekToken, ' ForInStatement 只允许一个变量申明 ' );
+            }
+
+            if ( initType == 'Expression' ) {
+                // @TODO check LeftHandSideExpression
             }
 
             scanner.nextToken();
@@ -378,10 +384,10 @@ arasy.parse = function( source, opts ){
         return variableStatement;
     }
 
-    function parseVariableDeclarationList(){
+    function parseVariableDeclarationList( noIn ){
         var rs = [],
             item;
-        while(item = parseVariableDeclaration()){
+        while(item = parseVariableDeclaration( noIn )){
             rs.push( item );
 
             var nextToken = scanner.lookAhead();
@@ -394,7 +400,7 @@ arasy.parse = function( source, opts ){
         return rs;
     }
 
-    function parseVariableDeclaration(){
+    function parseVariableDeclaration( noIn ){
         var variableDeclarationNode = new Node('VariableDeclarator');
         var ID = match( {type: TokenType.Identifier}, scanner.nextToken() );
         variableDeclarationNode.id = ID;
@@ -403,7 +409,7 @@ arasy.parse = function( source, opts ){
         var assign = match({value: '='}, peekToken);
         if( assign ){
             scanner.nextToken();
-            var init = parseExpressionStatement( 'noComma' );
+            var init = parseExpressionStatement( 'noComma', noIn );
             variableDeclarationNode.init = init;
         } else {
             variableDeclarationNode.init = null;
@@ -413,9 +419,9 @@ arasy.parse = function( source, opts ){
 
 
 
-    function parseExpressionStatement( noComma ){
+    function parseExpressionStatement( noComma, noIn ){
         var node = new Node('ExpressionStatement');
-        node.expressions = expressionParser.parse( 0, noComma);
+        node.expressions = expressionParser.parse( 0, noComma, noIn );
 
         var peekToken = scanner.lookAhead();
         if ( mustBe(';', peekToken) ) {
