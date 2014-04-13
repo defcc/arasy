@@ -28,6 +28,9 @@ function makeArray( obj ){
     }
 }
 
+function maybe( val, token ){
+    return val == token.value;
+}
 
 function mustBe( val, token ){
     return token.value == val;

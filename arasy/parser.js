@@ -186,10 +186,15 @@ arasy.parse = function( source, opts ){
             if( mustBe('switch', peekToken) ){
                 return parseSwitchStatement();
             }
-//
+
             if( mustBe('debugger', peekToken) ){
                 return parseSimpleStatement('debugger');
             }
+
+            if ( maybe('try', peekToken) ) {
+                return parseTryStatement();
+            }
+
             return parseExpressionStatement();
         }
     }
@@ -199,7 +204,7 @@ arasy.parse = function( source, opts ){
     }
 
     function parseBlock(){
-        var blockStatement = new Node('blockstatement');
+        var blockStatement = new Node('BlockStatement');
         mustBe('{', scanner.nextToken());
 
         isInBlockBody.push(1);
@@ -355,6 +360,50 @@ arasy.parse = function( source, opts ){
     }
 
 
+    // 12.14
+    // try block catch( Identifier ) block finally block
+    function parseTryStatement(){
+        var node = new Node('TryStatement');
+        scanner.nextToken();
+        node.body = parseBlock();
+
+        var catchPart = 0;
+        var finallyPart = 0;
+
+        var peekToken = scanner.lookAhead();
+
+        if ( maybe('catch', peekToken) ) {
+            scanner.nextToken();
+            var handlers = {
+                type: 'CatchClause'
+            };
+            // (
+            mustBe('(', scanner.nextToken());
+            handlers.id = scanner.nextToken();
+            mustBe(TokenType.Identifier, handlers.id.type);
+            // )
+
+            mustBe(')', scanner.nextToken());
+
+            handlers.block = parseBlock();
+            node.handlers = handlers;
+            catchPart = 1;
+        }
+
+        peekToken = scanner.lookAhead();
+
+        if ( maybe('finally', peekToken) ) {
+            node.finalizer = parseBlock();
+            finallyPart = 1;
+        }
+
+        // no catch && finally
+        if ( !catchPart && !finallyPart ) {
+            raiseError( peekToken, 'TryStatement解析失败，至少得有catch语句或者finally语句' );
+        }
+
+        return node;
+    }
 
 
 
