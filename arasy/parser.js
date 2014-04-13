@@ -89,19 +89,10 @@ arasy.parse = function( source, opts ){
 
     function parseProgram(){
         var programNode = new Node('program');
-        programNode.body = parseSourceElements();
+        programNode.body = parseSourceElement();
         return programNode;
     }
 
-    function parseSourceElements(){
-        var rs = [],
-            item;
-
-        while( (item = parseSourceElement()) ){
-            rs.push( item );
-        }
-        return rs;
-    }
 
     function parseSourceElement(){
         var peekToken = scanner.lookAhead();
@@ -112,11 +103,7 @@ arasy.parse = function( source, opts ){
             return;
         }
 
-        if( peekToken.value == 'function' ){
-            return parseFunctionDeclaration();
-        }else{
-            return parseStatements();
-        }
+        return parseStatements();
     }
 
     function parseStatements(){
@@ -197,6 +184,10 @@ arasy.parse = function( source, opts ){
                 return parseTryStatement();
             }
 
+            if ( maybe('function', peekToken) ) {
+                return parseFunctionDeclaration();
+            }
+
             return parseExpressionStatement();
         }
     }
@@ -229,7 +220,7 @@ arasy.parse = function( source, opts ){
         if ( mustBe('}', peekToken) ) {
             blockStatement.body = {};
         } else {
-            blockStatement.body = parseSourceElements();
+            blockStatement.body = parseSourceElement();
         }
 
         mustBe('}', scanner.nextToken());
