@@ -466,7 +466,7 @@ arasy.scanner = function( source ){
         tokenGenerator.end( identifierStr );
 
 
-        if( keywordsMap[ String(identifierStr) ] ){
+        if( keywordsMap.hasOwnProperty( String(identifierStr) ) ){
             type = TokenType.Keywords;
         }
         return tokenGenerator.getToken( type );
