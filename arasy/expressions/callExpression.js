@@ -2,11 +2,11 @@ var callerParser = function( expressionParser, left, token ){
     var identify = left;
 
     var argumentsParam = [];
-    var rightParen = this.scanner.lookAhead();
+    var rightParen = expressionParser.scanner.lookAhead();
     if ( rightParen.val != ')' ) {
         argumentsParam = argumentsParser( expressionParser );
     } else {
-        this.scanner.consume();
+        expressionParser.scanner.nextToken();
     }
 
     return {
