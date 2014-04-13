@@ -62,20 +62,20 @@ arasy.parse = function( source, opts ){
         function adjustExpressionType( token ){
             var expType;
 
-            if ( tokenType2ExpType[ token.type ] ) {
+            if ( tokenType2ExpType.hasOwnProperty( token.type ) ) {
                 expType = tokenType2ExpType[ token.type ];
             }
 
-            if ( keywords2ExpType[ token.value ] ) {
+            if ( keywords2ExpType.hasOwnProperty( token.value ) ) {
                 expType = keywords2ExpType[ token.value ];
             }
-            if ( operator2ExpType[ token.value ] ) {
+            if ( operator2ExpType.hasOwnProperty( token.value ) ) {
                 expType = operator2ExpType[ token.value ];
             }
 
             //todo check context and lookup specialOperator2ExpType
             if ( mustBe( '(', token ) ) {
-                if ( lastToken.type == TokenType.Identifier ) {
+                if ( lastToken && lastToken.type == TokenType.Identifier ) {
                     expType = specialOperator2ExpType['('].call;
                 } else {
                     expType = specialOperator2ExpType['('].group;

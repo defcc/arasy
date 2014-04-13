@@ -30,7 +30,9 @@
     };
 
     function parseInput( source ){
+        var start = +new Date();
         var ast = arasy.parse( source );
+        console.log(+new Date()-start);
         console.log( ast );
     }
 
