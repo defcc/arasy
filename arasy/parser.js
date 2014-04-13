@@ -176,6 +176,9 @@ arasy.parse = function( source, opts ){
             if( mustBe('return', peekToken) ){
                 return parseSimpleStatement('return');
             }
+            if( mustBe('throw', peekToken) ){
+                return parseSimpleStatement('throw');
+            }
             if( mustBe('with', peekToken) ){
                 return parseWithStatement();
             }
@@ -183,9 +186,6 @@ arasy.parse = function( source, opts ){
             if( mustBe('switch', peekToken) ){
                 return parseSwitchStatement();
             }
-//            if( mustBe('throw', peekToken) ){
-//                return parseThrowStatement();
-//            }
 //
 //            if( mustBe('debugger', peekToken) ){
 //                return parseDebuggerStatement();
@@ -356,12 +356,15 @@ arasy.parse = function( source, opts ){
 
 
 
-    // continue break return
+
+
+    // continue break return  throw
     function parseSimpleStatement( type ){
         var statement = {
             'continue': 'ContinueStatement',
             'break': 'BreakStatement',
-            'return': 'ReturnStatement'
+            'return': 'ReturnStatement',
+            'throw': 'ThrowStatement'
         };
 
         var targetNode = new Node( statement[ type ] );
@@ -382,14 +385,17 @@ arasy.parse = function( source, opts ){
 
         if ( type == 'return' ) {
 
-            var peekToken = scanner.lookAhead();
-            if ( match({value: ';'}, peekToken) ) {
+            if ( match({value: ';'}, peekNode) ) {
                 scanner.nextToken();
             } else {
                 extraData = expressionParser.parse( 0 );
             }
             targetNode['argument'] = extraData;
 
+        } else if ( type == 'throw' ) {
+            // TODO peekNode must not be a LineTerminator
+            extraData = expressionParser.parse( 0 );
+            targetNode['argument'] = extraData;
         } else {
             if ( match({type: TokenType.Identifier}, peekNode) ) {
                 scanner.nextToken();
