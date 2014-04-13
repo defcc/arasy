@@ -48,7 +48,9 @@ arasy.parse = function( source, opts ){
         function getNextToken( ){
             var afterTerminal = 0;
             var token = scanner.nextToken();
-            while ( match({type: TokenType.Terminator}, token) ) {
+            while ( match({type: TokenType.Terminator}, token)
+                || ( match({type: TokenType.Comment}, token) )
+                ) {
                 token = scanner.nextToken();
                 afterTerminal = 1;
             }
