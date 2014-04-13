@@ -8,6 +8,7 @@ arasy.parse = function( source, opts ){
     var expressionParser = arasy.expressionParser;
     var lookaheadTokenConsumed = true;
     var isInBlockBody = [];
+    var isInSwitchCase = [];
 
     var scanner = getScanner( source, opts );
     arasy.expressionParser.init( scanner );
@@ -137,6 +138,12 @@ arasy.parse = function( source, opts ){
             return;
         }
 
+        if ( isInSwitchCase.length &&
+            ( match({value: 'case'}, peekToken) || match({value: 'default'}, peekToken) )
+           ) {
+            return;
+        }
+
         if( mustBe('{', peekToken) ){
             return parseBlock();
         }else{
@@ -172,10 +179,10 @@ arasy.parse = function( source, opts ){
             if( mustBe('with', peekToken) ){
                 return parseWithStatement();
             }
-//
-//            if( mustBe('switch', peekToken) ){
-//                return parseSwitchStatement();
-//            }
+
+            if( mustBe('switch', peekToken) ){
+                return parseSwitchStatement();
+            }
 //            if( mustBe('throw', peekToken) ){
 //                return parseThrowStatement();
 //            }
@@ -281,6 +288,73 @@ arasy.parse = function( source, opts ){
         return withNode;
     }
 
+    // 12.11
+    function parseSwitchStatement(){
+        scanner.nextToken();
+        isInSwitchCase.push(1);
+        isInBlockBody.push(1);
+
+        var switchNode  = new Node('SwitchStatement');
+
+        mustBe('(', scanner.nextToken());
+        var exp = expressionParser.parse( 0 );
+        mustBe(')', scanner.nextToken());
+
+        switchNode.discriminant = exp;
+        switchNode.cases = parseSwitchCases();
+
+        isInSwitchCase.pop();
+        isInBlockBody.pop();
+
+        return switchNode;
+    }
+
+    function parseSwitchCases(){
+        mustBe('{', scanner.nextToken());
+        var rs = [],
+            item;
+        while( item = parseSwitchCase() ){
+            rs.push( item );
+        }
+        mustBe('}', scanner.nextToken());
+
+        return rs;
+    }
+
+    function parseSwitchCase(){
+        // case:
+        // default:
+
+        var switchCase = new Node('SwitchCase');
+
+        var nextToken = scanner.nextToken();
+        var caseType;
+        if ( match({value: 'case'}, nextToken) ) {
+            caseType = 'CaseClause';
+        } else if( match({value: 'default'}, nextToken) ) {
+            caseType = 'DefaultClause';
+        } else if( match({value: '}'}, nextToken) ) {
+            scanner.retract();
+            return false;
+        } else {
+            raiseError( nextToken, 'case block 解析失败' );
+        }
+
+        if( caseType == 'CaseClause' ){
+            switchCase.test = expressionParser.parse( 0 );
+        }else{
+            switchCase.test = null;
+        }
+
+        if ( caseType ) {
+            mustBe(':', scanner.nextToken());
+        }
+        switchCase.consequent = parseStatements();
+
+        return switchCase;
+    }
+
+
 
     // continue break return
     function parseSimpleStatement( type ){
@@ -306,13 +380,21 @@ arasy.parse = function( source, opts ){
 
         var peekNode = scanner.lookAhead();
 
-        if ( match({type: TokenType.Identifier}, peekNode) ) {
-            scanner.nextToken();
-            extraData = peekNode;
-        }
         if ( type == 'return' ) {
+
+            var peekToken = scanner.lookAhead();
+            if ( match({value: ';'}, peekToken) ) {
+                scanner.nextToken();
+            } else {
+                extraData = expressionParser.parse( 0 );
+            }
             targetNode['argument'] = extraData;
+
         } else {
+            if ( match({type: TokenType.Identifier}, peekNode) ) {
+                scanner.nextToken();
+                extraData = peekNode;
+            }
             targetNode['label'] = extraData;
         }
 
