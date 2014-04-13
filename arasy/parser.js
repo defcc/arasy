@@ -20,13 +20,13 @@ arasy.parse = function( source, opts ){
         var scanner = arasy.scanner( source );
         return {
             nextToken: function(){
-                lastToken = currentToken;
                 if ( lookaheadTokenConsumed ) {
                     currentToken = getNextToken( );
                 } else {
                     currentToken = lookaheadToken;
                     lookaheadTokenConsumed = true;
                 }
+                lastToken = currentToken;
                 return currentToken;
             },
             lookAhead: function(){
