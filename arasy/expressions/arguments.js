@@ -4,9 +4,9 @@ var argumentsParser = function( expressionParser ){
 
     var nextToken = expressionParser.scanner.lookAhead();
     //consume left paren;
-    nextToken.val == '(' && expressionParser.scanner.nextToken();
+    nextToken.value == '(' && expressionParser.scanner.nextToken();
     var nextToken = expressionParser.scanner.lookAhead();
-    if ( nextToken.val != ')' ) {
+    if ( nextToken.value != ')' ) {
         rs = expressionParser.parse(0);
     }
     expressionParser.scanner.nextToken();

@@ -32,8 +32,8 @@ function maybe( val, token ){
     return val == token.value;
 }
 
-function mustBe( val, token ){
-    return token.value == val;
+function mustBe( val, token, checkType ){
+    return ( checkType ? token.type : token.value ) == val;
 }
 
 function match( obj, token ){

@@ -8,7 +8,7 @@ var objectExpressionParser = function( expressionParser, token ){
     objectRs.properties = parseObjectExpressionElements();
 
     //consume }
-    this.scanner.consume();
+    expressionParser.scanner.nextToken();
 
     return objectRs;
 
@@ -20,11 +20,11 @@ var objectExpressionParser = function( expressionParser, token ){
         while( item = parseObjectItem() ){
             rs.push( item );
 
-            var peekToken = this.scanner.lookAhead();
-            if( peekToken.val != ',' ){
+            var peekToken = expressionParser.scanner.lookAhead();
+            if( peekToken.value != ',' ){
                 break;
             }else{
-                this.scanner.consume();
+                expressionParser.scanner.nextToken();
             }
         }
         return rs;
@@ -34,9 +34,9 @@ var objectExpressionParser = function( expressionParser, token ){
         var rs = {};
 
         rs.type = 'Property';
-        rs.key = this.scanner.consume();
+        rs.key = expressionParser.scanner.nextToken();
         //consume :
-        this.scanner.consume();
+        expressionParser.scanner.nextToken();
 
         rs.value = expressionParser.parse(10);
         rs.kind = "init";

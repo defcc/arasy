@@ -8,12 +8,13 @@ var paramsListParser = function( scanner ){
     var peekToken = scanner.lookAhead();
     if( peekToken.type == TokenType.Identifier ){
         while( (item = scanner.lookAhead() ).type == TokenType.Identifier ){
+            scanner.nextToken();
             rs.push({
                 type: 'Identifier',
                 name: item.value
             });
             var nextToken = scanner.lookAhead();
-            if(nextToken.val != ','){
+            if(nextToken.value != ','){
                 break;
             }else{
                scanner.nextToken();
