@@ -5,6 +5,12 @@ var objectExpressionParser = function( expressionParser, token ){
         properties: []
     };
 
+    var peekToken = expressionParser.scanner.lookAhead();
+    if ( maybe('}', peekToken) ) {
+        expressionParser.scanner.nextToken();
+        return objectRs;
+    }
+
     objectRs.properties = parseObjectExpressionElements();
 
     //consume }
