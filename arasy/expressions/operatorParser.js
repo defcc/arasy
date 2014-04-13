@@ -21,7 +21,7 @@ var infixOperatorParser = function( expressionParser, left,  token ){
 
 var postfixOperatorParser = function( expressionParser, left, token ){
     return {
-        type: 'updateExpression',
+        type: 'UpdateExpression',
         operator: token.value,
         prefix: false,
         argument: left
