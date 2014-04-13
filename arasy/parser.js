@@ -199,8 +199,21 @@ arasy.parse = function( source, opts ){
         }
     }
 
+    // 13
     function parseFunctionDeclaration(){
+        var node = new Node('FunctionDeclaration');
+        scanner.nextToken();
 
+        var id = scanner.nextToken();
+        mustBe(TokenType.Identifier, id, 'type');
+        var params = paramsListParser( scanner );
+        var body = parseBlock();
+
+        node.id = id;
+        node.params = params;
+        node.body = body;
+
+        return node;
     }
 
     function parseBlock(){
