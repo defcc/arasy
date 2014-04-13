@@ -155,7 +155,8 @@ var operator2ExpType = {
     '&=': expressionTokenMap.assignmentOperator,
     '^=': expressionTokenMap.assignmentOperator,
     '|=': expressionTokenMap.assignmentOperator,
-    ',': expressionTokenMap.commaOperator
+    ',': expressionTokenMap.commaOperator,
+    '{': expressionTokenMap.objectExpressionStart
 };
 
 //有歧义的类型，需要结合上下文进行判断

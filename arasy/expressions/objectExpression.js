@@ -45,4 +45,4 @@ var objectExpressionParser = function( expressionParser, token ){
     }
 };
 
-arasy.registerInfixParselet(expressionTokenMap.objectExpressionStart, objectExpressionParser);
+arasy.expressionParser.registerPrefixParselet(expressionTokenMap.objectExpressionStart, objectExpressionParser);
