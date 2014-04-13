@@ -187,9 +187,9 @@ arasy.parse = function( source, opts ){
                 return parseSwitchStatement();
             }
 //
-//            if( mustBe('debugger', peekToken) ){
-//                return parseDebuggerStatement();
-//            }
+            if( mustBe('debugger', peekToken) ){
+                return parseSimpleStatement('debugger');
+            }
             return parseExpressionStatement();
         }
     }
@@ -364,7 +364,8 @@ arasy.parse = function( source, opts ){
             'continue': 'ContinueStatement',
             'break': 'BreakStatement',
             'return': 'ReturnStatement',
-            'throw': 'ThrowStatement'
+            'throw': 'ThrowStatement',
+            'debugger': 'DebuggerStatement'
         };
 
         var targetNode = new Node( statement[ type ] );
@@ -393,10 +394,24 @@ arasy.parse = function( source, opts ){
             targetNode['argument'] = extraData;
 
         } else if ( type == 'throw' ) {
+
             // TODO peekNode must not be a LineTerminator
             extraData = expressionParser.parse( 0 );
             targetNode['argument'] = extraData;
+
+        } else if ( type == 'debugger' ) {
+
+            // TODO scanner 对 terminator 的处理
+            if ( ! match({ value: ';' }, peekNode)
+                && ! match({ type: TokenType.Eof }, peekNode)
+                && ! match({ type: TokenType.Terminator }, peekNode)
+                ) {
+                raiseError( peekNode, 'debugger 语句解析错误' );
+            }
+
         } else {
+
+            // continue break
             if ( match({type: TokenType.Identifier}, peekNode) ) {
                 scanner.nextToken();
                 extraData = peekNode;
