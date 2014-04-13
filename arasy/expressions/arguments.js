@@ -2,13 +2,13 @@
 var argumentsParser = function( expressionParser ){
     var rs = [];
 
-    var nextToken = this.scanner.lookAhead();
+    var nextToken = expressionParser.scanner.lookAhead();
     //consume left paren;
-    nextToken.val == '(' && this.scanner.consume();
-    var nextToken = tokenList.lookAhead();
+    nextToken.val == '(' && expressionParser.scanner.nextToken();
+    var nextToken = expressionParser.scanner.lookAhead();
     if ( nextToken.val != ')' ) {
         rs = expressionParser.parse(0);
     }
-    this.scanner.consume();
+    expressionParser.scanner.nextToken();
     return rs;
 };
