@@ -1,11 +1,11 @@
 //new expression
 var newParser = function( expressionParser, token ){
-    var identify = this.scanner.consume();
+    var identify = expressionParser.scanner.nextToken();
 
     //check arguments;
     var argumentsParam = [];
-    var leftParen = this.scanner.lookAhead();
-    if ( leftParen.val == '(' ) {
+    var leftParen = expressionParser.scanner.lookAhead();
+    if ( match({value: '('}, leftParen) ) {
         argumentsParam = argumentsParser( expressionParser );
     }
 
@@ -16,4 +16,4 @@ var newParser = function( expressionParser, token ){
     }
 };
 
-arasy.expressionParser.registerInfixParselet(expressionTokenMap.newOperator, newParser);
+arasy.expressionParser.registerPrefixParselet(expressionTokenMap.newOperator, newParser);
