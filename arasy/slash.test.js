@@ -18,6 +18,8 @@ var s = function(){}/i/i; // divide
 throw /i/  // regexp
 return /a/ // regexp
 
+(/a/i) // regexp
+
 // statement start
 if(a)/a/i // regexp
 
