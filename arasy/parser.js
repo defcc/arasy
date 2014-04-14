@@ -44,7 +44,15 @@ arasy.parse = function( source, opts ){
             },
             lookAhead: function(){
                 if ( this.currentIdx + 1 <= this.tokenList.length -1 ) {
-                    return this.tokenList[ this.currentIdx + 1 ];
+                    var token = this.tokenList[ this.currentIdx + 1 ];
+                    if ( maybeValue('/', token) ) {
+                        this.tokenList.splice( this.currentIdx + 1 );
+                        var lastToken = this.tokenList[ this.tokenList.length - 1 ];
+                        tokenizer.setCursor( lastToken && lastToken.end );
+                        // check the token
+                        token = this.fillToken();
+                    }
+                    return token;
                 } else {
                     return this.fillToken();
                 }
