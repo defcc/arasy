@@ -1,7 +1,7 @@
 var commaParser = function( expressionParser,  left, token ){
     var rs = [ left ];
     var expressionItem;
-    while( expressionItem = expressionParser.parse( getPrecedenceByToken( token ) ) ) {
+    while( expressionItem = expressionParser.parse( getPrecedenceByToken( token ), 0, 0, 'prefix' ) ) {
         rs.push( expressionItem );
         var nextToken = expressionParser.scanner.lookAhead();
         if ( nextToken.value == ',' ) {
