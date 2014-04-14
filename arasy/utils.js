@@ -28,13 +28,13 @@ function makeArray( obj ){
     }
 }
 
-function maybe( val, token ){
+function maybeValue( val, token ){
     return val == token.value;
 }
 
 function mustBe( val, token, checkType ){
     return ( checkType ? token.type : token.value ) == val;
-}
+    }
 
 function match( obj, token ){
     var typeRs = valueRs = 1;
@@ -46,4 +46,8 @@ function match( obj, token ){
     }
 
     return typeRs == 1 && valueRs == 1 ? token : false;
+}
+
+function raiseError( errorToken, msg ){
+    throw new Error( msg + ': ' + errorToken.value );
 }

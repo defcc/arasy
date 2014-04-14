@@ -199,18 +199,18 @@ arasy.parse = function( source, opts ){
                 return parseSimpleStatement('debugger');
             }
 
-            if ( maybe('try', peekToken) ) {
+            if ( maybeValue('try', peekToken) ) {
                 return parseTryStatement();
             }
 
-            if ( maybe('function', peekToken) ) {
+            if ( maybeValue('function', peekToken) ) {
                 return parseFunctionDeclaration();
             }
 
 
             var peek2Token = scanner.lookAhead2();
             if ( match({type: TokenType.Identifier}, peekToken)
-                && maybe(':', peek2Token)
+                && maybeValue(':', peek2Token)
                 ) {
                 return parseLabelledStatements();
             }
@@ -416,7 +416,7 @@ arasy.parse = function( source, opts ){
 
         var peekToken = scanner.lookAhead();
 
-        if ( maybe('catch', peekToken) ) {
+        if ( maybeValue('catch', peekToken) ) {
             scanner.nextToken();
             var handlers = {
                 type: 'CatchClause'
@@ -436,7 +436,7 @@ arasy.parse = function( source, opts ){
 
         peekToken = scanner.lookAhead();
 
-        if ( maybe('finally', peekToken) ) {
+        if ( maybeValue('finally', peekToken) ) {
             node.finalizer = parseBlock();
             finallyPart = 1;
         }
@@ -623,10 +623,6 @@ arasy.parse = function( source, opts ){
 
             return forNode;
         }
-    }
-
-    function raiseError( errorToken, msg ){
-        throw new Error( msg + ': ' + errorToken.value );
     }
 
     function consumeSemicolon(){

@@ -6,7 +6,7 @@ var objectExpressionParser = function( expressionParser, token ){
     };
 
     var peekToken = expressionParser.scanner.lookAhead();
-    if ( maybe('}', peekToken) ) {
+    if ( maybeValue('}', peekToken) ) {
         expressionParser.scanner.nextToken();
         return objectRs;
     }
