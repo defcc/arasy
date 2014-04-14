@@ -3,7 +3,7 @@ var arrayParser = function( expressionParser, token ){
 
     var nextToken = expressionParser.scanner.lookAhead();
     if ( nextToken.value != ']' ) {
-        rs = expressionParser.parse(0);
+        rs = expressionParser.parse(0, 0, 0, 'prefix');
     }
     //must be right bracket
     expressionParser.scanner.nextToken();
