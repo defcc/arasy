@@ -20,6 +20,9 @@ arasy.expressionParser = function(){
                 return;
             }
             var prefixParser = prefixParselet[ token.expType ];
+            if ( !prefixParser ) {
+                raiseError(token);
+            }
             var left = prefixParser( this, token );
 
             while ( precedence < this.getPrecedence() ) {
