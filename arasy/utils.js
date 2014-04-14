@@ -32,6 +32,10 @@ function maybeValue( val, token ){
     return val == token.value;
 }
 
+function maybeType( type, token ){
+    return type == token.type;
+}
+
 function mustBe( val, token, checkType ){
     return ( checkType ? token.type : token.value ) == val;
 }
