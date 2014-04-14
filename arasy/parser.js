@@ -5,8 +5,10 @@ arasy.parse = function( source, opts ){
     var lastToken;
     var currentToken;
     var lookaheadToken;
+    var lookahead2Token;
     var expressionParser = arasy.expressionParser;
     var lookaheadTokenConsumed = true;
+    var lookahead2TokenConsumed = true;
     var isInBlockBody = [];
     var isInSwitchCase = [];
 
@@ -20,11 +22,17 @@ arasy.parse = function( source, opts ){
         var scanner = arasy.scanner( source );
         return {
             nextToken: function(){
-                if ( lookaheadTokenConsumed ) {
+                if ( lookaheadTokenConsumed && lookahead2TokenConsumed ) {
                     currentToken = getNextToken( );
                 } else {
-                    currentToken = lookaheadToken;
-                    lookaheadTokenConsumed = true;
+                    if ( !lookaheadTokenConsumed ) {
+                        currentToken = lookaheadToken;
+                        lookaheadTokenConsumed = true;
+                    } else if ( !lookahead2TokenConsumed ) {
+                        currentToken = lookahead2Token;
+                        lookahead2TokenConsumed = true;
+                    }
+
                 }
                 lastToken = currentToken;
                 return currentToken;
@@ -36,6 +44,17 @@ arasy.parse = function( source, opts ){
                     var token = getNextToken( );
                     lookaheadToken = token;
                     lookaheadTokenConsumed = false;
+                    return token;
+                }
+            },
+            lookAhead2: function(){
+                if ( !lookahead2TokenConsumed ) {
+                    return lookahead2Token;
+                } else {
+                    this.lookAhead();
+                    var token = getNextToken();
+                    lookahead2Token = token;
+                    lookahead2TokenConsumed = false;
                     return token;
                 }
             },
@@ -188,8 +207,27 @@ arasy.parse = function( source, opts ){
                 return parseFunctionDeclaration();
             }
 
+
+            var peek2Token = scanner.lookAhead2();
+            if ( match({type: TokenType.Identifier}, peekToken)
+                && maybe(':', peek2Token)
+                ) {
+                return parseLabelledStatements();
+            }
+
             return parseExpressionStatement();
         }
+    }
+
+    // 12.12
+    function parseLabelledStatements(){
+        //Identifier : Statement
+        mustBe(TokenType.Identifier, scanner.nextToken(), 'type');
+        mustBe(':', scanner.nextToken());
+
+        var node = new Node('LabelledStatements');
+        node.body = parseStatement();
+        return node;
     }
 
     // 13
