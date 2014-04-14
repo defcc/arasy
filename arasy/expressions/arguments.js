@@ -1,14 +1,13 @@
 //parse a(a+b, c+d);
 var argumentsParser = function( expressionParser ){
     var rs = [];
+    arasy.isRegexpAcceptable = 1;
+    var nextToken = expressionParser.scanner.lookAhead();
+    arasy.isRegexpAcceptable = 0;
 
-    var nextToken = expressionParser.scanner.lookAhead();
-    //consume left paren;
-    nextToken.value == '(' && expressionParser.scanner.nextToken();
-    var nextToken = expressionParser.scanner.lookAhead();
     if ( nextToken.value != ')' ) {
         rs = expressionParser.parse(0);
     }
-    expressionParser.scanner.nextToken();
+    expectValue(')', expressionParser.scanner.nextToken());
     return rs;
 };
