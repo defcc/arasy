@@ -21,7 +21,15 @@ arasy.parse = function( source, opts ){
             nextToken: function(){
                 if ( this.currentIdx < this.tokenList.length - 1 ) {
                     this.currentIdx++;
-                    return this.tokenList[ this.currentIdx ];
+                    var token = this.tokenList[ this.currentIdx ];
+                    if ( maybeValue('/', token) && !maybeType(TokenType.Eof, this.lookAhead()) ) {
+                        this.tokenList.splice( this.currentIdx );
+                        var lastToken = this.tokenList[ this.tokenList.length - 1 ];
+                        tokenizer.setCursor( lastToken && lastToken.end );
+                        // check the token
+                        token = this.fillToken();
+                    }
+                    return token;
                 } else {
                     var token = this.fillToken();
                     this.currentIdx++;
@@ -133,7 +141,9 @@ arasy.parse = function( source, opts ){
     }
 
     function parseStatement(){
+        arasy.isStatementStart = 1;
         var peekToken = scanner.lookAhead();
+        arasy.isStatementStart = 0;
 
         if( peekToken.type == TokenType.Eof ){
             return;

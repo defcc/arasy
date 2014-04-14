@@ -4,12 +4,6 @@ arasy.scanner = function( source ){
     var sourceLen = source.length;
     var lineNum = 0;
 
-    var regexpAcceptable = 1;
-
-    function updateRegexpAcceptable( env ){
-        regexpAcceptable  = 1;
-    }
-
     var tokenGenerator = {
         type: '',
         value: '',
@@ -51,11 +45,18 @@ arasy.scanner = function( source ){
     };
 
     return {
-        nextToken: nextToken
+        nextToken: nextToken,
+        setCursor: setCursor
     };
 
+    function setCursor( cursorIdx ){
+        if ( typeof cursorIdx == 'undefined' ) {
+            cursorIdx = -1;
+        }
+        index = cursorIdx;
+    }
+
     function nextToken( env ){
-        updateRegexpAcceptable( env );
         skipWhitespace();
         if ( eof() ) {
             return tokenGenerator.getToken( TokenType.Eof );
@@ -153,7 +154,7 @@ arasy.scanner = function( source ){
     }
 
     function isRegexpStart( chr ){
-        if ( chr == '/' &&  regexpAcceptable ) {
+        if ( chr == '/' &&  arasy.isStatementStart ) {
             return 1;
         }
         return 0;
