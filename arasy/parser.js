@@ -93,7 +93,7 @@ arasy.parse = function( source, opts ){
             }
 
             //todo check context and lookup specialOperator2ExpType
-            if ( mustBe( '(', token ) ) {
+            if ( maybeValue( '(', token ) ) {
                 if ( lastToken && lastToken.type == TokenType.Identifier ) {
                     expType = specialOperator2ExpType['('].call;
                 } else {
@@ -118,7 +118,7 @@ arasy.parse = function( source, opts ){
         if( peekToken.type == TokenType.Eof ){
             return;
         }
-        if( isInBlockBody.length && mustBe('}', peekToken) ){
+        if( isInBlockBody.length && maybeValue('}', peekToken) ){
             return;
         }
 
@@ -142,7 +142,7 @@ arasy.parse = function( source, opts ){
             return;
         }
 
-        if( isInBlockBody.length && mustBe('}', peekToken) ){
+        if( isInBlockBody.length && maybeValue('}', peekToken) ){
             return;
         }
 
@@ -152,50 +152,50 @@ arasy.parse = function( source, opts ){
             return;
         }
 
-        if( mustBe('{', peekToken) ){
+        if( maybeValue('{', peekToken) ){
             return parseBlock();
         }else{
-            if( mustBe('var', peekToken) ){
+            if( maybeValue('var', peekToken) ){
                 return parseVariableStatement()
             }
-            if( mustBe(';', peekToken) ){
+            if( maybeValue(';', peekToken) ){
                 return parseEmptyStatement();
             }
-            if( mustBe('if', peekToken) ){
+            if( maybeValue('if', peekToken) ){
                 return parseIfStatement();
             }
 
-            if( mustBe('do', peekToken) ){
+            if( maybeValue('do', peekToken) ){
                 return parseDoWhileStatement();
             }
-            if( mustBe('while', peekToken) ){
+            if( maybeValue('while', peekToken) ){
                 return parseWhileStatement();
             }
-            if( mustBe('for', peekToken) ){
+            if( maybeValue('for', peekToken) ){
                 return parseForStatement();
             }
-            if( mustBe('continue', peekToken) ){
+            if( maybeValue('continue', peekToken) ){
                 return parseSimpleStatement('continue');
             }
 
-            if( mustBe('break', peekToken) ){
+            if( maybeValue('break', peekToken) ){
                 return parseSimpleStatement('break');
             }
-            if( mustBe('return', peekToken) ){
+            if( maybeValue('return', peekToken) ){
                 return parseSimpleStatement('return');
             }
-            if( mustBe('throw', peekToken) ){
+            if( maybeValue('throw', peekToken) ){
                 return parseSimpleStatement('throw');
             }
-            if( mustBe('with', peekToken) ){
+            if( maybeValue('with', peekToken) ){
                 return parseWithStatement();
             }
 
-            if( mustBe('switch', peekToken) ){
+            if( maybeValue('switch', peekToken) ){
                 return parseSwitchStatement();
             }
 
-            if( mustBe('debugger', peekToken) ){
+            if( maybeValue('debugger', peekToken) ){
                 return parseSimpleStatement('debugger');
             }
 
@@ -255,7 +255,7 @@ arasy.parse = function( source, opts ){
 
         var peekToken = scanner.lookAhead();
 
-        if ( mustBe('}', peekToken) ) {
+        if ( maybeValue('}', peekToken) ) {
             blockStatement.body = {};
         } else {
             blockStatement.body = parseSourceElement();
@@ -559,7 +559,7 @@ arasy.parse = function( source, opts ){
         peekToken = scanner.lookAhead();
 
         //check if it is for in statement
-        if ( mustBe('in', peekToken ) ) {
+        if ( maybeValue('in', peekToken ) ) {
             // for in
             var forInNode = new Node('ForInStatement');
             var left = init;
@@ -604,7 +604,7 @@ arasy.parse = function( source, opts ){
 
             //update
             peekToken = scanner.lookAhead();
-            if ( mustBe(')', scanner.lookAhead()) ){
+            if ( maybeValue(')', scanner.lookAhead()) ){
                 scanner.nextToken();
                 update = null;
             } else {
@@ -686,7 +686,7 @@ arasy.parse = function( source, opts ){
         node.expressions = expressionParser.parse( 0, noComma, noIn );
 
         var peekToken = scanner.lookAhead();
-        if ( mustBe(';', peekToken) ) {
+        if ( maybeValue(';', peekToken) ) {
             scanner.nextToken();
         } else {
             if ( match({type: TokenType.Terminator}, peekToken) || match({type: TokenType.Eof}, peekToken) ) {
