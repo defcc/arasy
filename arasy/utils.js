@@ -36,6 +36,18 @@ function maybeType( type, token ){
     return type == token.type;
 }
 
+function expectValue( value, token ){
+    if ( !value == token.value ) {
+        raiseError( token, 'Unexpected Token' );
+    }
+}
+
+function expectType( type, token ){
+    if ( !type == token.type ) {
+        raiseError( token, 'Unexpected Token' );
+    }
+}
+
 function mustBe( val, token, checkType ){
     return ( checkType ? token.type : token.value ) == val;
 }
