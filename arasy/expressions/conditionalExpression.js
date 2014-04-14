@@ -4,9 +4,9 @@ var conditionalOperatorParser = function ( expressionParser, left, token ) {
     };
     var conditionalOpPrecedence = getPrecedenceByToken( token );
     rs.left = left;
-    rs.consequentPart = expressionParser.parse( conditionalOpPrecedence );
+    rs.consequentPart = expressionParser.parse( conditionalOpPrecedence - 1 );
     expectValue(':', expressionParser.scanner.nextToken());
-    rs.alternate = expressionParser.parse( conditionalOpPrecedence );
+    rs.alternate = expressionParser.parse( conditionalOpPrecedence - 1 );
     return rs;
 };
 

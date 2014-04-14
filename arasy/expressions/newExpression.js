@@ -5,7 +5,8 @@ var newParser = function( expressionParser, token ){
     //check arguments;
     var argumentsParam = [];
     var leftParen = expressionParser.scanner.lookAhead();
-    if ( match({value: '('}, leftParen) ) {
+    if ( maybeValue('(', leftParen) ) {
+        expressionParser.scanner.nextToken();
         argumentsParam = argumentsParser( expressionParser );
     }
 
