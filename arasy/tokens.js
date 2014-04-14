@@ -118,8 +118,6 @@ var operator2ExpType = {
     '--': expressionTokenMap.decrementOperator,
     '~': expressionTokenMap.bitwisenotOperator,
     '!': expressionTokenMap.logicalnotOperator,
-    '+': expressionTokenMap.unaryOperator,
-    '-': expressionTokenMap.unaryOperator,
     '*': expressionTokenMap.mutliOperator,
     '/': expressionTokenMap.divOperator,
     '%': expressionTokenMap.modulusOperator,

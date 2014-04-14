@@ -60,7 +60,10 @@ registerInfixOperator(expressionTokenMap.subtractionOperator);
 registerInfixOperator(expressionTokenMap.dotOperator);
 registerInfixOperator(expressionTokenMap.bitwiseandOperator);
 registerInfixOperator(expressionTokenMap.bitwiseorOperator);
+registerInfixOperator(expressionTokenMap.bitwisexorOperator);
 registerInfixOperator(expressionTokenMap.bitwiseshiftOperator);
+
+registerInfixOperator(expressionTokenMap.modulusOperator);
 
 registerInfixOperator(expressionTokenMap.logicalandOperator);
 registerInfixOperator(expressionTokenMap.logicalorOperator);
