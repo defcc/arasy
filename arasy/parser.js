@@ -496,7 +496,14 @@ arasy.parse = function( source, opts ){
         // TODO return
         // check in the function scope;
 
+        if ( type == 'return' || type == 'throw' ) {
+            arasy.isRegexpAcceptable = 1;
+        }
         var peekNode = scanner.lookAhead();
+
+        if ( type == 'return' || type == 'throw' ) {
+            arasy.isRegexpAcceptable = 0;
+        }
 
         if ( type == 'return' ) {
 
