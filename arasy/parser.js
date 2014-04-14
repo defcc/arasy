@@ -99,6 +99,12 @@ arasy.parse = function( source, opts ){
                 expType = operator2ExpType[ token.value ];
             }
 
+            // 处理 s.function 的情况
+            if ( lastToken && maybeValue('.', lastToken) && token.value == 'function' ) {
+                token.type = TokenType.Identifier;
+                expType = tokenType2ExpType[ token.type ];
+            }
+
             //todo check context and lookup specialOperator2ExpType
             if ( maybeValue( '(', token ) ) {
                 if ( lastToken && (
