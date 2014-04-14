@@ -37,13 +37,13 @@ function maybeType( type, token ){
 }
 
 function expectValue( value, token ){
-    if ( !value == token.value ) {
+    if ( value != token.value ) {
         raiseError( token, 'Unexpected Token' );
     }
 }
 
 function expectType( type, token ){
-    if ( !type == token.type ) {
+    if ( type != token.type ) {
         raiseError( token, 'Unexpected Token' );
     }
 }
