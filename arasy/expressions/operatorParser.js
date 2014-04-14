@@ -46,6 +46,8 @@ registerPrefixOperator(expressionTokenMap.incrementOperator);
 registerPrefixOperator(expressionTokenMap.decrementOperator);
 registerPrefixOperator(expressionTokenMap.bitwisenotOperator);
 registerPrefixOperator(expressionTokenMap.logicalnotOperator);
+registerPrefixOperator(expressionTokenMap.additionOperator);
+registerPrefixOperator(expressionTokenMap.subtractionOperator);
 
 arasy.expressionParser.registerInfixParselet(expressionTokenMap.incrementOperator, postfixOperatorParser);
 arasy.expressionParser.registerInfixParselet(expressionTokenMap.decrementOperator, postfixOperatorParser);
