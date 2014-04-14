@@ -5,7 +5,7 @@ var conditionalOperatorParser = function ( expressionParser, left, token ) {
     var conditionalOpPrecedence = getPrecedenceByToken( token );
     rs.left = left;
     rs.consequentPart = expressionParser.parse( conditionalOpPrecedence );
-    mustBe(':', expressionParser.scanner.nextToken());
+    expectValue(':', expressionParser.scanner.nextToken());
     rs.alternate = expressionParser.parse( conditionalOpPrecedence );
     return rs;
 };

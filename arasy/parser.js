@@ -222,8 +222,8 @@ arasy.parse = function( source, opts ){
     // 12.12
     function parseLabelledStatements(){
         //Identifier : Statement
-        mustBe(TokenType.Identifier, scanner.nextToken(), 'type');
-        mustBe(':', scanner.nextToken());
+        expectType(TokenType.Identifier, scanner.nextToken());
+        expectValue(':', scanner.nextToken());
 
         var node = new Node('LabelledStatements');
         node.body = parseStatement();
@@ -236,7 +236,7 @@ arasy.parse = function( source, opts ){
         scanner.nextToken();
 
         var id = scanner.nextToken();
-        mustBe(TokenType.Identifier, id, 'type');
+        expectType(TokenType.Identifier, id);
         var params = paramsListParser( scanner );
         var body = parseBlock();
 
@@ -249,7 +249,7 @@ arasy.parse = function( source, opts ){
 
     function parseBlock(){
         var blockStatement = new Node('BlockStatement');
-        mustBe('{', scanner.nextToken());
+        expectValue('{', scanner.nextToken());
 
         isInBlockBody.push(1);
 
@@ -261,7 +261,7 @@ arasy.parse = function( source, opts ){
             blockStatement.body = parseSourceElement();
         }
 
-        mustBe('}', scanner.nextToken());
+        expectValue('}', scanner.nextToken());
 
         isInBlockBody.pop(1);
         return blockStatement;
@@ -281,9 +281,9 @@ arasy.parse = function( source, opts ){
     }
 
     function parseIfTestPart(){
-        mustBe( '(', scanner.nextToken() );
+        expectValue( '(', scanner.nextToken() );
         var expression = expressionParser.parse( 0, 'noComma' );
-        mustBe( ')', scanner.nextToken() );
+        expectValue( ')', scanner.nextToken() );
         return expression;
     }
     function parseIfBlockPart(){
@@ -308,7 +308,7 @@ arasy.parse = function( source, opts ){
         doWhileNode.body = parseIfBlockPart();
 
         var nextToken = scanner.nextToken();
-        mustBe( 'while', nextToken );
+        expectValue( 'while', nextToken );
 
         doWhileNode.test = parseIfTestPart();
 
@@ -323,11 +323,11 @@ arasy.parse = function( source, opts ){
         scanner.nextToken();
 
         // check (
-        mustBe('(', scanner.nextToken());
+        expectValue('(', scanner.nextToken());
 
         var object = expressionParser.parse( 0 );
 
-        mustBe(')', scanner.nextToken());
+        expectValue(')', scanner.nextToken());
 
         var body = parseStatements();
 
@@ -345,9 +345,9 @@ arasy.parse = function( source, opts ){
 
         var switchNode  = new Node('SwitchStatement');
 
-        mustBe('(', scanner.nextToken());
+        expectValue('(', scanner.nextToken());
         var exp = expressionParser.parse( 0 );
-        mustBe(')', scanner.nextToken());
+        expectValue(')', scanner.nextToken());
 
         switchNode.discriminant = exp;
         switchNode.cases = parseSwitchCases();
@@ -359,13 +359,13 @@ arasy.parse = function( source, opts ){
     }
 
     function parseSwitchCases(){
-        mustBe('{', scanner.nextToken());
+        expectValue('{', scanner.nextToken());
         var rs = [],
             item;
         while( item = parseSwitchCase() ){
             rs.push( item );
         }
-        mustBe('}', scanner.nextToken());
+        expectValue('}', scanner.nextToken());
 
         return rs;
     }
@@ -396,7 +396,7 @@ arasy.parse = function( source, opts ){
         }
 
         if ( caseType ) {
-            mustBe(':', scanner.nextToken());
+            expectValue(':', scanner.nextToken());
         }
         switchCase.consequent = parseStatements();
 
@@ -422,12 +422,12 @@ arasy.parse = function( source, opts ){
                 type: 'CatchClause'
             };
             // (
-            mustBe('(', scanner.nextToken());
+            expectValue('(', scanner.nextToken());
             handlers.id = scanner.nextToken();
-            mustBe(TokenType.Identifier, handlers.id.type);
+            expectType(TokenType.Identifier, handlers.id);
             // )
 
-            mustBe(')', scanner.nextToken());
+            expectValue(')', scanner.nextToken());
 
             handlers.block = parseBlock();
             node.handlers = handlers;
@@ -537,7 +537,7 @@ arasy.parse = function( source, opts ){
         var forNode = new Node('ForStatement');
 
         //for(var i = 0; i < 25; i++)
-        mustBe('(', scanner.nextToken());
+        expectValue('(', scanner.nextToken());
 
         //if the first token is var;
         var peekToken = scanner.lookAhead();
@@ -576,7 +576,7 @@ arasy.parse = function( source, opts ){
 
             var right = expressionParser.parse( 0 );
 
-            mustBe(')', scanner.nextToken());
+            expectValue(')', scanner.nextToken());
 
             var body = parseBlock();
 
@@ -589,7 +589,7 @@ arasy.parse = function( source, opts ){
         } else {
             // for
 
-            mustBe(';', scanner.nextToken());
+            expectValue(';', scanner.nextToken());
 
             peekToken = scanner.lookAhead();
 
@@ -599,7 +599,7 @@ arasy.parse = function( source, opts ){
                 test = null;
             } else {
                 test = expressionParser.parse( 0 );
-                mustBe(';', scanner.nextToken());
+                expectValue(';', scanner.nextToken());
             }
 
             //update
@@ -640,7 +640,7 @@ arasy.parse = function( source, opts ){
 
     function parseVariableStatement(){
         var variableStatement = new Node('variableDeclaration');
-        mustBe('var', scanner.nextToken());
+        expectValue('var', scanner.nextToken());
         variableStatement.declarations = parseVariableDeclarationList();
         consumeSemicolon();
         return variableStatement;

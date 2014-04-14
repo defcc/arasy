@@ -3,7 +3,7 @@
 var groupParser = function( expressionParser, token ){
     var groupExp = expressionParser.parse( getPrecedenceByToken( token ) );
     //TODO check rightParen is just ")"
-    mustBe(')', expressionParser.scanner.nextToken());
+    expectValue(')', expressionParser.scanner.nextToken());
     return groupExp;
 };
 
