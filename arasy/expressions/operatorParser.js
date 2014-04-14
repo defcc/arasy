@@ -1,5 +1,5 @@
 var prefixOperatorParser = function( expressionParser, token ){
-    var operand = expressionParser.parse( getPrecedenceByToken( token), 0, 0, 'prefix' );
+    var operand = expressionParser.parse( getPrecedenceByToken( token), 0, 0, 'regexpStart' );
     return {
         type: 'UnaryExpression',
         operator: token.value,
@@ -9,7 +9,7 @@ var prefixOperatorParser = function( expressionParser, token ){
 };
 
 var infixOperatorParser = function( expressionParser, left,  token ){
-    var operand = expressionParser.parse( getPrecedenceByToken( token ), 0, 0, 'prefix' );
+    var operand = expressionParser.parse( getPrecedenceByToken( token ), 0, 0, 'regexpStart' );
     return {
         type: 'BinaryExpression',
         operator: token.value,

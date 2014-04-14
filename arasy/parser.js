@@ -678,7 +678,7 @@ arasy.parse = function( source, opts ){
         var assign = match({value: '='}, peekToken);
         if( assign ){
             scanner.nextToken();
-            var init = parseExpressionStatement( 'noComma', noIn );
+            var init = parseExpressionStatement( 'noComma', noIn, 'regexpStart' );
             variableDeclarationNode.init = init;
         } else {
             variableDeclarationNode.init = null;
@@ -688,9 +688,9 @@ arasy.parse = function( source, opts ){
 
 
 
-    function parseExpressionStatement( noComma, noIn ){
+    function parseExpressionStatement( noComma, noIn, regexpStart ){
         var node = new Node('ExpressionStatement');
-        node.expressions = expressionParser.parse( 0, noComma, noIn );
+        node.expressions = expressionParser.parse( 0, noComma, noIn, regexpStart );
 
         var peekToken = scanner.lookAhead();
         if ( maybeValue(';', peekToken) ) {

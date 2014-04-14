@@ -7,13 +7,13 @@ arasy.expressionParser = function(){
         init: function( scanner ){
             this.scanner = scanner;
         },
-        parse: function( precedence, noComma, noIn, isPrefix ){
-            if ( isPrefix ) {
+        parse: function( precedence, noComma, noIn, regexpStart ){
+            if ( regexpStart ) {
                 arasy.isRegexpAcceptable = 1;
             }
 
             var token = this.scanner.nextToken();
-            if ( isPrefix ) {
+            if ( regexpStart ) {
                 arasy.isRegexpAcceptable = 0;
             }
             if ( token.type == 'eof' ) {
