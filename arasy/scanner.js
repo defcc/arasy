@@ -454,9 +454,7 @@ arasy.scanner = function( source ){
     }
 
     function identifier(){
-        var currentChr = next();
-
-        var identifierStr = currentChr;
+        var identifierStr = next();
         var type = TokenType.Identifier;
 
         tokenGenerator.start( TokenType.Identifier );
