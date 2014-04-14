@@ -9,7 +9,7 @@ var prefixOperatorParser = function( expressionParser, token ){
 };
 
 var infixOperatorParser = function( expressionParser, left,  token ){
-    var operand = expressionParser.parse( getPrecedenceByToken( token ) );
+    var operand = expressionParser.parse( getPrecedenceByToken( token ), 0, 0, 'prefix' );
     return {
         type: 'BinaryExpression',
         operator: token.value,
