@@ -2,15 +2,10 @@ window.arasy = {};
 
 arasy.parse = function( source, opts ){
 
-    var lastToken;
-    var currentToken;
-    var lookaheadToken;
-    var lookahead2Token;
     var expressionParser = arasy.expressionParser;
-    var lookaheadTokenConsumed = true;
-    var lookahead2TokenConsumed = true;
     var isInBlockBody = [];
     var isInSwitchCase = [];
+    var tokenizer;
 
     var scanner = getScanner( source, opts );
     arasy.expressionParser.init( scanner );
@@ -19,66 +14,62 @@ arasy.parse = function( source, opts ){
     return parseProgram();
 
     function getScanner( source, opts ){
-        var scanner = arasy.scanner( source );
+        tokenizer = arasy.scanner( source );
         return {
+            tokenList: [],
+            currentIdx: -1,
             nextToken: function(){
-                if ( lookaheadTokenConsumed && lookahead2TokenConsumed ) {
-                    currentToken = getNextToken( );
+                if ( this.currentIdx < this.tokenList.length - 1 ) {
+                    this.currentIdx++;
+                    return this.tokenList[ this.currentIdx ];
                 } else {
-                    if ( !lookaheadTokenConsumed ) {
-                        currentToken = lookaheadToken;
-                        lookaheadTokenConsumed = true;
-                    } else if ( !lookahead2TokenConsumed ) {
-                        currentToken = lookahead2Token;
-                        lookahead2TokenConsumed = true;
-                    }
-
+                    var token = this.fillToken();
+                    this.currentIdx++;
+                    return token;
                 }
-                lastToken = currentToken;
-                return currentToken;
+            },
+            fillToken: function(){
+                var currentToken = this.tokenList[ this.tokenList.length - 1 ];
+                var token = getNextToken( currentToken );
+                this.tokenList.push( token );
+                return token;
             },
             lookAhead: function(){
-                if ( !lookaheadTokenConsumed ) {
-                    return lookaheadToken;
+                if ( this.currentIdx + 1 <= this.tokenList.length -1 ) {
+                    return this.tokenList[ this.currentIdx + 1 ];
                 } else {
-                    var token = getNextToken( );
-                    lookaheadToken = token;
-                    lookaheadTokenConsumed = false;
-                    return token;
+                    return this.fillToken();
                 }
             },
             lookAhead2: function(){
-                if ( !lookahead2TokenConsumed ) {
-                    return lookahead2Token;
-                } else {
-                    this.lookAhead();
-                    var token = getNextToken();
-                    lookahead2Token = token;
-                    lookahead2TokenConsumed = false;
-                    return token;
+                if ( this.currentIdx + 2 > this.tokenList.length -1 ) {
+                    this.fillToken();
+                    this.fillToken();
                 }
+                return this.tokenList[ this.currentIdx + 2 ];
             },
             retract: function(){
-                lookaheadTokenConsumed = false;
-                lookaheadToken = currentToken;
+                this.currentIdx = this.currentIdx - 1;
+                return this.tokenList[ this.currentIdx ];
             }
+
         };
 
-        function getNextToken( ){
+        function getNextToken( lastToken ){
             var afterTerminal = 0;
-            var token = scanner.nextToken();
+            var token = tokenizer.nextToken();
             while ( match({type: TokenType.Terminator}, token)
                 || ( match({type: TokenType.Comment}, token) )
                 ) {
-                token = scanner.nextToken();
+                token = tokenizer.nextToken();
                 afterTerminal = 1;
             }
             if ( afterTerminal ) {
                 token.afterTerminal = 1;
             }
-            return adjustExpressionType( token );
+            return adjustExpressionType( token, lastToken );
         }
-        function adjustExpressionType( token ){
+        function adjustExpressionType( token, lastToken ){
             var expType;
 
             if ( tokenType2ExpType.hasOwnProperty( token.type ) ) {
@@ -94,7 +85,13 @@ arasy.parse = function( source, opts ){
 
             //todo check context and lookup specialOperator2ExpType
             if ( maybeValue( '(', token ) ) {
-                if ( lastToken && lastToken.type == TokenType.Identifier ) {
+                if ( lastToken && (
+                     maybeType( TokenType.Identifier, lastToken  )
+                    || maybeValue( ')', lastToken )
+                    || maybeValue( '}', lastToken )
+                    || maybeValue( ']', lastToken )
+                    )
+                ) {
                     expType = specialOperator2ExpType['('].call;
                 } else {
                     expType = specialOperator2ExpType['('].group;
@@ -116,10 +113,10 @@ arasy.parse = function( source, opts ){
     function parseSourceElement(){
         var peekToken = scanner.lookAhead();
         if( peekToken.type == TokenType.Eof ){
-            return;
+            return [];
         }
         if( isInBlockBody.length && maybeValue('}', peekToken) ){
-            return;
+            return [];
         }
 
         return parseStatements();
