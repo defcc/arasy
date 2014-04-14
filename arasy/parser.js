@@ -606,7 +606,8 @@ arasy.parse = function( source, opts ){
 
             expectValue(')', scanner.nextToken());
 
-            var body = parseBlock();
+
+            var body = parseIfBlockPart();
 
             forInNode.left = left;
             forInNode.right = right;
