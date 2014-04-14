@@ -141,9 +141,9 @@ arasy.parse = function( source, opts ){
     }
 
     function parseStatement(){
-        arasy.isStatementStart = 1;
+        arasy.isRegexpAcceptable = 1;
         var peekToken = scanner.lookAhead();
-        arasy.isStatementStart = 0;
+        arasy.isRegexpAcceptable = 0;
 
         if( peekToken.type == TokenType.Eof ){
             return;

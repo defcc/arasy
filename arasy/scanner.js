@@ -154,7 +154,7 @@ arasy.scanner = function( source ){
     }
 
     function isRegexpStart( chr ){
-        if ( chr == '/' &&  arasy.isStatementStart ) {
+        if ( chr == '/' &&  arasy.isRegexpAcceptable ) {
             return 1;
         }
         return 0;

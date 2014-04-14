@@ -1,5 +1,5 @@
 var prefixOperatorParser = function( expressionParser, token ){
-    var operand = expressionParser.parse( getPrecedenceByToken( token) );
+    var operand = expressionParser.parse( getPrecedenceByToken( token), 0, 0, 'prefix' );
     return {
         type: 'UnaryExpression',
         operator: token.value,
