@@ -12,6 +12,8 @@ a++/a/i; // divide
 
 var s = function(){}/i/i; // divide
 
+1,/2/,3; // comma 后面是 regexp
+
 // statement start
 if(a)/a/i // regexp
 
