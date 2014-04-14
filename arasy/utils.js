@@ -48,10 +48,6 @@ function expectType( type, token ){
     }
 }
 
-function mustBe( val, token, checkType ){
-    return ( checkType ? token.type : token.value ) == val;
-}
-
 function match( obj, token ){
     var typeRs = valueRs = 1;
     if( obj.type && obj.type != token.type ){
