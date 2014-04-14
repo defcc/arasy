@@ -693,7 +693,7 @@ arasy.parse = function( source, opts ){
         node.expressions = expressionParser.parse( 0, noComma, noIn, regexpStart );
 
         var peekToken = scanner.lookAhead();
-        if ( maybeValue(';', peekToken) ) {
+        if ( maybeValue(';', peekToken) && !noIn ) {
             scanner.nextToken();
         } else {
             if ( match({type: TokenType.Terminator}, peekToken) || match({type: TokenType.Eof}, peekToken) ) {
