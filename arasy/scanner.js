@@ -103,15 +103,15 @@ arasy.scanner = function( source ){
     }
 
     function peek( pos ){
-        return source.charAt( index+ (pos || 1) );
+        return source.charCodeAt( index+ (pos || 1) );
     }
     function peekAt( pos ){
-        return source.charAt( pos );
+        return source.charCodeAt( pos );
     }
 
     function next(){
         index++;
-        return source.charAt( index );
+        return source.charCodeAt( index );
     }
     function retract(){
         index--;
@@ -129,7 +129,7 @@ arasy.scanner = function( source ){
         var peekChr = peekAt( idx + 1 );
 
         //.12
-        if ( chr == '.' ) {
+        if ( chr == 46/*'.'*/ ) {
             return isNumber( peekChr );
         }
 
@@ -137,47 +137,55 @@ arasy.scanner = function( source ){
     }
 
     function isNumber( chr, nonZero ){
-        if ( !/[0-9]/.test( chr ) ) {
+        // 0 - 9: charcode:  48 ~ 57
+        if ( chr < 48 || chr > 57 ) {
             return false;
         }
-        var min = nonZero ? 1 : 0;
-        return chr >= min && chr <= 9;
+        var min = nonZero ? 49 : 48;
+        return chr >= min && chr <= 57;
     }
 
     function isExponentIndicator( chr ){
-        return chr == 'e' || chr == 'E';
+        // e: 101 || E: 69
+        return chr == 101 || chr == 69;
     }
 
     function isHexDigit( chr ){
-        var hexDigitMap = makeMap('0123456789abcdefABCDEF', '');
-        return hexDigitMap.hasOwnProperty( chr );
+        // 0 - 9: 48 ~ 57
+        // a - f: 97 ~ 102
+        // A - F: 65 ~ 70
+
+        return chr >= 48 && chr <= 57
+             || ( chr >= 65 && chr <= 70  )
+             || ( chr >= 97 && chr <= 102  )
     }
 
     function isRegexpStart( chr ){
-        if ( chr == '/' &&  arasy.isRegexpAcceptable ) {
-            return 1;
-        }
-        return 0;
+        // / charCode: 47
+        return  chr == 47 &&  arasy.isRegexpAcceptable;
     }
 
     function isCommentStart( chr, idx ){
+        // charCode: 47 , *: 42
         var peekChr = peekAt( idx + 1 );
-        return chr == '/' && (peekChr == '/' || peekChr == '*');
+        return chr == 47 && (peekChr == 47 || peekChr == 42);
     }
 
     function isStringStart( chr ) {
-        return chr == '\'' || chr == '"';
+        // ': 39, ": 34
+        return chr == 39 || chr == 34;
     }
     function isPunctuatorStart( chr, idx ){
+        // \: 92, u: 117
         var peekChr = peekAt( idx + 1 );
-        if ( chr == '\\' && peekChr == 'u' ) {
+        if ( chr == 92 && peekChr == 117 ) {
             //identifier todo 检测后面是四个数字，否则raise error
             return false;
         }
-        return operatorMap[chr];
+        return operatorMap[getChr(chr)];
     }
     function isTerminator( chr ){
-        return chr.charCodeAt(0) == 10;
+        return chr == 10;
     }
     function isWhiteSpace( chr ){
         var whiteSpaceMap = {
@@ -187,11 +195,11 @@ arasy.scanner = function( source ){
             '2008':1,'2009':1,'200A':1,'202F':1,
             '205F':1,'3000':1,'9':1
         };
-        return whiteSpaceMap[chr.charCodeAt(0).toString(16)];
+        return whiteSpaceMap[chr.toString(16)];
     }
 
     function isEscape( chr ){
-        return chr == '\\';
+        return chr == 92;
     }
 
     function isIdentifierStart( chr, idx ){
@@ -233,12 +241,12 @@ arasy.scanner = function( source ){
         next_chr = peek();
         //0x为16进制
         //否则以0开始的为8进制,todo 在strict mode下8进制的数字字面量会报错
-        if ( currentChr == 0 && next_chr == 'x' || next_chr == 'X' ) {
-            numericVal = '0' + next_chr;
+        if ( currentChr == 48/*0*/ && next_chr == 120/*'x'*/ || next_chr == 88/*'X'*/ ) {
+            numericVal = '0' + getChr(next_chr);
             next();
             while ( currentChr = next() ) {
                 if ( isHexDigit( currentChr ) ) {
-                    numericVal += currentChr;
+                    numericVal += getChr(currentChr);
                 } else {
                     retract();
                     break;
@@ -246,11 +254,11 @@ arasy.scanner = function( source ){
             }
         } else {
             while( currentChr ){
-                if( currentChr == '.' && !dotExists){
+                if( currentChr == 46/*'.'*/ && !dotExists){
                     next_chrOne = peek();
                     if( isNumber( next_chrOne ) || isExponentIndicator(next_chrOne) ){
                         dotExists = 1;
-                        numericVal += currentChr ;
+                        numericVal += getChr(currentChr) ;
                     }else{
                         retract();
                         break;
@@ -261,15 +269,15 @@ arasy.scanner = function( source ){
                     //e+1
                     //e-1
                     next_chr = peek();
-                    if( isNumber( next_chr ) || next_chr == '+' || next_chr == '-' ){
+                    if( isNumber( next_chr ) || next_chr == 43/*'+'*/ || next_chr == 45/*'-'*/ ){
                         eExists = 1;
-                        numericVal += currentChr + next();
+                        numericVal += getChr(currentChr) + getChr(next());
                     }else{
                         retract();
                         break;
                     }
                 }else if( isNumber( currentChr ) ){
-                    numericVal += currentChr;
+                    numericVal += getChr(currentChr);
                 }else {
                     retract();
                     break;
@@ -296,7 +304,7 @@ arasy.scanner = function( source ){
         }
 
         var chr = '';
-        var stringVal = startString;
+        var stringVal = getChr(startString);
         tokenGenerator.start( TokenType.String );
 
         if( extVal && startString == string_quote ){
@@ -315,9 +323,9 @@ arasy.scanner = function( source ){
                     if( isTerminator( peek() ) ){
                         newLine();
                     }
-                    stringVal += chr + next();
+                    stringVal += getChr(chr) + getChr(next());
                 }else{
-                    stringVal += chr;
+                    stringVal += getChr(chr);
                     //如果是字符串结束符
                     if( chr == string_quote ){
                         break;
@@ -333,7 +341,7 @@ arasy.scanner = function( source ){
 
     function comment(){
         var currentChr = next();
-        var commentStr = currentChr;
+        var commentStr = getChr(currentChr);
 
         var extVal = 0;
         var nextChr = peek();
@@ -344,7 +352,7 @@ arasy.scanner = function( source ){
             currentCommentType =  window.initStateInfo.extVal;
             extVal = 1;
         }else{
-            if ( nextChr == '*' ) {
+            if ( nextChr == 42/*'*'*/ ) {
                 currentCommentType = commentType.MultiLineComment;
             } else {
                 currentCommentType = commentType.SingleLineComment;
@@ -353,7 +361,7 @@ arasy.scanner = function( source ){
 
         tokenGenerator.start( TokenType.Comment );
 
-        commentStr += next();
+        commentStr += getChr(next());
 
         var chr;
         if( currentCommentType == commentType.SingleLineComment ){
@@ -362,13 +370,13 @@ arasy.scanner = function( source ){
                     retract();
                     break;
                 }
-                commentStr += chr;
+                commentStr += getChr(chr);
             }
         }else{
             while(chr = next()){
                 nextChr = peek();
 
-                if( chr == '*' && nextChr == '/' ){
+                if( chr == 42/*'*'*/ && nextChr == 47/*'/'*/ ){
                     next();
                     commentStr += '*/';
                     break;
@@ -376,7 +384,7 @@ arasy.scanner = function( source ){
                 if( isTerminator( chr ) ){
                     newLine();
                 }
-                commentStr += chr;
+                commentStr += getChr(chr);
             }
         }
         tokenGenerator.end( commentStr );
@@ -390,7 +398,7 @@ arasy.scanner = function( source ){
          '[' => 91, ']' => 93
          */
         var chr = next();
-        var regexpStr = chr;
+        var regexpStr = getChr(chr);
 
 
         var isInClass = 0;
@@ -404,19 +412,19 @@ arasy.scanner = function( source ){
                 newLine();
             }
 
-            regexpStr += chr;
+            regexpStr += getChr(chr);
 
-            if( chr == '[' ){
+            if( chr == 91/*'['*/ ){
                 isInClass = 1;
             }
-            if( chr == ']' ){
+            if( chr == 93/*']'*/ ){
                 isInClass = 0;
             }
             // 转义的\
-            if( chr == '\\' ){
-                regexpStr += next();
+            if( chr == 92/*'\\'*/ ){
+                regexpStr += getChr(next());
             }
-            if( !isInClass && chr == '/' ){
+            if( !isInClass && chr == 47/*/*/ ){
                 //如果match到最后的/，那么
                 break;
             }
@@ -436,17 +444,18 @@ arasy.scanner = function( source ){
 
     function punctuator(){
         var currentChr = next();
-        var punctuatorStr = currentChr;
+        var punctuatorStr = getChr(currentChr);
 
 
         tokenGenerator.start( TokenType.Punctuator );
 
         while( currentChr = next() ){
-            if( !operatorMap[ punctuatorStr + currentChr ] ){
+            var currentStr = getChr(currentChr);
+            if( !operatorMap[ punctuatorStr + currentStr ] ){
                 retract();
                 break;
             } else {
-                punctuatorStr += currentChr;
+                punctuatorStr += currentStr;
             }
         }
 
@@ -455,7 +464,7 @@ arasy.scanner = function( source ){
     }
 
     function identifier(){
-        var identifierStr = next();
+        var identifierStr = getChr(next());
         var type = TokenType.Identifier;
 
         tokenGenerator.start( TokenType.Identifier );
@@ -480,9 +489,13 @@ arasy.scanner = function( source ){
                 retract();
                 break;
             }
-            rs += currentChr;
+            rs += getChr(currentChr);
         }
         return rs;
+    }
+
+    function getChr( charCode ){
+        return String.fromCharCode( charCode );
     }
 
     function terminator(){
