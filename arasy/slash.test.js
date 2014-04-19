@@ -28,5 +28,5 @@ function t(){}/i/i; // regexp
 
 // 结论
 // 对于statement解析。在statement开始时碰到的 / 为 regexp
-// 对于在expression 中碰到的。如果是 前缀 表达式，那么 / 为 regexp，否则为 divide
+// 对于在expression 中碰到的。如果是 表达式，那么 / 为 regexp，否则为 divide
 // 对于 comma, 在其后面的为 regexp
