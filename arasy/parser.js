@@ -29,6 +29,9 @@ arasy.parse = function( source, opts ){
                         // check the token
                         token = this.fillToken();
                     }
+                    if ( maybeValue('(', token) && arasy.isRegexpAcceptable ) {
+                        token.expType =  specialOperator2ExpType['('].group;
+                    }
                     return token;
                 } else {
                     var token = this.fillToken();
@@ -51,6 +54,9 @@ arasy.parse = function( source, opts ){
                         tokenizer.setCursor( lastToken && lastToken.end );
                         // check the token
                         token = this.fillToken();
+                    }
+                    if ( maybeValue('(', token) && arasy.isRegexpAcceptable ) {
+                        token.expType =  specialOperator2ExpType['('].group;
                     }
                     return token;
                 } else {
