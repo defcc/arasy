@@ -105,8 +105,8 @@ arasy.parse = function( source, opts ){
                 expType = operator2ExpType[ token.value ];
             }
 
-            // 处理 s.function 的情况
-            if ( lastToken && maybeValue('.', lastToken) && token.value == 'function' ) {
+            // 处理 .Keywords 的情况
+            if ( lastToken && maybeValue('.', lastToken) && token.type == TokenType.Keywords ) {
                 token.type = TokenType.Identifier;
                 expType = tokenType2ExpType[ token.type ];
             }
@@ -309,7 +309,7 @@ arasy.parse = function( source, opts ){
 
     function parseIfTestPart(){
         expectValue( '(', scanner.nextToken() );
-        var expression = expressionParser.parse( 0, 'noComma' );
+        var expression = expressionParser.parse( 0, 'noComma', 0, 'regexpStart' );
         expectValue( ')', scanner.nextToken() );
         return expression;
     }
