@@ -464,6 +464,7 @@ arasy.parse = function( source, opts ){
         peekToken = scanner.lookAhead();
 
         if ( maybeValue('finally', peekToken) ) {
+            scanner.nextToken();
             node.finalizer = parseBlock();
             finallyPart = 1;
         }
