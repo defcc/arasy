@@ -649,7 +649,7 @@ arasy.parse = function( source, opts ){
                 scanner.nextToken();
             }
 
-            var body = parseBlock();
+            var body = parseIfBlockPart();
 
             forNode.init = init;
             forNode.test = test;
