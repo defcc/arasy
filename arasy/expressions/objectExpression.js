@@ -44,7 +44,7 @@ var objectExpressionParser = function( expressionParser, token ){
         //consume :
         expressionParser.scanner.nextToken();
 
-        rs.value = expressionParser.parse(10, 0, 0, 'regexpStart');
+        rs.value = expressionParser.parse(10, 1, 0, 'regexpStart');
         rs.kind = "init";
 
         return rs;

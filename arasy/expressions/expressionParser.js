@@ -42,7 +42,7 @@ arasy.expressionParser = function(){
                     this.scanner.retract();
                     break;
                 }
-                left = infixParser( this, left, token );
+                left = infixParser( this, left, token, noComma );
             }
             return left;
         },
