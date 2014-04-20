@@ -187,14 +187,10 @@ arasy.scanner = function( source ){
         return chr == 10;
     }
     function isWhiteSpace( chr ){
-        var whiteSpaceMap = {
-            32:1,160:1,5760:1,6158:1,
-            8192:1, 8193:1, 8194:1, 8195:1,
-            8196:1, 8197:1,8198:1,'81999':1,
-            8200:1,8201:1,8202:1,8239:1,
-            8287:1,12288:1,9:1
-        };
-        return whiteSpaceMap[chr];
+        // see http://jsperf.com/mapindex/2
+        if( chr < 8192 ) return chr == 9 || chr  == 32 || chr == 160 || chr == 5760 || chr == 6158;
+        if( chr <  8203) return 1;
+        return chr == 8239 || chr == 8287 || chr == 12288;
     }
 
     function isEscape( chr ){
