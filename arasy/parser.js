@@ -165,85 +165,49 @@ arasy.parse = function( source, opts ){
         var peekToken = scanner.lookAhead();
         arasy.isRegexpAcceptable = 0;
 
+        var val = peekToken.value;
+
         if( peekToken.type == TokenType.Eof ){
             return;
         }
 
-        if( isInBlockBody.length && maybeValue('}', peekToken) ){
+        if( isInBlockBody.length && val == '}' ){
             return;
         }
 
         if ( isInSwitchCase.length &&
-            ( match({value: 'case'}, peekToken) || match({value: 'default'}, peekToken) )
+            ( val == 'case' || val == 'default' )
            ) {
             return;
         }
 
-        if( maybeValue('{', peekToken) ){
-            return parseBlock();
-        }else{
-            if( maybeValue('var', peekToken) ){
-                return parseVariableStatement()
-            }
-            if( maybeValue(';', peekToken) ){
-                return parseEmptyStatement();
-            }
-            if( maybeValue('if', peekToken) ){
-                return parseIfStatement();
-            }
-
-            if( maybeValue('do', peekToken) ){
-                return parseDoWhileStatement();
-            }
-            if( maybeValue('while', peekToken) ){
-                return parseWhileStatement();
-            }
-            if( maybeValue('for', peekToken) ){
-                return parseForStatement();
-            }
-            if( maybeValue('continue', peekToken) ){
-                return parseSimpleStatement('continue');
-            }
-
-            if( maybeValue('break', peekToken) ){
-                return parseSimpleStatement('break');
-            }
-            if( maybeValue('return', peekToken) ){
-                return parseSimpleStatement('return');
-            }
-            if( maybeValue('throw', peekToken) ){
-                return parseSimpleStatement('throw');
-            }
-            if( maybeValue('with', peekToken) ){
-                return parseWithStatement();
-            }
-
-            if( maybeValue('switch', peekToken) ){
-                return parseSwitchStatement();
-            }
-
-            if( maybeValue('debugger', peekToken) ){
-                return parseSimpleStatement('debugger');
-            }
-
-            if ( maybeValue('try', peekToken) ) {
-                return parseTryStatement();
-            }
-
-            if ( maybeValue('function', peekToken) ) {
-                return parseFunctionDeclaration();
-            }
 
 
-            var peek2Token = scanner.lookAhead2();
-            if ( match({type: TokenType.Identifier}, peekToken)
-                && maybeValue(':', peek2Token)
-                ) {
-                return parseLabelledStatements();
-            }
+        if ( val == 'function' ) return parseFunctionDeclaration();
+        if ( val == '{' ) return parseBlock();
+        if ( val == 'switch' ) return parseSwitchStatement();
+        if ( val == 'if' ) return parseIfStatement();
+        if ( val == 'do' ) return parseDoWhileStatement();
+        if ( val == 'var' ) return parseVariableStatement();
+        if ( val == 'for' ) return parseForStatement();
+        if ( val == 'try' ) return parseTryStatement();
+        if ( val == 'while' ) return parseWhileStatement( );
+        if ( val == ';' ) return parseEmptyStatement();
+        if ( val == 'break' ) return parseSimpleStatement( 'break' );
+        if ( val == 'return' ) return parseSimpleStatement( 'return' );
+        if ( val == 'throw' ) return parseSimpleStatement( 'throw' );
+        if ( val == 'with' ) return parseWithStatement( 'with' );
+        if ( val == 'continue' ) return parseSimpleStatement('continue');
+        if ( val == 'debugger' ) return parseSimpleStatement('debugger');
 
-            return parseExpressionStatement();
+        var peek2Token = scanner.lookAhead2();
+        if ( match({type: TokenType.Identifier}, peekToken)
+            && maybeValue(':', peek2Token)
+            ) {
+            return parseLabelledStatements();
         }
+
+        return parseExpressionStatement();
     }
 
     // 12.12
