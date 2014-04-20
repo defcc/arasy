@@ -180,7 +180,6 @@ arasy.scanner = function( source ){
         return isPunctuator(getChr(chr), chr);
     }
     function isTerminator( chr ){
-        newLine();
         return chr == 10;
     }
     function isWhiteSpace( chr ){
@@ -541,6 +540,7 @@ arasy.scanner = function( source ){
         tokenGenerator.start( TokenType.Terminator );
         next();
         tokenGenerator.end( '\n' );
+        newLine();
         return tokenGenerator.getToken();
     }
 };
