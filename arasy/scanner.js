@@ -181,10 +181,6 @@ arasy.scanner = function( source ){
     function isPunctuatorStart( chr, idx ){
         // \: 92, u: 117
         var peekChr = peekAt( idx + 1 );
-        if ( chr == 92 && peekChr == 117 ) {
-            //identifier todo 检测后面是四个数字，否则raise error
-            return false;
-        }
         return operatorMap[getChr(chr)];
     }
     function isTerminator( chr ){
