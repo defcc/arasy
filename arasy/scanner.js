@@ -1,5 +1,14 @@
 arasy.scanner = function( source ){
 
+
+    window.ID_NUM = 0;
+    window.Number_NUM = 0;
+    window.String_NUM = 0;
+    window.Comment_NUM = 0;
+    window.Regexp_NUM = 0;
+    window.Punctuator_NUM = 0;
+    window.Terminator_NUM = 0;
+
     var index = -1;
     var sourceLen = source.length;
     var lineNum = 0;
@@ -70,23 +79,31 @@ arasy.scanner = function( source ){
         return action();
     }
 
+
     function action(){
         var chr = peek();
         var peekPos = index + 1;
 
         if ( isIdentifierStart( chr ) ) {
+            window.ID_NUM++;
             return identifier();
         } else if ( isNumericStart( chr, peekPos ) ) {
+            window.Number_NUM++;
             return numeric();
-        } else if ( isStringStart( chr ) ) {
-            return string();
         } else if ( isCommentStart( chr, peekPos ) ) {
+            window.Comment_NUM++;
             return comment();
-        } else if ( isRegexpStart( chr ) ) {
-            return regexp();
         } else if ( isPunctuatorStart( chr, peekPos ) ) {
+            window.Punctuator_NUM++;
             return punctuator();
+        } else if ( isStringStart( chr ) ) {
+            window.String_NUM++;
+            return string();
+        } else if ( isRegexpStart( chr ) ) {
+            window.Regexp_NUM++;
+            return regexp();
         } else if( isTerminator( chr ) ){
+            window.Terminator_NUM++;
             return terminator();
         }
     }
