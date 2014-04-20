@@ -181,6 +181,7 @@ arasy.scanner = function( source ){
         return isPunctuator(getChr(chr), chr);
     }
     function isTerminator( chr ){
+        newLine();
         return chr == 10;
     }
     function isWhiteSpace( chr ){
