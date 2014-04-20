@@ -177,10 +177,8 @@ arasy.scanner = function( source ){
         // ': 39, ": 34
         return chr == 39 || chr == 34;
     }
-    function isPunctuatorStart( chr, idx ){
-        // \: 92, u: 117
-        var peekChr = peekAt( idx + 1 );
-        return isPunctuator(getChr(chr));
+    function isPunctuatorStart( chr ){
+        return isPunctuator(getChr(chr), chr);
     }
     function isTerminator( chr ){
         return chr == 10;
@@ -196,33 +194,17 @@ arasy.scanner = function( source ){
         return chr == 92;
     }
 
-    function isPunctuator( chr ){
+    function isPunctuator( chr, code ){
         var chrLen = chr.length;
         if ( chrLen == 1) {
-            return chr == '{'
-                || chr == '}'
-                || chr == '('
-                || chr == ')'
-                || chr == '['
-                || chr == ']'
-                || chr == '.'
-                || chr == ';'
-                || chr == ','
-                || chr == '<'
-                || chr == '>'
-                || chr == '+'
-                || chr == '-'
-                || chr == '*'
-                || chr == '%'
-                || chr == '/'
-                || chr == '&'
-                || chr == '|'
-                || chr == '^'
-                || chr == '!'
-                || chr == '~'
-                || chr == '?'
-                || chr == ':'
-                || chr == '='
+            if ( code < 40 ) return code == 33 || code == 37 || code == 38;
+            if ( code < 48 ) return 1;
+            if ( code < 58 ) return 0;
+            if ( code < 64 ) return 1;
+            if ( code < 91 ) return 0;
+            if ( code < 95 ) return code == 91 || code == 93 || code == 94;
+            if ( code < 123 ) return 0;
+            return code < 127;
         } else if ( chrLen == 2 ) {
             return chr == '<='
                 || chr == '>='
