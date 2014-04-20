@@ -93,15 +93,15 @@ arasy.scanner = function( source ){
         } else if ( isCommentStart( chr, peekPos ) ) {
             window.Comment_NUM++;
             return comment();
+        } else if ( isRegexpStart( chr ) ) {
+            window.Regexp_NUM++;
+            return regexp();
         } else if ( isPunctuatorStart( chr, peekPos ) ) {
             window.Punctuator_NUM++;
             return punctuator();
         } else if ( isStringStart( chr ) ) {
             window.String_NUM++;
             return string();
-        } else if ( isRegexpStart( chr ) ) {
-            window.Regexp_NUM++;
-            return regexp();
         } else if( isTerminator( chr ) ){
             window.Terminator_NUM++;
             return terminator();
