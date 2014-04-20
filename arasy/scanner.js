@@ -141,11 +141,10 @@ arasy.scanner = function( source ){
 
     function isNumber( chr, nonZero ){
         // 0 - 9: charcode:  48 ~ 57
-        if ( chr < 48 || chr > 57 ) {
-            return false;
-        }
         var min = nonZero ? 49 : 48;
-        return chr >= min && chr <= 57;
+        if ( chr < min ) return 0;
+        if ( chr > 57 ) return 0;
+        return 1;
     }
 
     function isExponentIndicator( chr ){
