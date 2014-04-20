@@ -93,22 +93,34 @@ arasy.parse = function( source, opts ){
         }
         function adjustExpressionType( token, lastToken ){
             var expType;
+            var tokenType = token.type;
+            var tokenVal = token.value;
 
-            if ( tokenType2ExpType.hasOwnProperty( token.type ) ) {
-                expType = tokenType2ExpType[ token.type ];
+
+            if ( tokenType != TokenType.Keywords
+                && tokenType != TokenType.Punctuator ) {
+                expType = expressionTokenMap.singleToken;
             }
 
-            if ( keywords2ExpType.hasOwnProperty( token.value ) ) {
-                expType = keywords2ExpType[ token.value ];
+            if ( tokenVal == 'new'
+                || tokenVal == 'this'
+                || tokenVal == 'function'
+                || tokenVal == 'typeof'
+                || tokenVal == 'delete'
+                || tokenVal == 'void'
+                || tokenVal == 'in'
+                || tokenVal == 'instanceof'
+                ) {
+                expType = keywords2ExpType[ tokenVal ];
             }
-            if ( operator2ExpType.hasOwnProperty( token.value ) ) {
+            if ( tokenType == TokenType.Punctuator && operator2ExpType[token.value] ) {
                 expType = operator2ExpType[ token.value ];
             }
 
             // 处理 .Keywords 的情况
             if ( lastToken && maybeValue('.', lastToken) && token.type == TokenType.Keywords ) {
                 token.type = TokenType.Identifier;
-                expType = tokenType2ExpType[ token.type ];
+                expType = expressionTokenMap.singleToken;
             }
 
             //todo check context and lookup specialOperator2ExpType
