@@ -22,7 +22,7 @@ arasy.parse = function( source, opts ){
                 if ( this.currentIdx < this.tokenList.length - 1 ) {
                     this.currentIdx++;
                     var token = this.tokenList[ this.currentIdx ];
-                    if ( token.value == '/' && this.lookAhead().type != TokenType.Eof ) {
+                    if ( token.value == '/' ) {
                         this.tokenList.splice( this.currentIdx );
                         var lastToken = this.tokenList[ this.tokenList.length - 1 ];
                         tokenizer.setCursor( lastToken && lastToken.end );

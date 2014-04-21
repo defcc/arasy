@@ -66,7 +66,14 @@ arasy.scanner = function( source ){
         if ( eof() ) {
             return tokenGenerator.getToken( TokenType.Eof );
         }
-        return action();
+        var token = action();
+        if ( token.value != '/' ) {
+            return token;
+        } else if ( eof() ) {
+            raiseError( token, 'unexpected end' );
+        } else {
+            return token;
+        }
     }
 
 
