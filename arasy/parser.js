@@ -23,8 +23,8 @@ arasy.parse = function( source, opts ){
                     this.currentIdx++;
                     var token = this.tokenList[ this.currentIdx ];
                     if ( token.value == '/' ) {
-                        this.tokenList.splice( this.currentIdx );
-                        var lastToken = this.tokenList[ this.tokenList.length - 1 ];
+                        this.tokenList.length = this.currentIdx;
+                        var lastToken = this.tokenList[ this.currentIdx - 1 ];
                         tokenizer.setCursor( lastToken && lastToken.end );
                         // check the token
                         token = this.fillToken();
@@ -49,8 +49,9 @@ arasy.parse = function( source, opts ){
                 if ( this.currentIdx + 1 <= this.tokenList.length -1 ) {
                     var token = this.tokenList[ this.currentIdx + 1 ];
                     if ( token.value == '/' ) {
-                        this.tokenList.splice( this.currentIdx + 1 );
-                        var lastToken = this.tokenList[ this.tokenList.length - 1 ];
+                        this.tokenList.length = this.currentIdx + 1;
+                        var lastToken = this.tokenList[ this.currentIdx ];
+
                         tokenizer.setCursor( lastToken && lastToken.end );
                         // check the token
                         token = this.fillToken();
