@@ -80,9 +80,9 @@ arasy.parse = function( source, opts ){
         function getNextToken( lastToken ){
             var afterTerminal = 0;
             var token = tokenizer.nextToken();
-            var tokenType = token.type;
-
-            while ( tokenType == TokenType.Terminator || tokenType == TokenType.Comment ) {
+            while ( match({type: TokenType.Terminator}, token)
+                || ( match({type: TokenType.Comment}, token) )
+                ) {
                 token = tokenizer.nextToken();
                 afterTerminal = 1;
             }
@@ -213,9 +213,9 @@ arasy.parse = function( source, opts ){
         if ( val == 'debugger' ) return parseSimpleStatement('debugger');
 
         var peek2Token = scanner.lookAhead2();
-        var peek2TokenValue = peek2Token.value;
-        var peekTokenType = peekToken.type;
-        if ( peekTokenType == TokenType.Identifier && peek2TokenValue == ':' ) {
+        if ( match({type: TokenType.Identifier}, peekToken)
+            && maybeValue(':', peek2Token)
+            ) {
             return parseLabelledStatements();
         }
 
@@ -290,7 +290,7 @@ arasy.parse = function( source, opts ){
         return expression;
     }
     function parseIfBlockPart(){
-        if ( scanner.lookAhead().value == '{' ) {
+        if ( match({value: '{'}, scanner.lookAhead()) ) {
             return parseBlock();
         } else {
             return parseStatement();
@@ -380,13 +380,12 @@ arasy.parse = function( source, opts ){
         var switchCase = new Node('SwitchCase');
 
         var nextToken = scanner.nextToken();
-        var nextTokenValue = nextToken.value;
         var caseType;
-        if ( nextTokenValue == 'case' ) {
+        if ( match({value: 'case'}, nextToken) ) {
             caseType = 'CaseClause';
-        } else if( nextTokenValue == 'default' ) {
+        } else if( match({value: 'default'}, nextToken) ) {
             caseType = 'DefaultClause';
-        } else if( nextTokenValue == '}' ) {
+        } else if( match({value: '}'}, nextToken) ) {
             scanner.retract();
             return false;
         } else {
