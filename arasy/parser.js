@@ -22,14 +22,14 @@ arasy.parse = function( source, opts ){
                 if ( this.currentIdx < this.tokenList.length - 1 ) {
                     this.currentIdx++;
                     var token = this.tokenList[ this.currentIdx ];
-                    if ( maybeValue('/', token) && !maybeType(TokenType.Eof, this.lookAhead()) ) {
+                    if ( token.value == '/' && this.lookAhead().type != TokenType.Eof ) {
                         this.tokenList.splice( this.currentIdx );
                         var lastToken = this.tokenList[ this.tokenList.length - 1 ];
                         tokenizer.setCursor( lastToken && lastToken.end );
                         // check the token
                         token = this.fillToken();
                     }
-                    if ( maybeValue('(', token) && arasy.isRegexpAcceptable ) {
+                    if ( token.value == '(' && arasy.isRegexpAcceptable ) {
                         token.expType =  specialOperator2ExpType['('].group;
                     }
                     return token;
@@ -48,14 +48,14 @@ arasy.parse = function( source, opts ){
             lookAhead: function(){
                 if ( this.currentIdx + 1 <= this.tokenList.length -1 ) {
                     var token = this.tokenList[ this.currentIdx + 1 ];
-                    if ( maybeValue('/', token) ) {
+                    if ( token.value == '/' ) {
                         this.tokenList.splice( this.currentIdx + 1 );
                         var lastToken = this.tokenList[ this.tokenList.length - 1 ];
                         tokenizer.setCursor( lastToken && lastToken.end );
                         // check the token
                         token = this.fillToken();
                     }
-                    if ( maybeValue('(', token) && arasy.isRegexpAcceptable ) {
+                    if ( token.value == '(' && arasy.isRegexpAcceptable ) {
                         token.expType =  specialOperator2ExpType['('].group;
                     }
                     return token;
@@ -96,6 +96,12 @@ arasy.parse = function( source, opts ){
             var tokenType = token.type;
             var tokenVal = token.value;
 
+            var lastTokenVal, lastTokenType;
+
+            if ( lastToken ) {
+                lastTokenVal = lastToken.value;
+                lastTokenType = lastToken.type;
+            }
 
             if ( tokenType != TokenType.Keywords
                 && tokenType != TokenType.Punctuator ) {
@@ -113,23 +119,23 @@ arasy.parse = function( source, opts ){
                 ) {
                 expType = keywords2ExpType[ tokenVal ];
             }
-            if ( tokenType == TokenType.Punctuator && operator2ExpType[token.value] ) {
-                expType = operator2ExpType[ token.value ];
+            if ( tokenType == TokenType.Punctuator && operator2ExpType[tokenVal] ) {
+                expType = operator2ExpType[ tokenVal ];
             }
 
             // 处理 .Keywords 的情况
-            if ( lastToken && maybeValue('.', lastToken) && token.type == TokenType.Keywords ) {
+            if ( lastToken && lastTokenVal == '.' && tokenType == TokenType.Keywords ) {
                 token.type = TokenType.Identifier;
                 expType = expressionTokenMap.singleToken;
             }
 
             //todo check context and lookup specialOperator2ExpType
-            if ( maybeValue( '(', token ) ) {
+            if ( tokenVal == '(' ) {
                 if ( lastToken && (
-                     maybeType( TokenType.Identifier, lastToken  )
-                    || maybeValue( ')', lastToken )
-                    || maybeValue( '}', lastToken )
-                    || maybeValue( ']', lastToken )
+                    lastTokenType == TokenType.Identifier
+                    || lastTokenVal == ')'
+                    || lastTokenVal == '}'
+                    || lastTokenVal == ']'
                     )
                 ) {
                     expType = specialOperator2ExpType['('].call;
@@ -155,7 +161,7 @@ arasy.parse = function( source, opts ){
         if( peekToken.type == TokenType.Eof ){
             return [];
         }
-        if( isInBlockBody.length && maybeValue('}', peekToken) ){
+        if( isInBlockBody.length && peekToken.value == '}' ){
             return [];
         }
 
@@ -258,7 +264,7 @@ arasy.parse = function( source, opts ){
 
         var peekToken = scanner.lookAhead();
 
-        if ( maybeValue('}', peekToken) ) {
+        if ( peekToken.value == '}' ) {
             blockStatement.body = {};
         } else {
             blockStatement.body = parseSourceElement();
@@ -420,7 +426,7 @@ arasy.parse = function( source, opts ){
 
         var peekToken = scanner.lookAhead();
 
-        if ( maybeValue('catch', peekToken) ) {
+        if ( peekToken.value == 'catch' ) {
             scanner.nextToken();
             var handlers = {
                 type: 'CatchClause'
@@ -440,7 +446,7 @@ arasy.parse = function( source, opts ){
 
         peekToken = scanner.lookAhead();
 
-        if ( maybeValue('finally', peekToken) ) {
+        if ( peekToken.value == 'finally' ) {
             scanner.nextToken();
             node.finalizer = parseBlock();
             finallyPart = 1;
