@@ -80,10 +80,10 @@ arasy.parse = function( source, opts ){
         function getNextToken( lastToken ){
             var afterTerminal = 0;
             var token = tokenizer.nextToken();
-            while ( match({type: TokenType.Terminator}, token)
-                || ( match({type: TokenType.Comment}, token) )
-                ) {
+            var tokenType = token.type;
+            while ( tokenType == TokenType.Terminator || tokenType == TokenType.Comment ) {
                 token = tokenizer.nextToken();
+                tokenType = token.type;
                 afterTerminal = 1;
             }
             if ( afterTerminal ) {
@@ -213,9 +213,9 @@ arasy.parse = function( source, opts ){
         if ( val == 'debugger' ) return parseSimpleStatement('debugger');
 
         var peek2Token = scanner.lookAhead2();
-        if ( match({type: TokenType.Identifier}, peekToken)
-            && maybeValue(':', peek2Token)
-            ) {
+        var peelTokenType = peekToken.type;
+        var peek2TokenValue = peek2Token.value;
+        if ( peelTokenType == TokenType.Identifier && peek2TokenValue == ':' ) {
             return parseLabelledStatements();
         }
 
