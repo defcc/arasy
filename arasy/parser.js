@@ -80,9 +80,9 @@ arasy.parse = function( source, opts ){
         function getNextToken( lastToken ){
             var afterTerminal = 0;
             var token = tokenizer.nextToken();
-            while ( match({type: TokenType.Terminator}, token)
-                || ( match({type: TokenType.Comment}, token) )
-                ) {
+            var tokenType = token.type;
+
+            while ( tokenType == TokenType.Terminator || tokenType == TokenType.Comment ) {
                 token = tokenizer.nextToken();
                 afterTerminal = 1;
             }
@@ -213,9 +213,9 @@ arasy.parse = function( source, opts ){
         if ( val == 'debugger' ) return parseSimpleStatement('debugger');
 
         var peek2Token = scanner.lookAhead2();
-        if ( match({type: TokenType.Identifier}, peekToken)
-            && maybeValue(':', peek2Token)
-            ) {
+        var peek2TokenValue = peek2Token.value;
+        var peekTokenType = peekToken.type;
+        if ( peekTokenType == TokenType.Identifier && peek2TokenValue == ':' ) {
             return parseLabelledStatements();
         }
 
@@ -290,7 +290,7 @@ arasy.parse = function( source, opts ){
         return expression;
     }
     function parseIfBlockPart(){
-        if ( match({value: '{'}, scanner.lookAhead()) ) {
+        if ( scanner.lookAhead().value == '{' ) {
             return parseBlock();
         } else {
             return parseStatement();
@@ -380,12 +380,13 @@ arasy.parse = function( source, opts ){
         var switchCase = new Node('SwitchCase');
 
         var nextToken = scanner.nextToken();
+        var nextTokenValue = nextToken.value;
         var caseType;
-        if ( match({value: 'case'}, nextToken) ) {
+        if ( nextTokenValue == 'case' ) {
             caseType = 'CaseClause';
-        } else if( match({value: 'default'}, nextToken) ) {
+        } else if( nextTokenValue == 'default' ) {
             caseType = 'DefaultClause';
-        } else if( match({value: '}'}, nextToken) ) {
+        } else if( nextTokenValue == '}' ) {
             scanner.retract();
             return false;
         } else {
