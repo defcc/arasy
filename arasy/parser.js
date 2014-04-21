@@ -290,7 +290,7 @@ arasy.parse = function( source, opts ){
         return expression;
     }
     function parseIfBlockPart(){
-        if ( match({value: '{'}, scanner.lookAhead()) ) {
+        if ( scanner.lookAhead().value == '{' ) {
             return parseBlock();
         } else {
             return parseStatement();
@@ -380,12 +380,13 @@ arasy.parse = function( source, opts ){
         var switchCase = new Node('SwitchCase');
 
         var nextToken = scanner.nextToken();
+        var nextTokenVal = nextToken.value;
         var caseType;
-        if ( match({value: 'case'}, nextToken) ) {
+        if ( nextTokenVal == 'case' ) {
             caseType = 'CaseClause';
-        } else if( match({value: 'default'}, nextToken) ) {
+        } else if( nextTokenVal == 'default' ) {
             caseType = 'DefaultClause';
-        } else if( match({value: '}'}, nextToken) ) {
+        } else if( nextTokenVal == '}' ) {
             scanner.retract();
             return false;
         } else {
@@ -483,6 +484,8 @@ arasy.parse = function( source, opts ){
             arasy.isRegexpAcceptable = 1;
         }
         var peekNode = scanner.lookAhead();
+        var peekNodeVal = peekNode.value;
+        var peekNodeType = peekNode.type;
 
         if ( type == 'return' || type == 'throw' ) {
             arasy.isRegexpAcceptable = 0;
@@ -490,7 +493,7 @@ arasy.parse = function( source, opts ){
 
         if ( type == 'return' ) {
 
-            if ( match({value: ';'}, peekNode) ) {
+            if ( peekNodeVal == ';' ) {
                 scanner.nextToken();
             } else {
                 extraData = expressionParser.parse( 0 );
@@ -506,9 +509,9 @@ arasy.parse = function( source, opts ){
         } else if ( type == 'debugger' ) {
 
             // TODO scanner 对 terminator 的处理
-            if ( ! match({ value: ';' }, peekNode)
-                && ! match({ type: TokenType.Eof }, peekNode)
-                && ! match({ type: TokenType.Terminator }, peekNode)
+            if ( peekNodeVal != ';'
+                && peekNodeType != TokenType.Eof
+                && peekNodeType != TokenType.Terminator
                 ) {
                 raiseError( peekNode, 'debugger 语句解析错误' );
             }
@@ -516,7 +519,7 @@ arasy.parse = function( source, opts ){
         } else {
 
             // continue break
-            if ( match({type: TokenType.Identifier}, peekNode) ) {
+            if ( peekNodeType == TokenType.Identifier ) {
                 scanner.nextToken();
                 extraData = peekNode;
             }
@@ -552,15 +555,16 @@ arasy.parse = function( source, opts ){
 
         //if the first token is var;
         var peekToken = scanner.lookAhead();
+        var peekTokenValue = peekToken.value;
 
         var init;
         var initType;
 
-        if ( match({value: 'var'}, peekToken) ) {
+        if ( peekTokenValue == 'var' ) {
             scanner.nextToken();
             init = parseVariableDeclarationList( 1 );
             initType = 'VariableDeclaration';
-        } else if ( match({value: ';'}, peekToken) ) {
+        } else if ( peekTokenValue == ';' ) {
             init = null;
         } else {
             init = expressionParser.parse( 0, 0, 1 );
@@ -568,9 +572,10 @@ arasy.parse = function( source, opts ){
         }
 
         peekToken = scanner.lookAhead();
+        peekTokenValue = peekToken.value;
 
         //check if it is for in statement
-        if ( maybeValue('in', peekToken ) ) {
+        if ( peekTokenValue == 'in' ) {
             // for in
             var forInNode = new Node('ForInStatement');
             var left = init;
@@ -604,9 +609,10 @@ arasy.parse = function( source, opts ){
             expectValue(';', scanner.nextToken());
 
             peekToken = scanner.lookAhead();
+            var peekTokenVal = peekToken.value;
 
             var test;
-            if ( match({value: ';'}, peekToken) ) {
+            if ( peekTokenVal == ';' ) {
                 scanner.nextToken();
                 test = null;
             } else {
@@ -615,8 +621,8 @@ arasy.parse = function( source, opts ){
             }
 
             //update
-            peekToken = scanner.lookAhead();
-            if ( maybeValue(')', scanner.lookAhead()) ){
+            var update;
+            if ( scanner.lookAhead().value == ')' ){
                 scanner.nextToken();
                 update = null;
             } else {
@@ -639,7 +645,7 @@ arasy.parse = function( source, opts ){
 
     function consumeSemicolon(){
         var nextToken = scanner.lookAhead();
-        if ( match({value: ';'}, nextToken) ) {
+        if ( nextToken.value == ';' ) {
             scanner.nextToken();
         } else {
             if ( !nextToken.afterTerminal && !nextToken.type == TokenType.Eof ) {
@@ -665,7 +671,7 @@ arasy.parse = function( source, opts ){
             rs.push( item );
 
             var nextToken = scanner.lookAhead();
-            if(!match({type: TokenType.Punctuator, value: ','}, nextToken)){
+            if( nextToken.type != TokenType.Punctuator || nextToken.value != ','){
                 break;
             }else{
                 scanner.nextToken();
@@ -676,12 +682,15 @@ arasy.parse = function( source, opts ){
 
     function parseVariableDeclaration( noIn ){
         var variableDeclarationNode = new Node('VariableDeclarator');
-        var ID = match( {type: TokenType.Identifier}, scanner.nextToken() );
+        var ID;
+        var nextToken = scanner.nextToken();
+        if ( nextToken.type == TokenType.Identifier ) {
+            ID = nextToken;
+        }
         variableDeclarationNode.id = ID;
 
         var peekToken = scanner.lookAhead();
-        var assign = match({value: '='}, peekToken);
-        if( assign ){
+        if( peekToken.value == '=' ){
             scanner.nextToken();
             var init = parseExpressionStatement( 'noComma', noIn, 'regexpStart' );
             variableDeclarationNode.init = init;
@@ -698,10 +707,12 @@ arasy.parse = function( source, opts ){
         node.expressions = expressionParser.parse( 0, noComma, noIn, regexpStart );
 
         var peekToken = scanner.lookAhead();
-        if ( maybeValue(';', peekToken) && !noIn ) {
+        var peekTokenVal = peekToken.value;
+        if ( peekTokenVal == ';' && !noIn ) {
             scanner.nextToken();
         } else {
-            if ( match({type: TokenType.Terminator}, peekToken) || match({type: TokenType.Eof}, peekToken) ) {
+            var peekTokenType = peekToken.type;
+            if ( peekTokenType == TokenType.Terminator || peekTokenType == TokenType.Eof ) {
                 scanner.nextToken();
             }
         }
