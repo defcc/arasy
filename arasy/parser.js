@@ -465,15 +465,19 @@ arasy.parse = function( source, opts ){
 
     // continue break return  throw
     function parseSimpleStatement( type ){
-        var statement = {
-            'continue': 'ContinueStatement',
-            'break': 'BreakStatement',
-            'return': 'ReturnStatement',
-            'throw': 'ThrowStatement',
-            'debugger': 'DebuggerStatement'
-        };
+        var targetNode;
+        if ( type == 'return' ) {
+            targetNode = new Node( 'ReturnStatement' );
+        } else if( type == 'break' ){
+            targetNode = new Node( 'BreakStatement' );
+        } else if ( type == 'continue' ){
+            targetNode = new Node( 'ContinueStatement' );
+        } else if ( type == 'throw' ){
+            targetNode = new Node( 'ThrowStatement' );
+        } else {
+            targetNode = new Node( 'DebuggerStatement' );
+        }
 
-        var targetNode = new Node( statement[ type ] );
         var extraData = null;
 
         scanner.nextToken();
