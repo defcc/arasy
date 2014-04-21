@@ -23,10 +23,6 @@ var functionParser = function( expressionParser, token ){
         params: params,
         body: functionBody
     };
-
-    function blockParser(){
-
-    }
 };
 
 arasy.expressionParser.registerPrefixParselet(expressionTokenMap.functionExpressionStart, functionParser);
