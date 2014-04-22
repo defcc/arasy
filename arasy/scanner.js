@@ -371,12 +371,6 @@ arasy.scanner = function( source ){
         if( window.initStateInfo && window.initStateInfo.extVal ){
             currentCommentType =  window.initStateInfo.extVal;
             extVal = 1;
-        }else{
-            if ( nextChr == 42/*'*'*/ ) {
-                currentCommentType = commentType.MultiLineComment;
-            } else {
-                currentCommentType = commentType.SingleLineComment;
-            }
         }
 
         tokenGenerator.start( TokenType.Comment );
@@ -384,7 +378,7 @@ arasy.scanner = function( source ){
         commentStr += getChr(next());
 
         var chr;
-        if( currentCommentType == commentType.SingleLineComment ){
+        if( nextChr == 47 ){
             while(chr = next()){
                 if( isTerminator( chr ) ){
                     retract();
