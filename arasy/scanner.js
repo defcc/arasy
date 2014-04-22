@@ -89,7 +89,7 @@ arasy.scanner = function( source ){
             return comment();
         } else if ( isRegexpStart( chr ) ) {
             return regexp();
-        } else if ( isPunctuatorStart( chr, peekPos ) ) {
+        } else if ( isPunctuatorStart( chr ) ) {
             return punctuator();
         } else if ( isStringStart( chr ) ) {
             return string();
