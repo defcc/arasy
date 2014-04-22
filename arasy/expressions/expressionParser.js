@@ -27,12 +27,13 @@ arasy.expressionParser = function(){
 
             while ( precedence < this.getPrecedence() ) {
                 var token = this.scanner.nextToken();
-                if ( noComma && match({value: ','}, token) ) {
+                var tokenVal = token.value;
+                if ( noComma && tokenVal == ',' ) {
                     this.scanner.retract();
                     break;
                 }
 
-                if ( noIn && match({value: 'in'}, token) ) {
+                if ( noIn && tokenVal == 'in' ) {
                     this.scanner.retract();
                     break;
                 }

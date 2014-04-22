@@ -32,9 +32,7 @@ function maybeValue( val, token ){
     return val == token.value;
 }
 
-function maybeType( type, token ){
-    return type == token.type;
-}
+
 
 function expectValue( value, token ){
     if ( value != token.value ) {
@@ -46,18 +44,6 @@ function expectType( type, token ){
     if ( type != token.type ) {
         raiseError( token, 'Unexpected Token' );
     }
-}
-
-function match( obj, token ){
-    var typeRs = valueRs = 1;
-    if( obj.type && obj.type != token.type ){
-        typeRs = 0;
-    }
-    if( obj.value && obj.value != token.value ){
-        valueRs = 0;
-    }
-
-    return typeRs == 1 && valueRs == 1 ? token : false;
 }
 
 function raiseError( errorToken, msg ){
