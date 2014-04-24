@@ -377,30 +377,16 @@ arasy.scanner = function( source ){
 
         commentStr += getChr(next());
 
-        var chr;
-        if( nextChr == 47 ){
-            while(chr = next()){
-                if( isTerminator( chr ) ){
-                    retract();
-                    break;
-                }
-                commentStr += getChr(chr);
-            }
-        }else{
-            while(chr = next()){
-                nextChr = peek();
+        var endNeedle = nextChr == 47 ? '\n' : '*/';
+        var endChrIdx = source.indexOf( endNeedle, index );
+        endChrIdx < 0 && ( endChrIdx = sourceLen );
 
-                if( chr == 42/*'*'*/ && nextChr == 47/*'/'*/ ){
-                    next();
-                    commentStr += '*/';
-                    break;
-                }
-                if( isTerminator( chr ) ){
-                    newLine();
-                }
-                commentStr += getChr(chr);
-            }
-        }
+        commentStr += source.substring( index + 1, endChrIdx + ( nextChr == 47 ? 0 : 2 ) );
+
+        index = endChrIdx + ( nextChr == 47 ? 0 : 1 );
+
+        //todo mutli comment update line num
+
         tokenGenerator.end( commentStr );
 
         return tokenGenerator.getToken();
