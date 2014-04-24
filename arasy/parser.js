@@ -292,7 +292,7 @@ arasy.parse = function( source, opts ){
 
     function parseIfTestPart(){
         expectValue( '(', scanner.nextToken() );
-        var expression = expressionParser.parse( 0, 'noComma', 0, 'regexpStart' );
+        var expression = expressionParser.parse( 0, 0, 0, 'regexpStart' );
         expectValue( ')', scanner.nextToken() );
         return expression;
     }
