@@ -162,10 +162,12 @@ arasy.scanner = function( source ){
         // 0 - 9: 48 ~ 57
         // a - f: 97 ~ 102
         // A - F: 65 ~ 70
-
-        return chr >= 48 && chr <= 57
-             || ( chr >= 65 && chr <= 70  )
-             || ( chr >= 97 && chr <= 102  )
+        if ( chr < 48 ) return 0;
+        if ( chr < 58 ) return 1;
+        if ( chr < 65 ) return 0;
+        if ( chr < 71 ) return 1;
+        if ( chr < 97 ) return 0;
+        if ( chr < 103 ) return 1;
     }
 
     function isRegexpStart( chr ){
