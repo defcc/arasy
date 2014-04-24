@@ -186,7 +186,7 @@ arasy.scanner = function( source ){
         return chr == 39 || chr == 34;
     }
     function isPunctuatorStart( chr ){
-        return isPunctuator(getChr(chr), chr);
+        return isSinglePunctuator(chr);
     }
     function isTerminator( chr ){
         return chr == 10;
@@ -202,18 +202,20 @@ arasy.scanner = function( source ){
         return chr == 92;
     }
 
+    function isSinglePunctuator( code ){
+        if ( code < 40 ) return code == 33 || code == 37 || code == 38;
+        if ( code < 48 ) return 1;
+        if ( code < 58 ) return 0;
+        if ( code < 64 ) return 1;
+        if ( code < 91 ) return 0;
+        if ( code < 95 ) return code == 91 || code == 93 || code == 94;
+        if ( code < 123 ) return 0;
+        return code < 127;
+    }
+
     function isPunctuator( chr, code ){
         var chrLen = chr.length;
-        if ( chrLen == 1) {
-            if ( code < 40 ) return code == 33 || code == 37 || code == 38;
-            if ( code < 48 ) return 1;
-            if ( code < 58 ) return 0;
-            if ( code < 64 ) return 1;
-            if ( code < 91 ) return 0;
-            if ( code < 95 ) return code == 91 || code == 93 || code == 94;
-            if ( code < 123 ) return 0;
-            return code < 127;
-        } else if ( chrLen == 2 ) {
+        if ( chrLen == 2 ) {
             return chr == '<='
                 || chr == '>='
                 || chr == '=='
@@ -452,21 +454,21 @@ arasy.scanner = function( source ){
 
         //test 1
         var peekChr = peek();
-        if ( isPunctuator( '1', peekChr ) ) {
+        if ( isSinglePunctuator( peekChr ) ) {
             if ( isPunctuator(punctuatorStr + getChr( peekChr )) ) {
                 punctuatorStr += getChr( peekChr );
                 next();
                 // test 2
                 var peekChr2 = peek();
-                if ( isPunctuator( '1', peekChr2 ) ) {
+                if ( isSinglePunctuator( peekChr2 ) ) {
                     if ( isPunctuator(punctuatorStr + getChr( peekChr2 )) ) {
                         punctuatorStr += getChr( peekChr2 );
                         next();
 
                         // test 3
-                        if ( currentChr == peekChr == peekChr2 ) {
+                        if ( currentChr == peekChr == peekChr2 == 62 ) {
                             var peekChr3 = peek();
-                            if ( isPunctuator(punctuatorStr + getChr( peekChr3 )) ) {
+                            if ( peekChr3 == 61 ) {
                                 punctuatorStr += getChr( peekChr3 );
                                 next();
                             }
