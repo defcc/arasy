@@ -355,7 +355,6 @@ arasy.scanner = function( source ){
         }
 
         tokenGenerator.end( stringVal );
-
         return tokenGenerator.getToken();
     }
 
@@ -449,13 +448,29 @@ arasy.scanner = function( source ){
 
         tokenGenerator.start( TokenType.Punctuator );
 
-        while( currentChr = next() ){
-            var currentStr = getChr(currentChr);
-            if( !isPunctuator(punctuatorStr + currentStr) ){
-                retract();
-                break;
-            } else {
-                punctuatorStr += currentStr;
+        //test 1
+        var peekChr = peek();
+        if ( isPunctuator( '1', peekChr ) ) {
+            if ( isPunctuator(punctuatorStr + getChr( peekChr )) ) {
+                punctuatorStr += getChr( peekChr );
+                next();
+                // test 2
+                var peekChr2 = peek();
+                if ( isPunctuator( '1', peekChr2 ) ) {
+                    if ( isPunctuator(punctuatorStr + getChr( peekChr2 )) ) {
+                        punctuatorStr += getChr( peekChr2 );
+                        next();
+
+                        // test 3
+                        if ( currentChr == peekChr == peekChr2 ) {
+                            var peekChr3 = peek();
+                            if ( isPunctuator(punctuatorStr + getChr( peekChr3 )) ) {
+                                punctuatorStr += getChr( peekChr3 );
+                                next();
+                            }
+                        }
+                    }
+                }
             }
         }
 
