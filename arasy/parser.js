@@ -104,9 +104,9 @@ arasy.parse = function( source, opts ){
                 lastTokenType = lastToken.type;
             }
 
-            if ( tokenType != TokenType.Keywords
-                && tokenType != TokenType.Punctuator ) {
-                expType = expressionTokenMap.singleToken;
+            // 如果是简单token，就直接return;
+            if ( token.expType == expressionTokenMap.singleToken ) {
+                return token;
             }
 
             if ( tokenVal == 'new'

@@ -33,13 +33,22 @@ arasy.scanner = function( source ){
             return this;
         },
         getToken: function( type ){
+            var type = type || this.type;
             if ( type == TokenType.Eof ) {
                 return {
                     type: TokenType.Eof
                 }
             }
+            var expType;
+            if ( type != TokenType.Keywords
+                && type != TokenType.Punctuator ) {
+                expType = expressionTokenMap.singleToken;
+            } else {
+                expType = '';
+            }
             return {
-                type: type || this.type,
+                type: type,
+                expType: expType,
                 value: this.value,
                 start: this.startIndex,
                 end: this.endIndex,
