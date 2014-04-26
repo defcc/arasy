@@ -24,23 +24,24 @@ arasy.expressionParser = function(){
                 raiseError(token);
             }
             var left = prefixParser( this, token );
+            var scanner = this.scanner;
 
             while ( precedence < this.getPrecedence() ) {
-                var token = this.scanner.nextToken();
+                var token = scanner.nextToken();
                 var tokenVal = token.value;
                 if ( noComma && tokenVal == ',' ) {
-                    this.scanner.retract();
+                    scanner.retract();
                     break;
                 }
 
                 if ( noIn && tokenVal == 'in' ) {
-                    this.scanner.retract();
+                    scanner.retract();
                     break;
                 }
 
                 var infixParser = infixParselet[ token.expType ];
                 if ( !infixParser ) {
-                    this.scanner.retract();
+                    scanner.retract();
                     break;
                 }
                 left = infixParser( this, left, token, noComma );
