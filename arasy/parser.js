@@ -27,12 +27,9 @@ arasy.parse = function( source, opts ){
                         tokenList.length = this.currentIdx;
                         var lastToken = tokenList[ this.currentIdx - 1 ];
                         tokenizer.setCursor( lastToken && lastToken.end );
-                        // check the token
                         token = this.fillToken();
                     }
-                    if ( token.value == '(' && arasy.isRegexpAcceptable ) {
-                        token.expType =  specialOperator2ExpType['('].group;
-                    }
+                    parenTypeCheck( token );
                     return token;
                 } else {
                     var token = this.fillToken();
@@ -44,9 +41,7 @@ arasy.parse = function( source, opts ){
                 var tokenList = this.tokenList;
                 var currentToken = tokenList[ tokenList.length - 1 ];
                 var token = getNextToken( currentToken );
-                if ( token.value == '(' && arasy.isRegexpAcceptable ) {
-                    token.expType =  specialOperator2ExpType['('].group;
-                }
+                parenTypeCheck( token );
                 tokenList.push( token );
                 return token;
             },
@@ -57,14 +52,10 @@ arasy.parse = function( source, opts ){
                     if ( token.value == '/' ) {
                         tokenList.length = this.currentIdx + 1;
                         var lastToken = tokenList[ this.currentIdx ];
-
                         tokenizer.setCursor( lastToken && lastToken.end );
-                        // check the token
                         token = this.fillToken();
                     }
-                    if ( token.value == '(' && arasy.isRegexpAcceptable ) {
-                        token.expType =  specialOperator2ExpType['('].group;
-                    }
+                    parenTypeCheck( token );
                     return token;
                 } else {
                     return this.fillToken();
@@ -84,6 +75,12 @@ arasy.parse = function( source, opts ){
             }
 
         };
+
+        function parenTypeCheck( token ){
+            if ( token.value == '(' && arasy.isRegexpAcceptable ) {
+                token.expType =  specialOperator2ExpType['('].group;
+            }
+        }
 
         function getNextToken( lastToken ){
             var afterTerminal = 0;
