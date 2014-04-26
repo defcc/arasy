@@ -213,7 +213,7 @@ arasy.scanner = function( source ){
         return code < 127;
     }
 
-    function isPunctuator( chr, code ){
+    function isPunctuator( chr ){
         var chrLen = chr.length;
         if ( chrLen == 2 ) {
             return chr == '<='
