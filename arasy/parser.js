@@ -44,6 +44,9 @@ arasy.parse = function( source, opts ){
                 var tokenList = this.tokenList;
                 var currentToken = tokenList[ tokenList.length - 1 ];
                 var token = getNextToken( currentToken );
+                if ( token.value == '(' && arasy.isRegexpAcceptable ) {
+                    token.expType =  specialOperator2ExpType['('].group;
+                }
                 tokenList.push( token );
                 return token;
             },
@@ -101,11 +104,10 @@ arasy.parse = function( source, opts ){
             var tokenType = token.type;
             var tokenVal = token.value;
 
-            var lastTokenVal, lastTokenType;
+            var lastTokenVal;
 
             if ( lastToken ) {
                 lastTokenVal = lastToken.value;
-                lastTokenType = lastToken.type;
             }
 
             // 如果是简单token，就直接return;
@@ -132,21 +134,6 @@ arasy.parse = function( source, opts ){
             if ( lastToken && lastTokenVal == '.' && tokenType == TokenType.Keywords ) {
                 token.type = TokenType.Identifier;
                 expType = expressionTokenMap.singleToken;
-            }
-
-            //todo check context and lookup specialOperator2ExpType
-            if ( tokenVal == '(' ) {
-                if ( lastToken && (
-                    lastTokenType == TokenType.Identifier
-                    || lastTokenVal == ')'
-                    || lastTokenVal == '}'
-                    || lastTokenVal == ']'
-                    )
-                ) {
-                    expType = specialOperator2ExpType['('].call;
-                } else {
-                    expType = specialOperator2ExpType['('].group;
-                }
             }
 
             token.expType = expType;
@@ -631,7 +618,7 @@ arasy.parse = function( source, opts ){
                 scanner.nextToken();
                 test = null;
             } else {
-                test = expressionParser.parse( 0 );
+                test = expressionParser.parse( 0, 0, 0, 'regexpStart' );
                 expectValue(';', scanner.nextToken());
             }
 
@@ -641,7 +628,7 @@ arasy.parse = function( source, opts ){
                 scanner.nextToken();
                 update = null;
             } else {
-                update = expressionParser.parse( 0 );
+                update = expressionParser.parse( 0, 0, 0, 'regexpStart'  );
 
                 // 剩下的 )
                 scanner.nextToken();

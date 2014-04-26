@@ -1,7 +1,7 @@
 //parse a[b]
 var memberExpressionParser = function( expressionParser, left, token ){
 
-    var propertyArg = expressionParser.parse(0);
+    var propertyArg = expressionParser.parse(0, 0, 0, 'regexpStart');
 
     expressionParser.scanner.nextToken();
 
