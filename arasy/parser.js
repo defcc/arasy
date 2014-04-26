@@ -19,12 +19,13 @@ arasy.parse = function( source, opts ){
             tokenList: [],
             currentIdx: -1,
             nextToken: function(){
-                if ( this.currentIdx < this.tokenList.length - 1 ) {
+                var tokenList = this.tokenList;
+                if ( this.currentIdx < tokenList.length - 1 ) {
                     this.currentIdx++;
-                    var token = this.tokenList[ this.currentIdx ];
+                    var token = tokenList[ this.currentIdx ];
                     if ( token.value == '/' ) {
-                        this.tokenList.length = this.currentIdx;
-                        var lastToken = this.tokenList[ this.currentIdx - 1 ];
+                        tokenList.length = this.currentIdx;
+                        var lastToken = tokenList[ this.currentIdx - 1 ];
                         tokenizer.setCursor( lastToken && lastToken.end );
                         // check the token
                         token = this.fillToken();
@@ -40,17 +41,19 @@ arasy.parse = function( source, opts ){
                 }
             },
             fillToken: function(){
-                var currentToken = this.tokenList[ this.tokenList.length - 1 ];
+                var tokenList = this.tokenList;
+                var currentToken = tokenList[ tokenList.length - 1 ];
                 var token = getNextToken( currentToken );
-                this.tokenList.push( token );
+                tokenList.push( token );
                 return token;
             },
             lookAhead: function(){
-                if ( this.currentIdx + 1 <= this.tokenList.length -1 ) {
-                    var token = this.tokenList[ this.currentIdx + 1 ];
+                var tokenList = this.tokenList;
+                if ( this.currentIdx + 1 <= tokenList.length -1 ) {
+                    var token = tokenList[ this.currentIdx + 1 ];
                     if ( token.value == '/' ) {
-                        this.tokenList.length = this.currentIdx + 1;
-                        var lastToken = this.tokenList[ this.currentIdx ];
+                        tokenList.length = this.currentIdx + 1;
+                        var lastToken = tokenList[ this.currentIdx ];
 
                         tokenizer.setCursor( lastToken && lastToken.end );
                         // check the token
@@ -65,11 +68,12 @@ arasy.parse = function( source, opts ){
                 }
             },
             lookAhead2: function(){
-                if ( this.currentIdx + 2 > this.tokenList.length -1 ) {
+                var tokenList = this.tokenList;
+                if ( this.currentIdx + 2 > tokenList.length -1 ) {
                     this.fillToken();
                     this.fillToken();
                 }
-                return this.tokenList[ this.currentIdx + 2 ];
+                return tokenList[ this.currentIdx + 2 ];
             },
             retract: function(){
                 this.currentIdx = this.currentIdx - 1;
