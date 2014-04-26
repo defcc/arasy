@@ -41,8 +41,10 @@ arasy.parse = function( source, opts ){
             },
             fillToken: function(){
                 var tokenList = this.tokenList;
-                var currentToken = tokenList[ tokenList.length - 1 ];
-                var token = getNextToken( currentToken );
+                var token = getNextToken( );
+                if ( token.value == '(' && arasy.isRegexpAcceptable ) {
+                    token.expType =  specialOperator2ExpType['('].group;
+                }
                 tokenList.push( token );
                 return token;
             },
@@ -80,7 +82,7 @@ arasy.parse = function( source, opts ){
 
         };
 
-        function getNextToken( lastToken ){
+        function getNextToken( ){
             var afterTerminal = 0;
             var token = tokenizer.nextToken();
             var tokenType = token.type;
@@ -92,62 +94,6 @@ arasy.parse = function( source, opts ){
             if ( afterTerminal ) {
                 token.afterTerminal = 1;
             }
-            return adjustExpressionType( token, lastToken );
-        }
-        function adjustExpressionType( token, lastToken ){
-            var expType;
-            var tokenType = token.type;
-            var tokenVal = token.value;
-
-            var lastTokenVal, lastTokenType;
-
-            if ( lastToken ) {
-                lastTokenVal = lastToken.value;
-                lastTokenType = lastToken.type;
-            }
-
-            // 如果是简单token，就直接return;
-            if ( token.expType == expressionTokenMap.singleToken ) {
-                return token;
-            }
-
-            if ( tokenVal == 'new'
-                || tokenVal == 'this'
-                || tokenVal == 'function'
-                || tokenVal == 'typeof'
-                || tokenVal == 'delete'
-                || tokenVal == 'void'
-                || tokenVal == 'in'
-                || tokenVal == 'instanceof'
-                ) {
-                expType = keywords2ExpType[ tokenVal ];
-            }
-            if ( tokenType == TokenType.Punctuator && operator2ExpType[tokenVal] ) {
-                expType = operator2ExpType[ tokenVal ];
-            }
-
-            // 处理 .Keywords 的情况
-            if ( lastToken && lastTokenVal == '.' && tokenType == TokenType.Keywords ) {
-                token.type = TokenType.Identifier;
-                expType = expressionTokenMap.singleToken;
-            }
-
-            //todo check context and lookup specialOperator2ExpType
-            if ( tokenVal == '(' ) {
-                if ( lastToken && (
-                    lastTokenType == TokenType.Identifier
-                    || lastTokenVal == ')'
-                    || lastTokenVal == '}'
-                    || lastTokenVal == ']'
-                    )
-                ) {
-                    expType = specialOperator2ExpType['('].call;
-                } else {
-                    expType = specialOperator2ExpType['('].group;
-                }
-            }
-
-            token.expType = expType;
             return token;
         }
     }

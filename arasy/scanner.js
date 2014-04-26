@@ -32,19 +32,12 @@ arasy.scanner = function( source ){
             this.endLine = lineNum;
             return this;
         },
-        getToken: function( type ){
+        getToken: function( type, expType ){
             var type = type || this.type;
             if ( type == TokenType.Eof ) {
                 return {
                     type: TokenType.Eof
                 }
-            }
-            var expType;
-            if ( type != TokenType.Keywords
-                && type != TokenType.Punctuator ) {
-                expType = expressionTokenMap.singleToken;
-            } else {
-                expType = '';
             }
             return {
                 type: type,
@@ -324,7 +317,7 @@ arasy.scanner = function( source ){
         }
 
         tokenGenerator.end( numericVal );
-        return tokenGenerator.getToken();
+        return tokenGenerator.getToken('', expressionTokenMap.singleToken);
     }
 
     function string(){
@@ -368,7 +361,7 @@ arasy.scanner = function( source ){
         }
 
         tokenGenerator.end( stringVal );
-        return tokenGenerator.getToken();
+        return tokenGenerator.getToken('', expressionTokenMap.singleToken);
     }
 
     function comment(){
@@ -451,7 +444,7 @@ arasy.scanner = function( source ){
         }
 
         tokenGenerator.end( regexpStr );
-        return tokenGenerator.getToken();
+        return tokenGenerator.getToken('', expressionTokenMap.singleToken);
     }
 
     function punctuator(){
@@ -488,7 +481,7 @@ arasy.scanner = function( source ){
         }
 
         tokenGenerator.end( punctuatorStr );
-        return tokenGenerator.getToken();
+        return tokenGenerator.getToken('', operator2ExpType[punctuatorStr] );
     }
 
     function identifier(){
@@ -501,11 +494,25 @@ arasy.scanner = function( source ){
 
         tokenGenerator.end( identifierStr );
 
+        var expType = expressionTokenMap.singleToken;
+        identifierStr = String(identifierStr);
 
-        if( keywordsMap.hasOwnProperty( String(identifierStr) ) ){
+        // todo .Keywords 时，Keywords 应该为 singleToken
+        if( keywordsMap.hasOwnProperty( identifierStr ) ){
             type = TokenType.Keywords;
+            if ( identifierStr == 'new'
+                || identifierStr == 'this'
+                || identifierStr == 'function'
+                || identifierStr == 'typeof'
+                || identifierStr == 'delete'
+                || identifierStr == 'void'
+                || identifierStr == 'in'
+                || identifierStr == 'instanceof'
+                ) {
+                expType = keywords2ExpType[ identifierStr ];
+            }
         }
-        return tokenGenerator.getToken( type );
+        return tokenGenerator.getToken( type, expType );
     }
 
     function isIdentifierStart(ch) {
