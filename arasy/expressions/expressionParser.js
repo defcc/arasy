@@ -57,10 +57,9 @@ arasy.expressionParser = function(){
         getPrecedence: function(){
             var nextToken = this.scanner.lookAhead();
             var precedence = getPrecedenceByToken( nextToken );
-            if ( precedence ) {
-                return precedence;
-            }
-            return 0;
+
+            return precedence || 0;
+
         }
     }
 }();
