@@ -485,7 +485,8 @@ arasy.scanner = function( source ){
     }
 
     function identifier(){
-        var identifierStr = getChr(next());
+        var start = next();
+        var identifierStr = getChr(start);
         var type = TokenType.Identifier;
 
         tokenGenerator.start( TokenType.Identifier );
@@ -495,10 +496,9 @@ arasy.scanner = function( source ){
         tokenGenerator.end( identifierStr );
 
         var expType = expressionTokenMap.singleToken;
-        identifierStr = String(identifierStr);
 
         // todo .Keywords 时，Keywords 应该为 singleToken
-        if( keywordsMap.hasOwnProperty( identifierStr ) ){
+        if( keywordsMap[identifierStr] ){
             type = TokenType.Keywords;
             if ( identifierStr == 'new'
                 || identifierStr == 'this'

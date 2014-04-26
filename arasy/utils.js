@@ -1,5 +1,5 @@
 function makeMap( source, delimiter ){
-    var rs = {};
+    var rs = Object.create(null);
     delimiter = arguments.length == 2 ? delimiter : ' ';
 
     if ( Object.prototype.toString.call( source ) == '[object String]' ) {
